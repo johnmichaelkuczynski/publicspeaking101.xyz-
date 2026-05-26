@@ -6,3 +6,9 @@ id = "k9ub7M-_NtEMTP4gQFmL8"
 uri = "file://artifacts/qr-course-demo/public/audio/bg_music.mp3"
 type = "audio"
 title = "background music"
+
+[[outputs]]
+id = "zpoa4kJaFwLQ67_UaLoks"
+uri = "file://BLUEPRINT.md"
+type = "text"
+title = "QuantReason — App Blueprint"
