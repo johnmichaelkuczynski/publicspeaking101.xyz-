@@ -223,12 +223,16 @@ function TutorPane({
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [suggestionsDismissed, setSuggestionsDismissed] = useState(false);
   const [dismissed, setDismissed] = useState<Set<number>>(new Set());
+  const [attempts, setAttempts] = useState<Record<number, string>>({});
+  const [openAttempt, setOpenAttempt] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (lectureId == null) return;
     setSuggestions(null);
     setSuggestionsDismissed(false);
     setDismissed(new Set());
+    setAttempts({});
+    setOpenAttempt(new Set());
     setSuggestionsLoading(true);
     fetch(`/api/tutor/suggestions/${lectureId}`)
       .then((r) => r.json())
@@ -281,6 +285,27 @@ function TutorPane({
     sendMessage(msg);
   }
 
+  function submitAttempt(i: number, question: string) {
+    const attempt = (attempts[i] ?? "").trim();
+    if (!attempt) return;
+    const prompt =
+      `I'm trying to answer this starter question myself before you explain.\n\n` +
+      `QUESTION: ${question}\n\n` +
+      `MY ANSWER: ${attempt}\n\n` +
+      `Please (1) tell me clearly whether my answer is correct, partly correct, or wrong; ` +
+      `(2) point to the specific part of my reasoning that's right or off; ` +
+      `(3) then give the full correct answer with a brief worked example. ` +
+      `Keep it tight — don't restate the lecture.`;
+    sendMessage(prompt);
+    // collapse this attempt card after submitting; keep dismissed set unchanged
+    setOpenAttempt((s) => {
+      const n = new Set(s);
+      n.delete(i);
+      return n;
+    });
+    setAttempts((a) => ({ ...a, [i]: "" }));
+  }
+
   const visibleSuggestions = (suggestions ?? []).filter((_, i) => !dismissed.has(i));
   const showSuggestions =
     !suggestionsDismissed && (suggestionsLoading || visibleSuggestions.length > 0);
@@ -326,37 +351,93 @@ function TutorPane({
                 Generating starter questions…
               </div>
             ) : (
-              <div className="flex flex-col gap-1.5">
-                {(suggestions ?? []).map((q, i) =>
-                  dismissed.has(i) ? null : (
+              <div className="flex flex-col gap-2">
+                {(suggestions ?? []).map((q, i) => {
+                  if (dismissed.has(i)) return null;
+                  const isOpen = openAttempt.has(i);
+                  return (
                     <div
                       key={i}
-                      className="flex items-start gap-2 group rounded-md hover:bg-secondary/60 transition-colors"
+                      className="group rounded-md border border-border bg-background/40 hover:border-primary/30 transition-colors"
                     >
-                      <button
-                        onClick={() => sendMessage(q)}
-                        disabled={ask.isPending}
-                        className="flex-1 text-left text-sm px-2 py-1.5 disabled:opacity-50"
-                        data-testid={`button-suggestion-${i}`}
-                      >
-                        {q}
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDismissed((d) => {
-                            const n = new Set(d);
-                            n.add(i);
-                            return n;
-                          })
-                        }
-                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground p-1.5"
-                        title="Dismiss this question"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-start gap-2 p-2">
+                        <div className="flex-1 text-sm leading-snug" data-testid={`suggestion-${i}`}>
+                          <MarkdownRenderer content={q} />
+                        </div>
+                        <button
+                          onClick={() =>
+                            setDismissed((d) => {
+                              const n = new Set(d);
+                              n.add(i);
+                              return n;
+                            })
+                          }
+                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground p-1 -mt-1"
+                          title="Dismiss this question"
+                          data-testid={`button-dismiss-suggestion-${i}`}
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2 px-2 pb-2">
+                        <button
+                          onClick={() => {
+                            setOpenAttempt((s) => {
+                              const n = new Set(s);
+                              if (n.has(i)) n.delete(i);
+                              else n.add(i);
+                              return n;
+                            });
+                          }}
+                          disabled={ask.isPending}
+                          className="text-xs font-medium px-2 py-1 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                          data-testid={`button-try-suggestion-${i}`}
+                        >
+                          {isOpen ? "Cancel" : "Try answering"}
+                        </button>
+                        <button
+                          onClick={() => sendMessage(q)}
+                          disabled={ask.isPending}
+                          className="text-xs font-medium px-2 py-1 rounded-md border border-border bg-background hover:bg-secondary text-foreground disabled:opacity-50"
+                          data-testid={`button-show-suggestion-${i}`}
+                        >
+                          Just show me the answer
+                        </button>
+                      </div>
+                      {isOpen && (
+                        <div className="px-2 pb-2 flex flex-col gap-2">
+                          <textarea
+                            value={attempts[i] ?? ""}
+                            onChange={(e) =>
+                              setAttempts((a) => ({ ...a, [i]: e.target.value }))
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                                e.preventDefault();
+                                submitAttempt(i, q);
+                              }
+                            }}
+                            placeholder="Type your answer (use LaTeX like $\frac{1}{2}$ for math)…"
+                            rows={3}
+                            className="bg-secondary border-none rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-y min-h-[72px]"
+                            data-testid={`input-attempt-${i}`}
+                          />
+                          <div className="flex justify-end">
+                            <Button
+                              size="sm"
+                              onClick={() => submitAttempt(i, q)}
+                              disabled={!(attempts[i] ?? "").trim() || ask.isPending}
+                              data-testid={`button-submit-attempt-${i}`}
+                            >
+                              <Send className="w-3.5 h-3.5 mr-1" />
+                              Check my answer
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ),
-                )}
+                  );
+                })}
               </div>
             )}
           </div>
