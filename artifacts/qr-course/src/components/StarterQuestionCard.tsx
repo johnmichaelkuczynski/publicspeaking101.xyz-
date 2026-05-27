@@ -3,6 +3,7 @@ import { Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { MathKeyboard } from "@/components/MathKeyboard";
+import { QuickPickBar } from "@/components/QuickPickBar";
 
 interface Props {
   index: number;
@@ -84,6 +85,7 @@ export function StarterQuestionCard({
       </div>
       {open && (
         <div className="px-2 pb-2 flex flex-col gap-2">
+          <QuickPickBar source={question} onInsert={insertAtCursor} />
           <textarea
             ref={taRef}
             value={value}
