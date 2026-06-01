@@ -1,0 +1,1 @@
+- [Course subject migration](course-subject-migration.md) — rebranding/subject-swapping this AI-course app touches far more than seed.ts; checklist of the non-obvious surfaces.

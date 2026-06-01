@@ -18,24 +18,24 @@ const router: IRouter = Router();
 
 const WEEK_TITLES: Record<number, { title: string; summary: string }> = {
   1: {
-    title: "Week 1 — Foundations",
+    title: "Week 1 — Foundations of critical thinking",
     summary:
-      "Number sense, fractions and percents, ratios, units, expressions, and linear equations.",
+      "Claims and truth, arguments vs. non-arguments, premises and conclusions, reconstructing, diagramming, and charitable interpretation.",
   },
   2: {
-    title: "Week 2 — Functions and models",
+    title: "Week 2 — Logic and reasoning",
     summary:
-      "Lines, systems, quadratics, exponentials, logs, modeling, inequalities.",
+      "Deductive vs. inductive, validity and soundness, categorical and propositional logic, induction, analogy, and causal reasoning.",
   },
   3: {
-    title: "Week 3 — Statistics and probability",
+    title: "Week 3 — Fallacies, bias, and rhetoric",
     summary:
-      "Summarizing data, distributions, probability, inference, regression.",
+      "Informal fallacies, rhetoric and spin, cognitive biases, language and definition, and judging sources.",
   },
   4: {
-    title: "Week 4 — Reasoning and capstone",
+    title: "Week 4 — Applied reasoning and capstone",
     summary:
-      "Sets, logic, combinatorics, geometry, rates, finance, and the capstone.",
+      "Probability, evaluating evidence, decisions under uncertainty, moral reasoning, argumentative writing, misinformation, and the capstone.",
   },
 };
 
@@ -124,7 +124,7 @@ router.get("/course/overview", async (_req, res) => {
 
   res.json(
     GetCourseOverviewResponse.parse({
-      title: "Quantitative Reasoning",
+      title: "Critical Thinking",
       weeks,
       totals: { assignmentsCompleted, assignmentsTotal, practiceCount },
     }),

@@ -1,22 +1,22 @@
-# 🎓 QuantReason
+# 🎓 ClearThink
 
-**The Quantitative Reasoning Studio — A Four-Week College Course That Teaches, Tutors, and Proofs Itself**
+**The Critical Thinking Studio — A Four-Week College Course That Teaches, Tutors, and Proofs Itself**
 
 ---
 
 ## 🧩 Overview
 
-QuantReason is a self-paced, single-user web course that delivers a full month of college-freshman Quantitative Reasoning — taught, tutored, drilled, and graded entirely by AI, with built-in academic-integrity enforcement.
+ClearThink is a self-paced, single-user web course that delivers a full month of college-freshman Critical Thinking — taught, tutored, drilled, and graded entirely by AI, with built-in academic-integrity enforcement.
 
-It compresses the experience of a semester-style QR class into one focused product: read the lecture at the depth you want, ask a tutor scoped to the exact section you're on, drill problems whose difficulty adapts to you in real time, and submit homework, tests, a midterm, and a final that are AI-graded with feedback and screened for AI-generated answers.
+It compresses the experience of a semester-style critical-thinking class into one focused product: read the lecture at the depth you want, ask a tutor scoped to the exact section you're on, drill problems whose difficulty adapts to you in real time, and submit homework, tests, a midterm, and a final that are AI-graded with feedback and screened for AI-generated answers.
 
-Designed for **students, instructors evaluating AI-taught coursework, and researchers studying AI academic integrity**, QuantReason pairs a real curriculum with two layers of AI-authorship detection — surfacing not just *whether* the writing looks AI-generated, but whether the *act of producing it* did.
+Designed for **students, instructors evaluating AI-taught coursework, and researchers studying AI academic integrity**, ClearThink pairs a real curriculum with two layers of AI-authorship detection — surfacing not just *whether* the writing looks AI-generated, but whether the *act of producing it* did.
 
 ---
 
 ## 🧠 What It Does
 
-- **Four-Week Structured Curriculum** — A complete QR syllabus across 28 topics: proportional reasoning, descriptive statistics, probability, exponential and linear models, financial math, data interpretation, and inference. Each week ships with lectures, homework, and a test; week four adds a midterm and a final.
+- **Four-Week Structured Curriculum** — A complete critical-thinking syllabus across 29 topics: claims and arguments, premises and conclusions, deductive and inductive reasoning, informal fallacies, cognitive biases, evidence and source evaluation, probability and causation, and rhetoric and persuasion. Each week ships with lectures, homework, and a test; week four adds a midterm and a final.
 - **Three-Depth Lectures** — Every lecture is available at **Short / Medium / Long** length, AI-rewritten while preserving the same examples and learning objectives. Skim the concept, expand it on demand, or read the textbook-style deep cut.
 - **Section-Scoped AI Tutor** — Ask a question about the paragraph you're reading and the answer streams back token-by-token, grounded in that exact lecture section. Suggested starter questions are pre-generated per lecture.
 - **Adaptive Topic Practice** — Generated problem sets that move difficulty up after a streak and down after a miss, with explanations on every answer. Per-session difficulty persists, so each drill picks up where the last one left off.
@@ -47,7 +47,7 @@ Designed for **students, instructors evaluating AI-taught coursework, and resear
 
 ## 🎓 Designed For
 
-- **College Freshmen & Self-Learners:** A complete one-month QR course delivered with on-demand tutoring and adaptive practice — no instructor required.
+- **College Freshmen & Self-Learners:** A complete one-month critical-thinking course delivered with on-demand tutoring and adaptive practice — no instructor required.
 - **Instructors & Curriculum Designers:** A working reference for what AI-taught, AI-graded, AI-detection-screened coursework actually looks like end-to-end.
 - **Academic-Integrity Researchers:** A live testbed for layered AI-authorship detection that combines text-based classification with behavioral keystroke evidence.
 - **Product & Engineering Teams:** A reference implementation of contract-first full-stack architecture, streaming AI UX, and self-diagnostic operator tooling in a Replit pnpm monorepo.
@@ -56,8 +56,8 @@ Designed for **students, instructors evaluating AI-taught coursework, and resear
 
 ## 💡 Core Idea
 
-QuantReason reframes an AI-taught course as a *closed accountability loop*.
+ClearThink reframes an AI-taught course as a *closed accountability loop*.
 
 It doesn't just teach the material and grade the homework — it **teaches**, **tutors**, **drills**, **grades**, **detects misuse**, and **proves the whole pipeline still works** with a single click. The result is a self-paced course that students can actually trust to be fair, and that instructors can actually trust to be honest.
 
-**QuantReason — where the curriculum, the tutor, the grader, and the integrity check all live in one room.**
+**ClearThink — where the curriculum, the tutor, the grader, and the integrity check all live in one room.**

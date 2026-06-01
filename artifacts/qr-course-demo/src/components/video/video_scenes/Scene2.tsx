@@ -64,7 +64,7 @@ export function Scene2({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
       {/* Left Pane: Lecture Content */}
       <div className="w-1/2 h-full border-r border-border p-12 overflow-hidden flex flex-col relative">
         <div className="text-xs font-bold tracking-widest text-muted-foreground mb-4">WEEK 1</div>
-        <h1 className="text-3xl font-serif text-primary mb-8">1.1 Number sense and the real line</h1>
+        <h1 className="text-3xl font-serif text-primary mb-8">1.1 What critical thinking is and why it matters</h1>
         
         <div className="flex bg-muted/50 rounded-lg p-1 w-fit mb-10 border border-border">
           <div className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${phase < 1 ? 'bg-white shadow-sm text-primary' : 'text-muted-foreground'}`}>Short</div>
@@ -73,12 +73,12 @@ export function Scene2({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
         </div>
 
         <div className="prose prose-sm max-w-none text-foreground/80 space-y-6">
-          <h2 className="font-serif text-2xl text-primary">Number sense</h2>
+          <h2 className="font-serif text-2xl text-primary">What critical thinking is</h2>
           <p>
-            Quantitative reasoning starts with a clear sense of what numbers mean. A number isn't just a symbol on a page; it represents a quantity, a magnitude, a position on a line, or a relationship between things.
+            Critical thinking is the disciplined practice of evaluating reasoning — your own and others' — to decide what is reasonable to believe or do. It is not about being negative or clever; it is about being fair, careful, and honest with evidence.
           </p>
           <p>
-            The real number line is the foundation. Every point on the line corresponds to exactly one real number, and every real number corresponds to exactly one point.
+            A critical thinker habitually asks: what exactly is being claimed, what reasons are offered, are those reasons true, and what is being assumed or left out?
           </p>
           
           <AnimatePresence>
@@ -90,10 +90,10 @@ export function Scene2({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
                 className="space-y-6"
               >
                 <p>
-                  When we talk about numbers, we distinguish between different types: integers, rational numbers (fractions), and irrational numbers. Understanding how these fit together is crucial.
+                  Critical thinking is not the same as simply disagreeing or finding fault, and it is not raw intelligence or knowing many facts. It is a skill — a set of habits you can practice and improve.
                 </p>
                 <p>
-                  For example, between any two fractions, there is always another fraction. This property means the rational numbers are "dense" on the number line. Yet, there are still holes—these are the irrational numbers like π or √2.
+                  It is partly metacognition: thinking about your own thinking. The strongest reasoners notice when they are confused, when they want something to be true, and when they have reasoned past the evidence.
                 </p>
               </motion.div>
             )}
@@ -120,13 +120,13 @@ export function Scene2({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
               >
                 <div className="mb-4 text-xs font-semibold text-muted-foreground uppercase tracking-widest">Starter questions for this section</div>
                 <div className="flex flex-wrap gap-2 mb-6">
-                  <div className="px-3 py-1.5 rounded-full border border-border text-sm text-primary bg-muted/30">Why does dividing by zero break things?</div>
-                  <div className="px-3 py-1.5 rounded-full border border-border text-sm text-primary bg-muted/30">What's the difference between rational and irrational?</div>
-                  <div className="px-3 py-1.5 rounded-full border border-border text-sm text-primary bg-muted/30">How do I estimate when I can't calculate exactly?</div>
+                  <div className="px-3 py-1.5 rounded-full border border-border text-sm text-primary bg-muted/30">How is an argument different from an explanation?</div>
+                  <div className="px-3 py-1.5 rounded-full border border-border text-sm text-primary bg-muted/30">Is critical thinking just being critical of people?</div>
+                  <div className="px-3 py-1.5 rounded-full border border-border text-sm text-primary bg-muted/30">How do I spot an unstated assumption?</div>
                 </div>
                 <div className="w-full h-24 border border-border rounded-lg bg-muted/20 p-3 text-muted-foreground text-sm flex items-end shadow-inner">
                   <div className="w-full flex justify-between">
-                    <span>Ask a question about number sense...</span>
+                    <span>Ask a question about critical thinking...</span>
                     <div className="w-8 h-8 rounded bg-primary text-white flex items-center justify-center cursor-pointer opacity-50">↑</div>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export function Scene2({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
                     className="p-6 border border-border rounded-xl shadow-sm bg-white"
                   >
                     <p className="text-foreground font-medium mb-6">
-                      A college has 18,500 students. Tuition is $24,000 per student per year. What is the total tuition revenue?
+                      "We must either raise taxes or let the country fall apart." Which informal fallacy does this statement commit?
                     </p>
                     <div className="w-full h-12 border border-border rounded-md bg-muted/10 mb-4 px-3 flex items-center text-muted-foreground">Type your answer...</div>
                     <div className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium w-fit ml-auto">Submit</div>

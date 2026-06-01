@@ -18,540 +18,804 @@ type SeedTopic = {
 };
 
 const TOPICS: SeedTopic[] = [
-  // Week 1 — Foundations
+  // Week 1 — Foundations of critical thinking
   {
-    slug: "number-sense",
-    title: "Number sense",
+    slug: "what-is-critical-thinking",
+    title: "What critical thinking is and why it matters",
     weekNumber: 1,
-    blurb: "Whole numbers, integers, rationals, irrationals; magnitude.",
-    lectureTitle: "1.1 Number sense and the real line",
-    body: `# Number sense
+    blurb: "Evaluating reasoning fairly; what it is, what it is not.",
+    lectureTitle: "1.1 What critical thinking is and why it matters",
+    body: `# What critical thinking is and why it matters
 
-Quantitative reasoning starts with a clear sense of *what numbers mean*. Before any formula, we ask: what kind of number is this, how big is it, and is it plausible?
+Critical thinking is the disciplined practice of *evaluating reasoning* — your own and others' — to decide what is reasonable to believe or do. It is not about being negative or clever; it is about being **fair, careful, and honest** with evidence and argument.
 
-## The number line
+## What it is not
 
-Every real number sits somewhere on a single number line. **Natural numbers** ($1, 2, 3, \\dots$) count things. **Integers** ($\\dots, -2, -1, 0, 1, 2, \\dots$) add zero and negatives. **Rationals** ($\\mathbb{Q}$) are ratios of integers — $\\tfrac{3}{4}$, $-\\tfrac{7}{2}$, $0.25$. **Irrationals** like $\\sqrt{2}$, $\\pi$, and $e$ fill the gaps.
+- It is **not** simply disagreeing or finding fault.
+- It is **not** raw intelligence or knowing many facts.
+- It is **not** winning arguments by any means available.
 
-## Magnitude estimation
+## The core moves
 
-A college graduate should be able to answer "is the U.S. federal budget closer to \\$5 million, \\$5 billion, or \\$5 trillion?" without a calculator. We do this with **orders of magnitude** — powers of ten. Roughly:
+A critical thinker habitually asks four questions:
 
-- $10^3$ = thousand
-- $10^6$ = million
-- $10^9$ = billion
-- $10^{12}$ = trillion
+1. **What exactly is being claimed?**
+2. **What reasons are offered?**
+3. **Are those reasons true, and do they actually support the claim?**
+4. **What's being assumed, and what's been left out?**
 
 ## Why it matters
 
-A sense of plausible magnitude is the single best defense against arithmetic mistakes. If a calculator says a person's annual salary is \\$3.2 billion, you should immediately suspect a unit error.`,
+We are flooded with claims — ads, headlines, posts, statistics, expert testimony. Critical thinking is the skill that separates what is worth believing from what merely sounds convincing. It protects you from manipulation by others and from your own biases.
+
+## Metacognition
+
+Critical thinking is partly **metacognition** — thinking about your own thinking. The strongest reasoners notice when they are confused, when they *want* something to be true, and when they have reasoned past the evidence.`,
   },
   {
-    slug: "fractions-decimals-percents",
-    title: "Fractions, decimals, and percents",
+    slug: "claims-beliefs-truth",
+    title: "Claims, beliefs, and truth",
     weekNumber: 1,
-    blurb: "Three notations for the same numbers; converting fluently.",
-    lectureTitle: "1.2 Fractions, decimals, and percents",
-    body: `# Fractions, decimals, and percents
+    blurb: "The statement as the atom of reasoning; belief vs. truth.",
+    lectureTitle: "1.2 Claims, beliefs, and truth",
+    body: `# Claims, beliefs, and truth
 
-These are three notations for the **same** numbers. Fluency means converting effortlessly.
+The atom of reasoning is the **claim** (also called a *statement* or *proposition*): a sentence that is either true or false.
 
-## Conversions
+## Claims vs. non-claims
 
-- Fraction $\\to$ decimal: divide. $\\tfrac{3}{8} = 0.375$.
-- Decimal $\\to$ percent: multiply by 100. $0.375 = 37.5\\%$.
-- Percent $\\to$ fraction: write over 100 and simplify. $24\\% = \\tfrac{24}{100} = \\tfrac{6}{25}$.
+- "The Earth orbits the Sun." — a claim (and true).
+- "Close the door." — a command, **not** a claim.
+- "What time is it?" — a question, **not** a claim.
+- "Ouch!" — an exclamation, **not** a claim.
 
-## Percent change
+Only claims can serve as premises or conclusions, because only claims can be true or false.
 
-$$\\text{percent change} = \\frac{\\text{new} - \\text{old}}{\\text{old}} \\times 100\\%$$
+## Belief vs. truth
 
-A price moving from \\$80 to \\$92 is a $\\tfrac{12}{80} = 15\\%$ increase.
+A **belief** is a claim you accept. **Truth** is whether the claim matches reality. These two come apart: you can believe something false, and something can be true that you do not believe. Critical thinking is the work of bringing your beliefs closer to the truth.
 
-## The compounding trap
+## Facts vs. opinions
 
-A 20% loss followed by a 20% gain does *not* return you to even. $\\$100 \\to \\$80 \\to \\$96$. Percent changes compound multiplicatively, not additively.`,
+The fact/opinion split is rougher than people think. "Chocolate is tasty" reports a preference. But "Vaccines cause autism" is sometimes *called* an opinion when it is really a **false factual claim**. Ask: is this about a *preference*, or about *how the world is*?`,
   },
   {
-    slug: "ratios-proportions",
-    title: "Ratios and proportions",
+    slug: "arguments-vs-nonarguments",
+    title: "Arguments vs. non-arguments",
     weekNumber: 1,
-    blurb: "Comparing quantities; scaling; the cross-multiplication test.",
-    lectureTitle: "1.3 Ratios and proportions",
-    body: `# Ratios and proportions
+    blurb: "An argument supports a claim; descriptions and explanations do not.",
+    lectureTitle: "1.3 Arguments vs. non-arguments",
+    body: `# Arguments vs. non-arguments
 
-A **ratio** compares two quantities of the same kind: 3 cups flour to 2 cups water is $3{:}2$. A **proportion** says two ratios are equal: $\\tfrac{a}{b} = \\tfrac{c}{d}$.
+In critical thinking, an **argument** is not a quarrel. It is a set of claims in which some (the *premises*) are offered as reasons to accept another (the *conclusion*).
 
-## Cross-multiplication
+## The test for an argument
 
-If $\\tfrac{a}{b} = \\tfrac{c}{d}$ and $b, d \\neq 0$, then $ad = bc$. This lets us solve for an unknown: $\\tfrac{x}{15} = \\tfrac{4}{6}$ gives $6x = 60$, so $x = 10$.
+Ask: **is something being supported by something else?** If yes, it is an argument. If the passage merely reports, describes, explains, or illustrates without trying to *prove* a point, it is a non-argument.
 
-## Scaling recipes and maps
+## Common non-arguments
 
-A 1:50,000 map means 1 cm on the map represents 50,000 cm = 500 m in reality. To scale a recipe from 4 to 10 servings, multiply every quantity by $\\tfrac{10}{4} = 2.5$.`,
+- **Description:** "The room was cold and dark."
+- **Explanation:** "The bridge collapsed because the steel had rusted." (tells *why*, not *that*)
+- **Report:** "Officials announced the new policy yesterday."
+- **Illustration:** "Many metals conduct electricity; copper, for example."
+
+## Argument vs. explanation
+
+This is the hardest distinction. An **argument** tries to convince you *that* something is true. An **explanation** assumes you already accept it and tells you *why* it happened. Same grammar, different job — look at whether the conclusion is genuinely in doubt.`,
   },
   {
-    slug: "unit-conversions",
-    title: "Unit conversions",
+    slug: "premises-and-conclusions",
+    title: "Premises and conclusions",
     weekNumber: 1,
-    blurb: "Dimensional analysis; chaining conversion factors.",
-    lectureTitle: "1.4 Units and dimensional analysis",
-    body: `# Units and dimensional analysis
+    blurb: "The two parts of every argument and the words that flag them.",
+    lectureTitle: "1.4 Premises and conclusions",
+    body: `# Premises and conclusions
 
-**Treat units as algebraic objects.** Multiply by conversion factors written as fractions equal to 1.
+Every argument has two parts: **premises** (the reasons) and a **conclusion** (the claim the reasons support).
 
-## A worked example
+## Indicator words
 
-How many seconds in a (non-leap) year?
+Certain words flag each part:
 
-$$365 \\text{ days} \\times \\frac{24 \\text{ hours}}{1 \\text{ day}} \\times \\frac{60 \\text{ minutes}}{1 \\text{ hour}} \\times \\frac{60 \\text{ seconds}}{1 \\text{ minute}} = 31{,}536{,}000 \\text{ seconds}$$
+- **Conclusion indicators:** *therefore, so, thus, hence, consequently, it follows that.*
+- **Premise indicators:** *because, since, for, given that, as, on the grounds that.*
 
-Notice how *days, hours, minutes* cancel out and only *seconds* remains. If the units of your answer aren't right, the number isn't either.`,
+"**Since** the streets are wet, it must have rained." — "since" flags the premise (streets are wet); the conclusion is "it rained."
+
+## Watch the order
+
+Conclusions can come first, last, or in the middle: "We should leave now, because the storm is coming." Here the conclusion ("we should leave now") is stated first.
+
+## No indicators?
+
+Many arguments use no indicator words at all. Then you ask the key question: **which claim is the author trying to get me to accept, and which claims are doing the supporting?**`,
   },
   {
-    slug: "order-of-operations",
-    title: "Order of operations",
+    slug: "identifying-reconstructing-arguments",
+    title: "Identifying and reconstructing arguments",
     weekNumber: 1,
-    blurb: "PEMDAS, the role of parentheses, and ambiguous notation.",
-    lectureTitle: "1.5 Order of operations",
-    body: `# Order of operations
+    blurb: "Pulling a clean argument out of messy prose; implicit premises.",
+    lectureTitle: "1.5 Identifying and reconstructing arguments",
+    body: `# Identifying and reconstructing arguments
 
-The convention: **P**arentheses, **E**xponents, **M**ultiplication and **D**ivision (left to right), **A**ddition and **S**ubtraction (left to right).
+Real arguments are messy — buried in prose, padded with repetition, missing pieces. **Reconstructing** an argument means restating it clearly as premises and a conclusion.
 
-## Worked example
+## Steps
 
-$$3 + 4 \\times 2^2 - (6 - 2) = 3 + 4 \\times 4 - 4 = 3 + 16 - 4 = 15$$
+1. Find the **conclusion** (the main point).
+2. Find the stated **premises**.
+3. Strip out noise — repetition, asides, rhetorical questions.
+4. Supply any **implicit (unstated) premise** the argument needs.
 
-## A pragmatic note
+## Implicit premises
 
-Real mathematicians use parentheses liberally to avoid all ambiguity. If you find yourself relying on PEMDAS to disambiguate $6 \\div 2(1+2)$, rewrite it.`,
+Most everyday arguments leave assumptions unstated. "Socrates is a man, so Socrates is mortal" relies on the missing premise **"All men are mortal."** An argument with a suppressed premise is called an *enthymeme*. Surfacing the hidden premise is often where the real evaluation begins — because the hidden premise is frequently the weak one.
+
+## Be accurate first
+
+Reconstruct what the author *actually* argued before you judge it. Adding a premise to make the argument work is fair; adding one to make it look foolish is not.`,
   },
   {
-    slug: "algebraic-expressions",
-    title: "Algebraic expressions",
+    slug: "diagramming-arguments",
+    title: "Diagramming argument structure",
     weekNumber: 1,
-    blurb: "Variables, terms, simplifying, evaluating.",
-    lectureTitle: "1.6 Algebraic expressions",
-    body: `# Algebraic expressions
+    blurb: "Mapping how premises combine: linked, convergent, and serial.",
+    lectureTitle: "1.6 Diagramming argument structure",
+    body: `# Diagramming argument structure
 
-A **variable** is a placeholder for an unknown. An **expression** combines variables, numbers, and operations: $3x + 2y - 5$.
+Once an argument has several premises, a **diagram** shows how they fit together. Number each claim, then map the support with arrows pointing to what each claim supports.
 
-## Combining like terms
+## Linked premises
 
-Only terms with the same variable parts can be combined: $3x + 2x = 5x$, but $3x + 2y$ does not simplify further.
+Premises are **linked** when they work only *together* — remove one and the support collapses.
 
-## Evaluating
+> (1) All mammals are warm-blooded. (2) Whales are mammals. Therefore (3) whales are warm-blooded.
 
-To evaluate $2x^2 - 3x + 1$ at $x = 4$: $2(16) - 3(4) + 1 = 32 - 12 + 1 = 21$.`,
+Neither (1) nor (2) alone supports (3); they are linked: (1)+(2) → (3).
+
+## Convergent premises
+
+Premises are **convergent** when each independently supports the conclusion.
+
+> (1) The restaurant is cheap. (2) It is close by. Therefore (3) we should eat there.
+
+Either reason stands on its own: (1) → (3) and (2) → (3).
+
+## Serial structure
+
+A claim can be the conclusion of one step and a premise of the next: (1) → (2) → (3). Diagrams make these chains — and any gaps in them — visible.`,
   },
   {
-    slug: "linear-equations",
-    title: "Linear equations",
+    slug: "standardizing-charity",
+    title: "Standardizing and charitable interpretation",
     weekNumber: 1,
-    blurb: "Solving for an unknown in one variable.",
-    lectureTitle: "1.7 Linear equations",
-    body: `# Linear equations in one variable
+    blurb: "Writing arguments in standard form; the principle of charity.",
+    lectureTitle: "1.7 Standardizing and charitable interpretation",
+    body: `# Standardizing and charitable interpretation
 
-A **linear equation** has the form $ax + b = c$. We isolate $x$ by performing the same operation on both sides.
+**Standardizing** is rewriting an argument as a clean, numbered list of premises followed by the conclusion — the canonical form for analysis.
 
-## Worked example
+## Standard form
 
-Solve $5x - 7 = 18$. Add 7 to both sides: $5x = 25$. Divide by 5: $x = 5$.
+> P1. If it is raining, the game is canceled.
+> P2. It is raining.
+> C. Therefore, the game is canceled.
 
-## With variables on both sides
+Every premise on its own line; the conclusion marked clearly. Standard form removes ambiguity about what supports what.
 
-$3(x + 4) = 2x - 1$. Distribute: $3x + 12 = 2x - 1$. Subtract $2x$: $x + 12 = -1$. Subtract 12: $x = -13$.`,
+## The principle of charity
+
+When an argument is unclear or could be read several ways, interpret it in its **strongest reasonable form**. Do not defeat a weak version the author never intended.
+
+## The straw man warning
+
+Violating charity produces the **straw man**: attacking a distorted, weaker version of someone's position. Charity is both an intellectual virtue and a practical safeguard — if you refute the strongest version, your conclusion is secure; if you only beat a straw man, you have proven nothing.`,
   },
 
-  // Week 2 — Functions and models
+  // Week 2 — Logic and reasoning
   {
-    slug: "linear-functions",
-    title: "Linear functions",
+    slug: "deductive-vs-inductive",
+    title: "Deductive vs. inductive reasoning",
     weekNumber: 2,
-    blurb: "Slope, intercept, modeling constant rates of change.",
-    lectureTitle: "2.1 Linear functions",
-    body: `# Linear functions
+    blurb: "Certainty vs. probability: the two great families of argument.",
+    lectureTitle: "2.1 Deductive vs. inductive reasoning",
+    body: `# Deductive vs. inductive reasoning
 
-A **linear function** has the form $f(x) = mx + b$ where $m$ is the slope and $b$ is the $y$-intercept.
+Arguments come in two great families, distinguished by **how much support** the premises are meant to give the conclusion.
 
-## Slope as a rate of change
+## Deductive
 
-If $y$ is meters traveled and $x$ is seconds, the slope is meters per second — a velocity. Slope is "rise over run":
+A **deductive** argument aims for *certainty*: if the premises are true, the conclusion **must** be true. The support is all-or-nothing.
 
-$$m = \\frac{y_2 - y_1}{x_2 - x_1}$$
+> All humans are mortal. Socrates is human. Therefore Socrates is mortal.
 
-## Modeling
+## Inductive
 
-A taxi charges \\$3 to start the meter plus \\$2 per mile. The cost is $C(x) = 2x + 3$ — slope 2 dollars/mile, intercept 3 dollars.`,
+An **inductive** argument aims for *probability*: if the premises are true, the conclusion is **likely**, but not guaranteed.
+
+> Every swan observed so far has been white. So the next swan will be white.
+
+Strong inductive arguments can still have true premises and a false conclusion — as the discovery of black swans showed.
+
+## Telling them apart
+
+Ask: **does the arguer intend the conclusion to follow necessarily, or only probably?** That intention — not the topic — decides which standards (validity vs. strength) you apply.`,
   },
   {
-    slug: "systems-of-equations",
-    title: "Systems of equations",
+    slug: "validity-and-soundness",
+    title: "Validity and soundness",
     weekNumber: 2,
-    blurb: "Two unknowns, two equations; substitution and elimination.",
-    lectureTitle: "2.2 Systems of equations",
-    body: `# Systems of equations
+    blurb: "Form vs. truth: the two terms students confuse most.",
+    lectureTitle: "2.2 Validity and soundness",
+    body: `# Validity and soundness
 
-When two relationships hold simultaneously, we have a **system**. Geometrically: where do two lines cross?
+These two terms apply to **deductive** arguments and are constantly confused.
 
-## Substitution
+## Validity
 
-$y = 2x + 1$ and $3x + y = 16$. Substitute: $3x + (2x + 1) = 16$, so $5x = 15$, $x = 3$, $y = 7$.
+An argument is **valid** when its *form* guarantees the conclusion: *if* the premises were true, the conclusion *could not* be false. Validity is about structure, not facts.
 
-## Elimination
+> All cats are reptiles. Socrates is a cat. Therefore Socrates is a reptile.
 
-Add or subtract equations to eliminate one variable. The right tool depends on the form of the system.`,
+This is **valid** — and has false premises. Validity ignores whether the premises are actually true.
+
+## Soundness
+
+An argument is **sound** when it is **valid AND all its premises are true**. Only sound arguments establish their conclusions.
+
+## The combinations
+
+- Valid + all true premises = **sound**; conclusion guaranteed true.
+- Valid + a false premise = unsound; conclusion may be true or false.
+- Invalid = unsound regardless of the premises.
+
+A valid argument can have a false conclusion (when a premise is false). A *sound* one cannot.`,
   },
   {
-    slug: "quadratics",
-    title: "Quadratics",
+    slug: "categorical-logic-syllogism",
+    title: "Categorical logic and the syllogism",
     weekNumber: 2,
-    blurb: "Parabolas, the quadratic formula, factoring.",
-    lectureTitle: "2.3 Quadratic functions",
-    body: `# Quadratic functions
+    blurb: "Reasoning about classes with All / No / Some statements.",
+    lectureTitle: "2.3 Categorical logic and the syllogism",
+    body: `# Categorical logic and the syllogism
 
-$f(x) = ax^2 + bx + c$, with $a \\neq 0$. The graph is a **parabola**.
+**Categorical logic** reasons about classes of things using four statement forms:
 
-## The quadratic formula
+- **A:** All S are P.
+- **E:** No S are P.
+- **I:** Some S are P.
+- **O:** Some S are not P.
 
-$$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$
+## The categorical syllogism
 
-The **discriminant** $b^2 - 4ac$ tells you how many real solutions exist: positive $\\to$ two, zero $\\to$ one, negative $\\to$ none.`,
+A **syllogism** draws a conclusion from two categorical premises that share a middle term.
+
+> All mammals are animals. All dogs are mammals. Therefore all dogs are animals. (**valid**)
+
+## Validity by form
+
+Validity depends only on the arrangement of terms. This form is invalid:
+
+> All cats are animals. All dogs are animals. Therefore all dogs are cats.
+
+Both premises are true and the conclusion false — so the *form* itself is broken.
+
+## Venn diagrams
+
+Three overlapping circles let you test any syllogism: diagram the premises, then check whether the conclusion is already forced. If you must add anything to make it true, the syllogism is invalid.`,
   },
   {
-    slug: "exponentials-logs",
-    title: "Exponentials and logarithms",
+    slug: "propositional-logic-truth-tables",
+    title: "Propositional logic and truth tables",
     weekNumber: 2,
-    blurb: "Multiplicative growth, decay, and inverse functions.",
-    lectureTitle: "2.4 Exponentials and logs",
-    body: `# Exponentials and logarithms
+    blurb: "Connectives, the conditional, and the formal fallacies.",
+    lectureTitle: "2.4 Propositional logic and truth tables",
+    body: `# Propositional logic and truth tables
 
-**Exponential** functions $f(x) = a \\cdot b^x$ model multiplicative growth (or decay if $0 < b < 1$).
+**Propositional logic** combines whole statements with connectives:
 
-## Logarithms
+- $\\neg P$ — not $P$
+- $P \\wedge Q$ — $P$ and $Q$
+- $P \\vee Q$ — $P$ or $Q$
+- $P \\to Q$ — if $P$ then $Q$
 
-A **logarithm** asks "what power?". $\\log_{10}(1000) = 3$ because $10^3 = 1000$. Logs convert multiplication to addition: $\\log(ab) = \\log a + \\log b$.
+## The conditional
 
-## Why both?
+$P \\to Q$ is **false only when $P$ is true and $Q$ is false.** "If you mow the lawn, I'll pay you" is broken only if you mow *and* I do not pay.
 
-Together they let us solve $2^x = 10$: take $\\log_2$ of both sides to get $x = \\log_2 10 \\approx 3.32$.`,
+## Valid forms
+
+- **Modus ponens:** $P \\to Q$, $P$, therefore $Q$. ✓
+- **Modus tollens:** $P \\to Q$, $\\neg Q$, therefore $\\neg P$. ✓
+
+## Formal fallacies
+
+- **Affirming the consequent:** $P \\to Q$, $Q$, therefore $P$. ✗
+- **Denying the antecedent:** $P \\to Q$, $\\neg P$, therefore $\\neg Q$. ✗
+
+A **truth table** lists every combination of truth values and settles validity mechanically: an argument is valid if no row makes the premises true while the conclusion is false.`,
   },
   {
-    slug: "function-modeling",
-    title: "Function modeling",
+    slug: "inductive-strength-generalization",
+    title: "Inductive strength and generalization",
     weekNumber: 2,
-    blurb: "Choosing the right family of function for real data.",
-    lectureTitle: "2.5 Function modeling",
-    body: `# Choosing a model
+    blurb: "What makes a sample-to-population inference strong or weak.",
+    lectureTitle: "2.5 Inductive strength and generalization",
+    body: `# Inductive strength and generalization
 
-Given a phenomenon, the first question is: **what family of function fits?**
+Inductive arguments are not valid or invalid — they are **strong** or **weak**, by degree.
 
-- Constant rate of change $\\to$ linear.
-- Constant percent change per unit time $\\to$ exponential.
-- Rises and falls, single peak $\\to$ quadratic.
-- Periodic behavior $\\to$ trigonometric.
+## Inductive generalization
 
-Pick poorly and no amount of fitting will save you.`,
+The most common inductive move infers a claim about a whole population from a sample:
+
+> 800 of 1,000 surveyed voters favor the measure, so about 80% of all voters do.
+
+## What makes it strong
+
+- **Sample size:** larger samples support firmer conclusions.
+- **Representativeness:** the sample must mirror the population.
+- **Random selection:** guards against hidden bias.
+
+## Hasty generalization
+
+Drawing a sweeping conclusion from a sample that is **too small or unrepresentative** is the *hasty generalization*. "My two friends who smoke are healthy, so smoking is harmless" generalizes from a tiny, biased sample.
+
+## Biased samples
+
+A poll hosted on a finance website over-represents the wealthy. Even a huge sample is worthless if it is systematically skewed.`,
   },
   {
-    slug: "inequalities",
-    title: "Inequalities",
+    slug: "analogical-reasoning",
+    title: "Analogical reasoning",
     weekNumber: 2,
-    blurb: "Solving and interpreting strict and non-strict inequalities.",
-    lectureTitle: "2.6 Inequalities",
-    body: `# Inequalities
+    blurb: "Arguing from similarity — and when the analogy breaks down.",
+    lectureTitle: "2.6 Analogical reasoning",
+    body: `# Analogical reasoning
 
-An inequality like $3x - 2 < 7$ is solved much like an equation, with one twist: **multiplying or dividing both sides by a negative number reverses the inequality.**
+An **argument from analogy** concludes that because two things are alike in some respects, they are probably alike in another.
 
-## Worked example
+> A new drug cured the disease in mice; mice and humans are physiologically similar; so it may cure the disease in humans.
 
-$-2x + 4 \\ge 10$. Subtract 4: $-2x \\ge 6$. Divide by $-2$ and flip: $x \\le -3$.`,
+## Evaluating an analogy
+
+The argument is stronger when:
+
+- The cases share **many** similarities.
+- The similarities are **relevant** to the conclusion.
+- There are **few relevant differences (disanalogies)**.
+- The conclusion is **modest** relative to the similarities.
+
+## Relevance is key
+
+Surface similarities do not help. Mice and humans sharing a *hairless* trait is irrelevant to drug response; shared *metabolism* is highly relevant.
+
+## False analogy
+
+A **false analogy** rests on similarities that are superficial or irrelevant, or it ignores a crucial difference. "Running a country is just like running a business" breaks down because citizens are not customers and governments do not seek profit.`,
+  },
+  {
+    slug: "causal-reasoning-mills-methods",
+    title: "Causal reasoning and Mill's methods",
+    weekNumber: 2,
+    blurb: "Inferring causes, and why correlation is not causation.",
+    lectureTitle: "2.7 Causal reasoning and Mill's methods",
+    body: `# Causal reasoning and Mill's methods
+
+Establishing that A **causes** B is among the hardest reasoning tasks. John Stuart Mill described systematic methods for inferring causes.
+
+## Mill's methods
+
+- **Method of Agreement:** if every case of the effect shares one prior factor, that factor is a likely cause.
+- **Method of Difference:** if two cases differ in only one factor and only one shows the effect, that factor is the likely cause.
+- **Joint Method:** combine agreement and difference.
+- **Method of Concomitant Variation:** when the candidate cause varies, the effect varies in step.
+
+## Correlation is not causation
+
+Two things moving together may share a **common cause** (ice-cream sales and drownings both rise with summer heat) or be pure coincidence.
+
+## Confounding
+
+A **confounder** is a hidden third variable that influences both. The remedy is a **controlled experiment**: change one factor, hold everything else fixed, and watch the effect.`,
   },
 
-  // Week 3 — Stats & probability
+  // Week 3 — Fallacies, bias, and rhetoric
   {
-    slug: "descriptive-statistics",
-    title: "Descriptive statistics",
+    slug: "fallacies-of-relevance",
+    title: "Informal fallacies of relevance",
     weekNumber: 3,
-    blurb: "Mean, median, mode, range, variance, standard deviation.",
-    lectureTitle: "3.1 Descriptive statistics",
-    body: `# Descriptive statistics
+    blurb: "Premises that persuade but are logically beside the point.",
+    lectureTitle: "3.1 Informal fallacies of relevance",
+    body: `# Informal fallacies of relevance
 
-We summarize a dataset with **center** and **spread**.
+A **fallacy of relevance** offers premises that are psychologically persuasive but logically beside the point.
 
-## Center
+## Common types
 
-- **Mean** $\\bar x = \\tfrac{1}{n}\\sum x_i$.
-- **Median**: the middle value (or average of two middles).
-- **Mode**: the most common value.
+- **Ad hominem:** attacking the person rather than their argument. "Don't trust her climate data — she drives an SUV."
+- **Straw man:** distorting an opponent's view to attack it more easily.
+- **Appeal to force (ad baculum):** backing a claim with a threat.
+- **Appeal to pity (ad misericordiam):** substituting sympathy for evidence.
+- **Red herring:** changing the subject to a distracting but irrelevant issue.
+- **Appeal to the people (ad populum):** "everyone believes it, so it must be true."
 
-## Spread
+## Why they work
 
-- **Range** = max - min.
-- **Variance** $\\sigma^2 = \\tfrac{1}{n}\\sum (x_i - \\bar x)^2$.
-- **Standard deviation** $\\sigma = \\sqrt{\\sigma^2}$ — same units as the data.
-
-The median resists outliers; the mean does not.`,
+Each swaps a real reason for an emotional or social pressure. The test is always the same: **does this premise actually bear on whether the conclusion is true?** If it only bears on how we *feel*, it is a fallacy of relevance.`,
   },
   {
-    slug: "data-visualization",
-    title: "Data visualization",
+    slug: "fallacies-weak-induction",
+    title: "Fallacies of weak induction",
     weekNumber: 3,
-    blurb: "Histograms, box plots, scatter plots — and when each lies.",
-    lectureTitle: "3.2 Data visualization",
-    body: `# Visualization
+    blurb: "Relevant premises that are simply too weak to support the claim.",
+    lectureTitle: "3.2 Fallacies of weak induction",
+    body: `# Fallacies of weak induction
 
-The right chart reveals; the wrong chart deceives.
+Here the premises *are* relevant, but they are **too weak** to support the conclusion.
 
-- **Histogram**: distribution of a single variable.
-- **Box plot**: five-number summary, quick outlier spotting.
-- **Scatter plot**: relationship between two variables.
-- **Bar chart**: comparing categories — not for trends over time, that's a line chart.
+## Common types
 
-Beware truncated y-axes, dual axes, and 3D pies. Most "interesting" data visualizations are interesting because of distortion.`,
+- **Hasty generalization:** a conclusion drawn from too small or biased a sample.
+- **Post hoc ergo propter hoc:** "A happened before B, so A caused B."
+- **Slippery slope:** claiming one small step inevitably leads to an extreme outcome, with no support for each link.
+- **Weak analogy:** an analogy resting on irrelevant similarities.
+- **Appeal to ignorance (ad ignorantiam):** "No one has proven it false, so it is true."
+- **Appeal to unqualified authority:** citing a celebrity or non-expert.
+
+## The common thread
+
+The reasoning *points* in the right direction but does not travel far enough. Post hoc, for example, mistakes mere sequence for causation — the rooster crows before sunrise, but does not cause it.`,
   },
   {
-    slug: "probability-basics",
-    title: "Probability basics",
+    slug: "fallacies-presumption-ambiguity",
+    title: "Fallacies of presumption and ambiguity",
     weekNumber: 3,
-    blurb: "Sample spaces, events, and the basic rules.",
-    lectureTitle: "3.3 Probability basics",
-    body: `# Probability basics
+    blurb: "Smuggled assumptions and slippery, shifting language.",
+    lectureTitle: "3.3 Fallacies of presumption and ambiguity",
+    body: `# Fallacies of presumption and ambiguity
 
-A **probability** is a number in $[0, 1]$ measuring how likely an event is.
+These fallacies smuggle in an unwarranted assumption or exploit slippery language.
 
-## Rules
+## Fallacies of presumption
 
+- **Begging the question (circular reasoning):** the conclusion is hidden among the premises. "The Bible is true because it is the word of God, which we know because the Bible says so."
+- **Complex (loaded) question:** a question presupposing something unproven. "Have you stopped cheating on tests?"
+- **False dilemma:** presenting only two options when more exist. "Either we ban it entirely or we have chaos."
+- **Suppressed evidence:** ignoring relevant facts that undercut the conclusion.
+
+## Fallacies of ambiguity
+
+- **Equivocation:** shifting a key word's meaning mid-argument. "Nothing is better than happiness; a cheese sandwich is better than nothing; so a sandwich is better than happiness."
+- **Amphiboly:** ambiguity arising from grammar or sentence structure.
+
+The cure for ambiguity is **defining your terms** and holding their meaning fixed throughout.`,
+  },
+  {
+    slug: "rhetoric-persuasion-spin",
+    title: "Rhetoric, persuasion, and spin",
+    weekNumber: 3,
+    blurb: "Persuasive force vs. logical force, and how spin exploits the gap.",
+    lectureTitle: "3.4 Rhetoric, persuasion, and spin",
+    body: `# Rhetoric, persuasion, and spin
+
+**Rhetoric** is the art of persuasion. It is not inherently bad — but persuasive force and logical force are different things, and **spin** exploits the gap between them.
+
+## Rhetorical devices
+
+- **Euphemism / dysphemism:** softening ("collateral damage") or harshening ("baby-killing") language to steer feeling.
+- **Loaded (emotive) language:** word choices that carry judgment — "freedom fighter" vs. "terrorist."
+- **Weasel words:** vague qualifiers — "studies suggest," "up to," "may help."
+- **Innuendo:** implying a claim without actually stating it.
+
+## Spin
+
+**Spin** presents facts selectively to create a misleading impression while remaining technically accurate.
+
+## The defense
+
+Separate the **content** of a claim from its **packaging**. Restate the claim in plain, neutral words and ask whether the *evidence* still supports it. If the persuasive power vanishes once the loaded language is gone, it was rhetoric, not reason.`,
+  },
+  {
+    slug: "cognitive-biases-motivated-reasoning",
+    title: "Cognitive biases and motivated reasoning",
+    weekNumber: 3,
+    blurb: "Systematic mental errors and reasoning driven by what we want.",
+    lectureTitle: "3.5 Cognitive biases and motivated reasoning",
+    body: `# Cognitive biases and motivated reasoning
+
+Even careful reasoners are pushed off course by **cognitive biases** — systematic errors in how the mind processes information.
+
+## Common biases
+
+- **Confirmation bias:** seeking and favoring evidence that supports what you already believe.
+- **Anchoring:** over-relying on the first number or fact you encounter.
+- **Availability heuristic:** judging probability by how easily examples come to mind (plane crashes feel common because they are vivid).
+- **Sunk cost fallacy:** continuing something because of past investment.
+- **Dunning–Kruger effect:** the least skilled overestimating their competence.
+
+## Motivated reasoning
+
+**Motivated reasoning** is biased thinking driven by what we *want* to be true. We apply harsh scrutiny to unwelcome claims and wave the welcome ones through.
+
+## Defenses
+
+Actively seek **disconfirming** evidence, consider the opposite, separate your identity from your beliefs, and welcome being shown wrong. The first bias to watch for is the conviction that *you* are unbiased.`,
+  },
+  {
+    slug: "language-definition-vagueness",
+    title: "Language, definition, and vagueness",
+    weekNumber: 3,
+    blurb: "Ambiguity vs. vagueness; kinds of definitions; verbal disputes.",
+    lectureTitle: "3.6 Language, definition, and vagueness",
+    body: `# Language, definition, and vagueness
+
+Clear reasoning needs clear language. Two failures recur: **ambiguity** and **vagueness**.
+
+## Ambiguity vs. vagueness
+
+- **Ambiguous:** a term has *multiple distinct meanings*. "bank" (riverside or financial).
+- **Vague:** a term has *fuzzy borders*. "tall," "rich," "soon" — there is no sharp line.
+
+## Kinds of definition
+
+- **Lexical:** reports standard usage (a dictionary definition).
+- **Stipulative:** assigns a meaning for the discussion at hand.
+- **Précising:** sharpens a vague term for a purpose ("adult = 18 or older").
+- **Persuasive:** slips an evaluation into a definition ("abortion is the murder of an innocent").
+
+## Why it matters
+
+Many disputes are **merely verbal** — people using the same word for different things, or arguing over where to draw a vague line. Before debating whether a hot dog is a sandwich, agree on what "sandwich" means.`,
+  },
+  {
+    slug: "credibility-sources-testimony",
+    title: "Credibility, sources, and testimony",
+    weekNumber: 3,
+    blurb: "Judging the people and sources we rely on for what we know.",
+    lectureTitle: "3.7 Credibility, sources, and testimony",
+    body: `# Credibility, sources, and testimony
+
+Most of what we know comes from **testimony** — other people's claims. Evaluating sources is a core critical-thinking skill.
+
+## Judging a source
+
+- **Expertise:** is the source genuinely qualified *in this field*?
+- **Bias / conflict of interest:** does the source gain from your belief?
+- **Track record:** has the source been reliable before?
+- **Corroboration:** do independent sources agree?
+- **Primary vs. secondary:** is this firsthand, or a report of a report?
+
+## Appeal to authority — good and bad
+
+Trusting a **qualified** expert within their field is reasonable. The fallacy is the **appeal to inappropriate authority**: citing a celebrity, a non-expert, or an expert speaking outside their specialty.
+
+## Lateral reading
+
+Do not evaluate a source by staring at the source itself. **Read laterally:** open new tabs and check what *other* independent, credible sources say about it. This is how professional fact-checkers work.`,
+  },
+
+  // Week 4 — Applied reasoning and capstone
+  {
+    slug: "probability-statistical-reasoning",
+    title: "Probability and statistical reasoning",
+    weekNumber: 4,
+    blurb: "Thinking in degrees; base rates; how statistics mislead.",
+    lectureTitle: "4.1 Probability and statistical reasoning",
+    body: `# Probability and statistical reasoning
+
+Good critical thinking is **probabilistic** — most claims are matters of degree, not certainty.
+
+## Basic rules
+
+- A probability is a number in $[0, 1]$.
 - $P(\\text{not } A) = 1 - P(A)$.
-- For mutually exclusive $A$ and $B$: $P(A \\cup B) = P(A) + P(B)$.
-- For independent $A$ and $B$: $P(A \\cap B) = P(A) \\cdot P(B)$.
+- For independent events, $P(A \\text{ and } B) = P(A) \\cdot P(B)$.
 
-A fair die has $P(\\text{roll } 6) = \\tfrac{1}{6}$. Rolling two dice and getting *two* sixes? $\\tfrac{1}{6} \\cdot \\tfrac{1}{6} = \\tfrac{1}{36}$.`,
+## The base rate
+
+The **base rate** is how common something is to begin with. Ignoring it is the **base rate fallacy**: a test that is "99% accurate" for a disease only 1 in 10,000 people have will still flag mostly *healthy* people, because the healthy vastly outnumber the sick.
+
+## How statistics mislead
+
+- **Misleading averages:** a mean dragged by outliers; ask for the median.
+- **Cherry-picked baselines:** "up 40% since [a conveniently chosen low point]."
+- **Relative vs. absolute risk:** "doubles your risk" — from 1 in a million to 2 in a million.
+
+Always ask: *out of how many, and compared to what?*`,
   },
   {
-    slug: "conditional-probability",
-    title: "Conditional probability",
-    weekNumber: 3,
-    blurb: "P(A|B), independence, and Bayes' theorem.",
-    lectureTitle: "3.4 Conditional probability and Bayes",
-    body: `# Conditional probability
-
-$P(A \\mid B)$ — the probability of $A$ given that $B$ happened — equals $\\tfrac{P(A \\cap B)}{P(B)}$.
-
-## Bayes' theorem
-
-$$P(A \\mid B) = \\frac{P(B \\mid A) \\cdot P(A)}{P(B)}$$
-
-This is the engine of medical testing, spam filtering, and most modern AI. The classic warning: a test that's "99% accurate" for a 1-in-10,000 disease has a *terrible* positive predictive value.`,
-  },
-  {
-    slug: "distributions",
-    title: "Distributions",
-    weekNumber: 3,
-    blurb: "Normal, binomial, and the central limit theorem.",
-    lectureTitle: "3.5 Distributions",
-    body: `# Distributions
-
-A **distribution** describes how a random quantity is spread over its possible values.
-
-## The normal distribution
-
-The bell curve. Parametrized by mean $\\mu$ and standard deviation $\\sigma$. Roughly 68% of mass within $\\pm \\sigma$, 95% within $\\pm 2\\sigma$, 99.7% within $\\pm 3\\sigma$.
-
-## Why it's everywhere
-
-The **central limit theorem**: averages of many independent samples are approximately normal, regardless of the underlying distribution. This is why so much of statistics works.`,
-  },
-  {
-    slug: "sampling-confidence",
-    title: "Sampling and confidence intervals",
-    weekNumber: 3,
-    blurb: "Estimating populations from samples; margin of error.",
-    lectureTitle: "3.6 Sampling and confidence intervals",
-    body: `# Sampling
-
-We rarely measure a whole population. We **sample** and infer.
-
-## Margin of error
-
-For a proportion estimated from a random sample of size $n$, a 95% confidence interval has roughly margin of error $\\tfrac{1}{\\sqrt{n}}$. A poll of 1000 has margin around $\\pm 3.2\\%$.
-
-## What it means
-
-A 95% confidence interval means: if we repeated this sampling procedure many times, about 95% of the intervals we computed would contain the true value. It does *not* mean "95% chance the truth is in this interval."`,
-  },
-  {
-    slug: "correlation-regression",
-    title: "Correlation and regression",
-    weekNumber: 3,
-    blurb: "Lines of best fit; correlation vs causation.",
-    lectureTitle: "3.7 Correlation and regression",
-    body: `# Correlation and regression
-
-The **correlation coefficient** $r$ measures linear association, $-1 \\le r \\le 1$.
-
-**Linear regression** fits a line $y = mx + b$ minimizing the squared residuals.
-
-## The cardinal warning
-
-*Correlation does not imply causation.* Ice-cream sales and drownings are correlated, but neither causes the other — both are driven by summer weather. Any regression result must be interpreted with a model of *what could plausibly cause what*.`,
-  },
-
-  // Week 4 — Reasoning & capstone
-  {
-    slug: "set-theory",
-    title: "Set theory",
+    slug: "evaluating-evidence-science",
+    title: "Evaluating evidence and scientific claims",
     weekNumber: 4,
-    blurb: "Sets, unions, intersections, complements, Venn diagrams.",
-    lectureTitle: "4.1 Set theory",
-    body: `# Set theory
+    blurb: "Falsifiability, the evidence hierarchy, and pseudoscience red flags.",
+    lectureTitle: "4.2 Evaluating evidence and scientific claims",
+    body: `# Evaluating evidence and scientific claims
 
-A **set** is a collection of distinct elements: $A = \\{1, 2, 3\\}$.
+Science is our most reliable method for testing claims about the world — once its standards are understood.
 
-## Operations
+## Hallmarks of good evidence
 
-- **Union** $A \\cup B$: in either.
-- **Intersection** $A \\cap B$: in both.
-- **Complement** $A^c$: not in $A$.
-- **Difference** $A \\setminus B$: in $A$ but not $B$.
+- **Falsifiability:** a genuine claim rules something out; an *unfalsifiable* claim ("an invisible, undetectable dragon") predicts nothing.
+- **Controlled comparison:** experiments isolate the variable of interest.
+- **Replication:** results that cannot be reproduced are provisional.
+- **Peer review:** scrutiny by other experts — helpful, though not a guarantee.
 
-## Inclusion-exclusion
+## The hierarchy of evidence
 
-$|A \\cup B| = |A| + |B| - |A \\cap B|$ — the count of each thing, minus double-counting.`,
+Anecdotes < case studies < observational studies < randomized controlled trials < systematic reviews. A single dramatic story is the weakest evidence, however compelling.
+
+## Red flags of pseudoscience
+
+Unfalsifiable claims, reliance on testimonials, conspiracy framing ("they don't want you to know"), no peer review, and immunity to any disconfirming evidence. Extraordinary claims require extraordinary evidence.`,
   },
   {
-    slug: "propositional-logic",
-    title: "Propositional logic",
+    slug: "decision-making-uncertainty",
+    title: "Decision-making under uncertainty",
     weekNumber: 4,
-    blurb: "AND, OR, NOT, IF; truth tables; common fallacies.",
-    lectureTitle: "4.2 Propositional logic",
-    body: `# Propositional logic
+    blurb: "Expected value, risk, and the traps that derail good choices.",
+    lectureTitle: "4.3 Decision-making under uncertainty",
+    body: `# Decision-making under uncertainty
 
-A **proposition** is a statement that is either true or false. Connectives: $\\neg$ (not), $\\wedge$ (and), $\\vee$ (or), $\\to$ (if-then), $\\leftrightarrow$ (iff).
+Reasoning is not only about what is *true* — it is about what to *do* when outcomes are uncertain.
 
-## Truth tables
+## Expected value
 
-$P \\to Q$ is false only when $P$ is true and $Q$ is false. ("If you mow the lawn, I'll pay you \\$20" is only broken if you mow and I don't pay.)
+The **expected value** of an option is each outcome's value weighted by its probability, then summed.
 
-## Fallacies
+> A \\$1 lottery ticket pays \\$1,000,000 with probability 1 in 10,000,000. Expected value $= \\frac{1{,}000{,}000}{10{,}000{,}000} = \\$0.10$ — far less than the \\$1 cost.
 
-- **Affirming the consequent**: from $P \\to Q$ and $Q$, you cannot conclude $P$.
-- **Denying the antecedent**: from $P \\to Q$ and $\\neg P$, you cannot conclude $\\neg Q$.`,
+## Rational choice
+
+Compare options by expected value, but also weigh your **risk tolerance**: a guaranteed \\$50 may beat a coin-flip for \\$110 if you cannot afford to lose.
+
+## Common traps
+
+- **Sunk cost:** basing choices on unrecoverable past costs.
+- **Loss aversion:** weighting losses more heavily than equal gains.
+- **Neglecting opportunity cost:** ignoring what you give up by choosing.
+
+A decision should be judged by the **quality of reasoning given what you knew**, not only by how it happened to turn out.`,
   },
   {
-    slug: "combinatorics",
-    title: "Combinatorics",
+    slug: "moral-value-reasoning",
+    title: "Moral and value reasoning",
     weekNumber: 4,
-    blurb: "Counting arrangements; permutations and combinations.",
-    lectureTitle: "4.3 Combinatorics",
-    body: `# Combinatorics
+    blurb: "The is–ought gap and the structure of moral arguments.",
+    lectureTitle: "4.4 Moral and value reasoning",
+    body: `# Moral and value reasoning
 
-How many ways can things happen?
+Not all reasoning is about facts. **Value reasoning** concerns what is good, right, or ought to be done.
 
-## Permutations and combinations
+## Is vs. ought
 
-- Permutations (order matters): $P(n, k) = \\tfrac{n!}{(n-k)!}$.
-- Combinations (order doesn't): $C(n, k) = \\binom{n}{k} = \\tfrac{n!}{k!(n-k)!}$.
+- A **descriptive (factual)** claim says how the world *is*: "Capital punishment does not reduce crime."
+- A **normative (value)** claim says how it *ought* to be: "Capital punishment is wrong."
 
-How many 5-card poker hands? $\\binom{52}{5} = 2{,}598{,}960$.`,
+You cannot derive an *ought* from an *is* alone — this is the **is–ought gap**. A moral argument needs at least one value premise.
+
+## Structure of moral arguments
+
+> P1. (Value) Causing unnecessary suffering is wrong.
+> P2. (Fact) This practice causes unnecessary suffering.
+> C. Therefore this practice is wrong.
+
+Evaluate both kinds of premise: are the facts right, *and* is the value principle defensible?
+
+## Tools
+
+Test value claims with **consistency** (would you accept it applied to you?), **counterexamples**, and **thought experiments**. Moral reasoning can be rigorous even without mathematical certainty.`,
   },
   {
-    slug: "geometry-trig",
-    title: "Geometry and trigonometry",
+    slug: "reasoning-in-writing",
+    title: "Reasoning in writing and argumentative essays",
     weekNumber: 4,
-    blurb: "Areas, volumes, right-triangle trig.",
-    lectureTitle: "4.4 Geometry and trigonometry",
-    body: `# Geometry and trigonometry
+    blurb: "Thesis, structure, counterarguments, and signposting.",
+    lectureTitle: "4.5 Reasoning in writing and argumentative essays",
+    body: `# Reasoning in writing and argumentative essays
 
-## Areas and volumes
+Writing is reasoning made visible. An **argumentative essay** defends a claim with structured support.
 
-- Rectangle: $A = lw$.
-- Triangle: $A = \\tfrac{1}{2}bh$.
-- Circle: $A = \\pi r^2$, $C = 2\\pi r$.
-- Box: $V = lwh$.
-- Sphere: $V = \\tfrac{4}{3}\\pi r^3$.
+## The thesis
 
-## Right-triangle trig
+The **thesis** is the single main claim the whole essay defends. It should be specific, contestable, and clear. "Social media harms teen mental health and should be age-restricted" is a thesis; "Social media is interesting" is not.
 
-For a right triangle with angle $\\theta$:
+## Structure
 
-$$\\sin\\theta = \\frac{\\text{opposite}}{\\text{hypotenuse}}, \\quad \\cos\\theta = \\frac{\\text{adjacent}}{\\text{hypotenuse}}, \\quad \\tan\\theta = \\frac{\\sin\\theta}{\\cos\\theta}$$
+1. **Introduction** that states the thesis.
+2. **Body paragraphs**, each a premise: claim, evidence, reasoning.
+3. **Counterarguments** acknowledged and answered.
+4. **Conclusion** that the body has earned.
 
-And the Pythagorean theorem: $a^2 + b^2 = c^2$.`,
+## Addressing objections
+
+A strong essay states the **strongest opposing view** (charitably) and responds to it. Ignoring obvious objections signals weak reasoning.
+
+## Signposting
+
+Use premise and conclusion indicators — *because, therefore, however, nevertheless* — so the reader can follow the logical skeleton. If you cannot outline your essay as premises and a conclusion, the argument is not finished.`,
   },
   {
-    slug: "rates-of-change",
-    title: "Rates of change",
+    slug: "detecting-misinformation",
+    title: "Detecting misinformation and manipulation",
     weekNumber: 4,
-    blurb: "Average and instantaneous rates; a gentle intro to derivatives.",
-    lectureTitle: "4.5 Rates of change",
-    body: `# Rates of change
+    blurb: "Warning signs and verification techniques for the online world.",
+    lectureTitle: "4.6 Detecting misinformation and manipulation",
+    body: `# Detecting misinformation and manipulation
 
-The **average rate of change** of $f$ over $[a, b]$ is $\\tfrac{f(b) - f(a)}{b - a}$ — the slope of the secant line.
+Misinformation is false or misleading content; **disinformation** is misinformation spread deliberately. Both thrive online.
 
-## Instantaneous rate
+## Warning signs
 
-Let $b$ approach $a$. The limit, when it exists, is the **derivative** $f'(a)$ — the slope of the tangent line at $a$.
+- **Emotional bait:** content engineered to provoke outrage or fear.
+- **Missing or vague sourcing:** "experts say," with no link and no name.
+- **Manipulated context:** a real photo or quote ripped from its setting.
+- **Too good (or bad) to be true:** it confirms your side perfectly.
 
-You don't need to compute derivatives in this course, but you should be able to interpret one. A derivative is "how fast is this changing, right now, per unit input."`,
+## Techniques
+
+- **Lateral reading:** leave the page and check independent sources.
+- **Check the original:** trace a claim back to its primary source.
+- **Reverse image search:** verify when and where an image really came from.
+- **Consider the incentive:** who benefits if you believe and share this?
+
+## Defenses
+
+Slow down before sharing — virality exploits speed. Distinguish a **headline** from the **evidence**. And apply the same scrutiny to content you *agree* with, because that is exactly where your guard is lowest.`,
   },
   {
-    slug: "financial-math",
-    title: "Financial math",
+    slug: "critical-thinking-across-domains",
+    title: "Applying critical thinking across domains",
     weekNumber: 4,
-    blurb: "Compound interest, APR vs APY, present and future value.",
-    lectureTitle: "4.6 Financial mathematics",
-    body: `# Financial mathematics
+    blurb: "How reasoning takes a different shape in each field — and transfers.",
+    lectureTitle: "4.7 Applying critical thinking across domains",
+    body: `# Applying critical thinking across domains
 
-## Compound interest
+Critical thinking is a **general** skill, but it takes a different shape in each domain.
 
-Principal $P$ at annual rate $r$ compounded $n$ times per year for $t$ years grows to:
+## Domain by domain
 
-$$A = P \\left(1 + \\frac{r}{n}\\right)^{nt}$$
+- **Health:** weigh relative vs. absolute risk; separate correlation from causation in studies.
+- **Politics:** watch for loaded language, false dilemmas, and tribal motivated reasoning.
+- **Personal finance:** beware sunk costs, base-rate neglect, and "get rich quick" appeals.
+- **Science news:** a single study is not settled science; check for replication.
+- **Everyday life:** notice when a salesperson frames a false dilemma or anchors a price.
 
-## APR vs APY
+## Transfer
 
-**APR** (annual percentage rate) is the stated nominal rate. **APY** (annual percentage yield) accounts for compounding. \\$1000 at 6% APR compounded monthly has APY $= (1 + 0.06/12)^{12} - 1 \\approx 6.17\\%$.
+The hard part is **transfer** — using a skill learned in one context in a new one. It does not happen automatically; you build it by deliberately asking the core questions everywhere: *What is the claim? What is the evidence? What is assumed? What is left out?*
 
-## The Rule of 72
+## The habit
 
-Money compounding at rate $r\\%$ per year roughly doubles in $72/r$ years.`,
-  },
-  {
-    slug: "quantitative-arguments",
-    title: "Quantitative arguments",
-    weekNumber: 4,
-    blurb: "Reading, writing, and evaluating numerical claims in prose.",
-    lectureTitle: "4.7 Quantitative arguments",
-    body: `# Quantitative arguments
-
-The capstone skill: take a quantitative claim from the wild and evaluate it.
-
-## A checklist
-
-1. **What is the population?** "Most Americans" — how many is that?
-2. **What is the source?** Self-report, observation, experiment?
-3. **What are the units?** Per capita? Per dollar? Per year?
-4. **Compared to what?** A number without a comparison is rarely meaningful.
-5. **Is the magnitude plausible?** Run a back-of-envelope check.
-
-## Writing your own
-
-Use precise numbers with explicit units. State your assumptions. Distinguish what you measured from what you inferred. Cite.`,
+Expertise in a field does not immunize anyone against fallacies. The goal is to make critical questioning a reflex, not a special occasion.`,
   },
   {
     slug: "capstone-synthesis",
     title: "Capstone synthesis",
     weekNumber: 4,
-    blurb: "Putting it all together on a real-world problem.",
+    blurb: "Putting the whole toolkit to work on a real-world claim.",
     lectureTitle: "4.8 Capstone synthesis",
     body: `# Capstone synthesis
 
-The final week ties together everything from the course. A capstone problem might ask:
+The capstone ties the whole course together: take a real claim from the wild and evaluate it end to end.
 
-> A city of 200,000 is considering a \\$40M investment in a new bus line. The current ridership is 12,000 trips/day at \\$2/trip. The new line is projected to increase ridership by 35% and reduce car commutes by an estimated 4%. Evaluate.
+## A worked example
 
-Solving this requires *units* (trips, dollars, years), *percentages*, *modeling* (linear vs nonlinear effects), *probability* (uncertainty in the projections), and *quantitative argument* (what would change your mind?). That is quantitative reasoning.`,
+> "A new study shows students who use our app score 20% higher. Don't let your child fall behind — the data doesn't lie."
+
+Apply the toolkit:
+
+1. **Identify the argument** — conclusion: buy the app; premises: the study and the appeal.
+2. **Classify the reasoning** — inductive, from a study to a recommendation.
+3. **Check the evidence** — sample size? control group? who funded it? 20% relative to what?
+4. **Spot fallacies and rhetoric** — appeal to fear ("fall behind"), the "data doesn't lie" thought-stopper, post hoc risk.
+5. **Consider bias** — the seller's conflict of interest; your own hope that it works.
+6. **Reach a verdict** — proportion your belief to the strength of the evidence.
+
+## The standard
+
+A claim is worth believing when the **premises are true** and the **reasoning is valid or strong**. That single test — applied honestly, to friend and foe alike — is critical thinking.`,
   },
 ];
 
@@ -575,29 +839,29 @@ const ASSIGNMENTS: SeedAssignment[] = [
   // Week 1
   {
     kind: "homework",
-    title: "Homework 1.1 — Number, fractions, ratios",
+    title: "Homework 1.1 — Claims and arguments",
     weekNumber: 1,
     isTimed: false,
     timeLimitMinutes: null,
-    instructions: "Untimed practice. Show your work in the answer box.",
+    instructions: "Untimed practice. Explain your reasoning in the answer box.",
     problems: [
-      { topicSlug: "number-sense", prompt: "Is 5 billion closer to $5 \\times 10^6$ or $5 \\times 10^9$? Write the order of magnitude.", correctAnswer: "10^9", explanation: "Billion is $10^9$." },
-      { topicSlug: "fractions-decimals-percents", prompt: "A jacket costs $\\$80$. It is discounted by 25%. What is the sale price in dollars?", correctAnswer: "60", explanation: "$80 \\times 0.75 = 60$." },
-      { topicSlug: "ratios-proportions", prompt: "If 3 cups of flour make 12 cookies, how many cups make 40 cookies?", correctAnswer: "10", explanation: "$\\tfrac{3}{12} = \\tfrac{x}{40}$, so $x = 10$." },
+      { topicSlug: "what-is-critical-thinking", prompt: "True or false: critical thinking means criticizing or rejecting other people's views.", correctAnswer: "false", explanation: "Critical thinking is fair evaluation of reasoning, not mere fault-finding." },
+      { topicSlug: "claims-beliefs-truth", prompt: "A sentence that is either true or false (it has a truth value) is called a ____. One word.", correctAnswer: "claim", explanation: "A claim (statement/proposition) is the bearer of truth or falsity." },
+      { topicSlug: "arguments-vs-nonarguments", prompt: "'You should exercise because it lowers your risk of heart disease.' Is this an argument or a non-argument?", correctAnswer: "argument", explanation: "A reason ('because...') is offered to support a conclusion, so it is an argument." },
     ],
   },
   {
     kind: "homework",
-    title: "Homework 1.2 — Units, expressions, equations",
+    title: "Homework 1.2 — Structure of arguments",
     weekNumber: 1,
     isTimed: false,
     timeLimitMinutes: null,
     instructions: "Untimed practice.",
     problems: [
-      { topicSlug: "unit-conversions", prompt: "How many minutes in 3 days?", correctAnswer: "4320", explanation: "$3 \\times 24 \\times 60 = 4320$." },
-      { topicSlug: "order-of-operations", prompt: "Evaluate: $2 + 3 \\times 4^2 - 5$.", correctAnswer: "45", explanation: "$2 + 3 \\times 16 - 5 = 2 + 48 - 5 = 45$." },
-      { topicSlug: "algebraic-expressions", prompt: "Evaluate $3x^2 - 2x + 1$ at $x = -2$.", correctAnswer: "17", explanation: "$3(4) - 2(-2) + 1 = 12 + 4 + 1 = 17$." },
-      { topicSlug: "linear-equations", prompt: "Solve for $x$: $4x - 9 = 23$.", correctAnswer: "8", explanation: "$4x = 32 \\Rightarrow x = 8$." },
+      { topicSlug: "premises-and-conclusions", prompt: "In 'All dogs are mammals, so Rex is a mammal,' the word 'so' signals the ____.", correctAnswer: "conclusion", explanation: "'So' is a conclusion indicator." },
+      { topicSlug: "identifying-reconstructing-arguments", prompt: "An unstated assumption an argument needs in order to work is called a missing or ____ premise. One word.", correctAnswer: "implicit", explanation: "Also called an unstated or suppressed premise; such an argument is an enthymeme." },
+      { topicSlug: "diagramming-arguments", prompt: "When two premises support a conclusion only by working together (neither suffices alone), the support is called ____.", correctAnswer: "linked", explanation: "Linked premises depend on each other; remove one and the support collapses." },
+      { topicSlug: "standardizing-charity", prompt: "Interpreting an argument in its strongest, most reasonable form is called the principle of ____.", correctAnswer: "charity", explanation: "The principle of charity guards against the straw man." },
     ],
   },
   {
@@ -606,42 +870,43 @@ const ASSIGNMENTS: SeedAssignment[] = [
     weekNumber: 1,
     isTimed: true,
     timeLimitMinutes: 30,
-    instructions: "Timed. 30 minutes. Math keyboard available; pasting is disabled.",
+    instructions: "Timed. 30 minutes. Pasting is disabled.",
     problems: [
-      { topicSlug: "fractions-decimals-percents", prompt: "Convert $\\tfrac{7}{8}$ to a percent.", correctAnswer: "87.5%", explanation: "$7 \\div 8 = 0.875 = 87.5\\%$." },
-      { topicSlug: "ratios-proportions", prompt: "A map uses scale 1:25000. A road is 6 cm long on the map. How many meters long is the road in reality?", correctAnswer: "1500", explanation: "$6 \\text{ cm} \\times 25000 = 150000 \\text{ cm} = 1500 \\text{ m}$." },
-      { topicSlug: "linear-equations", prompt: "Solve: $3(x + 4) = 2x + 21$.", correctAnswer: "9", explanation: "$3x + 12 = 2x + 21 \\Rightarrow x = 9$." },
-      { topicSlug: "unit-conversions", prompt: "Convert 90 km/h to m/s. Round to two decimals.", correctAnswer: "25", explanation: "$90 \\times \\tfrac{1000}{3600} = 25$ m/s." },
-      { topicSlug: "number-sense", prompt: "Which is largest: $\\sqrt{2}$, $\\pi/2$, or $1.5$?", correctAnswer: "pi/2", explanation: "$\\sqrt{2} \\approx 1.414$, $\\pi/2 \\approx 1.571$, so $\\pi/2$ is largest." },
+      { topicSlug: "claims-beliefs-truth", prompt: "'Close the door.' Does this sentence express a claim (a true/false bearer)? Answer yes or no.", correctAnswer: "no", explanation: "It is a command, which is neither true nor false." },
+      { topicSlug: "arguments-vs-nonarguments", prompt: "A passage that merely tells you WHY an accepted fact happened, without trying to prove it, is an argument or an explanation?", correctAnswer: "explanation", explanation: "An explanation assumes the fact and gives its cause; it does not argue that it is true." },
+      { topicSlug: "premises-and-conclusions", prompt: "In 'The streets are wet, so it rained,' which clause is the conclusion? Two words.", correctAnswer: "it rained", explanation: "'So' marks 'it rained' as the conclusion." },
+      { topicSlug: "premises-and-conclusions", prompt: "Name one common conclusion-indicator word.", correctAnswer: "therefore", explanation: "Therefore, so, thus, hence, and consequently all indicate conclusions." },
+      { topicSlug: "diagramming-arguments", prompt: "When several independent premises each separately support the same conclusion, the structure is called ____.", correctAnswer: "convergent", explanation: "Each convergent premise supports the conclusion on its own." },
+      { topicSlug: "what-is-critical-thinking", prompt: "Thinking about and monitoring your own thinking is called ____ (one word beginning 'meta').", correctAnswer: "metacognition", explanation: "Metacognition is awareness and regulation of one's own reasoning." },
     ],
   },
 
   // Week 2
   {
     kind: "homework",
-    title: "Homework 2.1 — Lines and systems",
+    title: "Homework 2.1 — Deduction and validity",
     weekNumber: 2,
     isTimed: false,
     timeLimitMinutes: null,
     instructions: "Untimed practice.",
     problems: [
-      { topicSlug: "linear-functions", prompt: "Find the slope of the line through $(2, 5)$ and $(6, 13)$.", correctAnswer: "2", explanation: "$(13 - 5) / (6 - 2) = 8/4 = 2$." },
-      { topicSlug: "linear-functions", prompt: "Write $y$ as a linear function of $x$ if it costs \\$5 plus \\$2 per item, where $x$ is items.", correctAnswer: "y = 2x + 5", explanation: "Slope 2, intercept 5." },
-      { topicSlug: "systems-of-equations", prompt: "Solve the system: $x + y = 10$ and $x - y = 4$. Give $x$.", correctAnswer: "7", explanation: "Add: $2x = 14$, $x = 7$." },
+      { topicSlug: "deductive-vs-inductive", prompt: "Reasoning that aims to guarantee its conclusion (if the premises are true, the conclusion must be true) is called ____.", correctAnswer: "deductive", explanation: "Deductive arguments aim for necessity." },
+      { topicSlug: "deductive-vs-inductive", prompt: "'Every swan I have seen is white, so all swans are white.' Is this deductive or inductive?", correctAnswer: "inductive", explanation: "It generalizes from observations to a probable conclusion." },
+      { topicSlug: "validity-and-soundness", prompt: "An argument that is valid AND has all true premises is called ____.", correctAnswer: "sound", explanation: "Soundness = validity + all true premises." },
     ],
   },
   {
     kind: "homework",
-    title: "Homework 2.2 — Quadratics, exponentials, inequalities",
+    title: "Homework 2.2 — Logical forms",
     weekNumber: 2,
     isTimed: false,
     timeLimitMinutes: null,
     instructions: "Untimed practice.",
     problems: [
-      { topicSlug: "quadratics", prompt: "Solve: $x^2 - 5x + 6 = 0$. Give the larger root.", correctAnswer: "3", explanation: "$(x-2)(x-3) = 0$, roots 2 and 3." },
-      { topicSlug: "exponentials-logs", prompt: "Solve for $x$: $2^x = 32$.", correctAnswer: "5", explanation: "$2^5 = 32$." },
-      { topicSlug: "inequalities", prompt: "Solve: $-3x + 5 \\ge 11$. Give the boundary value of $x$.", correctAnswer: "-2", explanation: "$-3x \\ge 6 \\Rightarrow x \\le -2$. Boundary: $-2$." },
-      { topicSlug: "function-modeling", prompt: "A population doubles every 4 years. After 12 years, by what factor has it grown?", correctAnswer: "8", explanation: "$2^{12/4} = 2^3 = 8$." },
+      { topicSlug: "validity-and-soundness", prompt: "Can a valid argument have a false conclusion? Answer yes or no.", correctAnswer: "yes", explanation: "Yes — if one of its premises is false. Only sound arguments guarantee a true conclusion." },
+      { topicSlug: "categorical-logic-syllogism", prompt: "'All A are B. All B are C. Therefore all A are C.' Is this valid or invalid?", correctAnswer: "valid", explanation: "This is a valid categorical syllogism (Barbara)." },
+      { topicSlug: "propositional-logic-truth-tables", prompt: "'If P then Q' is false only when P is ____ and Q is false. One word.", correctAnswer: "true", explanation: "A conditional fails only when the antecedent is true and the consequent false." },
+      { topicSlug: "propositional-logic-truth-tables", prompt: "From 'If P then Q' and 'not Q', what can you validly conclude? (This valid form is modus tollens.)", correctAnswer: "not P", explanation: "Modus tollens: P→Q, ¬Q, therefore ¬P." },
     ],
   },
   {
@@ -650,45 +915,45 @@ const ASSIGNMENTS: SeedAssignment[] = [
     weekNumber: 2,
     isTimed: true,
     timeLimitMinutes: 60,
-    instructions: "Cumulative midterm. 60 minutes. Math keyboard available; pasting disabled.",
+    instructions: "Cumulative midterm. 60 minutes. Pasting disabled.",
     problems: [
-      { topicSlug: "fractions-decimals-percents", prompt: "A stock loses 20% then gains 25%. Net percent change?", correctAnswer: "0%", explanation: "$1 \\times 0.8 \\times 1.25 = 1$ — no change." },
-      { topicSlug: "ratios-proportions", prompt: "If 4 workers paint 5 fences in 3 days, how many fences will 6 workers paint in 3 days (same rate)?", correctAnswer: "7.5", explanation: "Workers scale linearly: $\\tfrac{6}{4} \\times 5 = 7.5$." },
-      { topicSlug: "unit-conversions", prompt: "A car travels 60 mph. How many feet per second is that? (1 mile = 5280 ft.) Round to whole.", correctAnswer: "88", explanation: "$60 \\times 5280 / 3600 = 88$ ft/s." },
-      { topicSlug: "linear-equations", prompt: "Solve: $\\tfrac{x}{3} + 4 = 10$.", correctAnswer: "18", explanation: "$\\tfrac{x}{3} = 6 \\Rightarrow x = 18$." },
-      { topicSlug: "linear-functions", prompt: "Line through $(0, 4)$ with slope $-3$. What is $y$ at $x = 5$?", correctAnswer: "-11", explanation: "$y = -3x + 4 = -15 + 4 = -11$." },
-      { topicSlug: "systems-of-equations", prompt: "Solve: $2x + y = 9$, $x - y = 0$. Give $y$.", correctAnswer: "3", explanation: "$x = y$, so $3x = 9$, $x = y = 3$." },
-      { topicSlug: "quadratics", prompt: "How many real solutions does $x^2 + 2x + 5 = 0$ have?", correctAnswer: "0", explanation: "Discriminant $= 4 - 20 = -16 < 0$." },
-      { topicSlug: "exponentials-logs", prompt: "Evaluate $\\log_{10}(10000)$.", correctAnswer: "4", explanation: "$10^4 = 10000$." },
+      { topicSlug: "arguments-vs-nonarguments", prompt: "'The room was cold and dark.' Is this an argument or a non-argument?", correctAnswer: "non-argument", explanation: "It is a description; nothing is being supported." },
+      { topicSlug: "premises-and-conclusions", prompt: "Name one common premise-indicator word.", correctAnswer: "because", explanation: "Because, since, for, and given that all indicate premises." },
+      { topicSlug: "deductive-vs-inductive", prompt: "An argument whose premises are meant to make the conclusion probable but not certain is ____.", correctAnswer: "inductive", explanation: "Inductive support is a matter of degree." },
+      { topicSlug: "validity-and-soundness", prompt: "Affirming the consequent (P→Q, Q, therefore P) is valid or invalid?", correctAnswer: "invalid", explanation: "It is a formal fallacy; Q can hold for other reasons." },
+      { topicSlug: "categorical-logic-syllogism", prompt: "'All cats are animals. All dogs are animals. Therefore all dogs are cats.' Valid or invalid?", correctAnswer: "invalid", explanation: "True premises, false conclusion — the form is broken." },
+      { topicSlug: "propositional-logic-truth-tables", prompt: "From 'If P then Q' and 'P', what follows? (modus ponens)", correctAnswer: "Q", explanation: "Modus ponens: P→Q, P, therefore Q." },
+      { topicSlug: "inductive-strength-generalization", prompt: "Drawing a sweeping conclusion from too small a sample is the ____ generalization.", correctAnswer: "hasty", explanation: "Hasty generalization relies on an inadequate sample." },
+      { topicSlug: "analogical-reasoning", prompt: "An argument from analogy is stronger when the two things share more ____ similarities.", correctAnswer: "relevant", explanation: "Relevant similarities (not surface ones) strengthen an analogy." },
     ],
   },
 
   // Week 3
   {
     kind: "homework",
-    title: "Homework 3.1 — Stats and probability",
+    title: "Homework 3.1 — Fallacies",
     weekNumber: 3,
     isTimed: false,
     timeLimitMinutes: null,
     instructions: "Untimed practice.",
     problems: [
-      { topicSlug: "descriptive-statistics", prompt: "Find the median of: 2, 4, 4, 6, 9, 12, 15.", correctAnswer: "6", explanation: "Middle value of 7 sorted numbers is the 4th: 6." },
-      { topicSlug: "descriptive-statistics", prompt: "Find the mean of: 5, 7, 9, 11, 13.", correctAnswer: "9", explanation: "$(5+7+9+11+13)/5 = 45/5 = 9$." },
-      { topicSlug: "probability-basics", prompt: "A fair coin is flipped 3 times. What is the probability of all heads?", correctAnswer: "1/8", explanation: "$(1/2)^3 = 1/8$." },
+      { topicSlug: "fallacies-of-relevance", prompt: "Attacking the person instead of their argument is the ____ fallacy. (Latin term.)", correctAnswer: "ad hominem", explanation: "Ad hominem targets the arguer rather than the argument." },
+      { topicSlug: "fallacies-weak-induction", prompt: "Concluding A caused B just because A came before B is the ____ fallacy. (Latin, two words.)", correctAnswer: "post hoc", explanation: "Post hoc ergo propter hoc confuses sequence with causation." },
+      { topicSlug: "fallacies-presumption-ambiguity", prompt: "A question that presupposes something unproven, like 'Have you stopped lying?', is a ____ question.", correctAnswer: "loaded", explanation: "Also called a complex question; it smuggles in an assumption." },
     ],
   },
   {
     kind: "homework",
-    title: "Homework 3.2 — Distributions and inference",
+    title: "Homework 3.2 — Bias, language, and sources",
     weekNumber: 3,
     isTimed: false,
     timeLimitMinutes: null,
     instructions: "Untimed practice.",
     problems: [
-      { topicSlug: "conditional-probability", prompt: "P(A) = 0.4, P(B|A) = 0.5. What is P(A and B)?", correctAnswer: "0.2", explanation: "$P(A \\cap B) = P(A) \\cdot P(B|A) = 0.4 \\cdot 0.5 = 0.2$." },
-      { topicSlug: "distributions", prompt: "In a normal distribution, approximately what percent of values fall within one standard deviation of the mean?", correctAnswer: "68%", explanation: "Empirical rule: 68-95-99.7." },
-      { topicSlug: "sampling-confidence", prompt: "A poll of $n = 400$ has approximate margin of error $1/\\sqrt{n}$. What is the margin as a percent? Round to whole.", correctAnswer: "5%", explanation: "$1/\\sqrt{400} = 1/20 = 0.05$." },
-      { topicSlug: "correlation-regression", prompt: "If $r = -0.9$ between $X$ and $Y$, the relationship is best described as: positive, negative, or none?", correctAnswer: "negative", explanation: "Sign of $r$ gives direction." },
+      { topicSlug: "rhetoric-persuasion-spin", prompt: "Word choices that carry judgment, like 'freedom fighter' vs. 'terrorist', are called ____ language.", correctAnswer: "loaded", explanation: "Loaded (emotive) language steers feeling rather than supplying evidence." },
+      { topicSlug: "cognitive-biases-motivated-reasoning", prompt: "Seeking out only evidence that supports what you already believe is ____ bias.", correctAnswer: "confirmation", explanation: "Confirmation bias favors belief-consistent evidence." },
+      { topicSlug: "language-definition-vagueness", prompt: "A term with multiple distinct meanings (like 'bank') is ____.", correctAnswer: "ambiguous", explanation: "Ambiguity = multiple meanings; vagueness = fuzzy borders." },
+      { topicSlug: "credibility-sources-testimony", prompt: "Trusting a claim because a celebrity (not an expert) endorsed it is an appeal to inappropriate ____.", correctAnswer: "authority", explanation: "Appeal to inappropriate authority cites an unqualified source." },
     ],
   },
   {
@@ -697,42 +962,42 @@ const ASSIGNMENTS: SeedAssignment[] = [
     weekNumber: 3,
     isTimed: true,
     timeLimitMinutes: 40,
-    instructions: "Timed. 40 minutes. Math keyboard available; pasting disabled.",
+    instructions: "Timed. 40 minutes. Pasting disabled.",
     problems: [
-      { topicSlug: "descriptive-statistics", prompt: "Standard deviation of {2, 2, 2, 2}?", correctAnswer: "0", explanation: "No spread — all values equal." },
-      { topicSlug: "data-visualization", prompt: "A box plot shows median, quartiles, and what else (one word)?", correctAnswer: "outliers", explanation: "Whiskers and outliers." },
-      { topicSlug: "probability-basics", prompt: "Two fair dice are rolled. Probability the sum is 7?", correctAnswer: "1/6", explanation: "6 of 36 outcomes sum to 7." },
-      { topicSlug: "conditional-probability", prompt: "A test is 99% accurate for a disease present in 1% of people. Given a positive test, probability of disease? (Use Bayes.) Round to two decimals.", correctAnswer: "0.5", explanation: "$\\tfrac{0.99 \\times 0.01}{0.99 \\times 0.01 + 0.01 \\times 0.99} = 0.5$." },
-      { topicSlug: "sampling-confidence", prompt: "To halve the margin of error of a poll, by what factor must sample size grow?", correctAnswer: "4", explanation: "Margin scales as $1/\\sqrt{n}$." },
+      { topicSlug: "fallacies-of-relevance", prompt: "Distorting someone's view into a weaker version to attack it is the ____ ____ fallacy. Two words.", correctAnswer: "straw man", explanation: "The straw man refutes a misrepresentation, not the real view." },
+      { topicSlug: "fallacies-weak-induction", prompt: "Arguing that one small step will inevitably lead to disaster, with no support for the links, is the ____ ____ fallacy. Two words.", correctAnswer: "slippery slope", explanation: "The slippery slope assumes an unsupported chain of consequences." },
+      { topicSlug: "fallacies-presumption-ambiguity", prompt: "Assuming the very thing you are trying to prove is ____ reasoning (also called begging the question).", correctAnswer: "circular", explanation: "Circular reasoning hides the conclusion among the premises." },
+      { topicSlug: "cognitive-biases-motivated-reasoning", prompt: "Relying too heavily on the first piece of information you receive is ____ bias.", correctAnswer: "anchoring", explanation: "Anchoring lets an initial value skew later judgments." },
+      { topicSlug: "credibility-sources-testimony", prompt: "Checking a claim by leaving the page to consult other independent sources is called ____ reading.", correctAnswer: "lateral", explanation: "Lateral reading is how professional fact-checkers verify sources." },
     ],
   },
 
   // Week 4
   {
     kind: "homework",
-    title: "Homework 4.1 — Sets, logic, combinatorics",
+    title: "Homework 4.1 — Probability, evidence, decisions",
     weekNumber: 4,
     isTimed: false,
     timeLimitMinutes: null,
     instructions: "Untimed practice.",
     problems: [
-      { topicSlug: "set-theory", prompt: "$A = \\{1,2,3,4\\}$, $B = \\{3,4,5,6\\}$. $|A \\cup B| = ?$", correctAnswer: "6", explanation: "Union is {1,2,3,4,5,6}, size 6." },
-      { topicSlug: "propositional-logic", prompt: "If $P \\to Q$ is true and $Q$ is false, what must $P$ be?", correctAnswer: "false", explanation: "Contrapositive: $\\neg Q \\to \\neg P$." },
-      { topicSlug: "combinatorics", prompt: "How many ways to choose 3 books from 10?", correctAnswer: "120", explanation: "$\\binom{10}{3} = 120$." },
+      { topicSlug: "probability-statistical-reasoning", prompt: "Ignoring how common a condition is when judging a positive test result is the base rate ____.", correctAnswer: "fallacy", explanation: "The base rate fallacy (neglect) ignores prior prevalence." },
+      { topicSlug: "evaluating-evidence-science", prompt: "A claim that cannot in principle be shown false is said to be ____.", correctAnswer: "unfalsifiable", explanation: "Unfalsifiable claims make no testable prediction." },
+      { topicSlug: "decision-making-uncertainty", prompt: "An outcome's value weighted by its probability is called its ____ value.", correctAnswer: "expected", explanation: "Expected value weights each outcome by its probability." },
     ],
   },
   {
     kind: "homework",
-    title: "Homework 4.2 — Geometry, rates, finance",
+    title: "Homework 4.2 — Values, writing, and misinformation",
     weekNumber: 4,
     isTimed: false,
     timeLimitMinutes: null,
     instructions: "Untimed practice.",
     problems: [
-      { topicSlug: "geometry-trig", prompt: "Area of a circle with radius 5? Use $\\pi$.", correctAnswer: "25π", explanation: "$\\pi r^2 = 25\\pi$." },
-      { topicSlug: "geometry-trig", prompt: "Right triangle with legs 3 and 4. Hypotenuse?", correctAnswer: "5", explanation: "$\\sqrt{9 + 16} = 5$." },
-      { topicSlug: "rates-of-change", prompt: "$f(x) = x^2$. Average rate of change on $[1, 3]$?", correctAnswer: "4", explanation: "$(9 - 1)/(3 - 1) = 4$." },
-      { topicSlug: "financial-math", prompt: "Using the Rule of 72: at 6% annual return, about how many years to double?", correctAnswer: "12", explanation: "$72/6 = 12$." },
+      { topicSlug: "moral-value-reasoning", prompt: "A claim about what OUGHT to be the case (rather than what is) is a ____ claim.", correctAnswer: "normative", explanation: "Normative (value) claims concern what ought to be; they cannot be derived from facts alone." },
+      { topicSlug: "reasoning-in-writing", prompt: "The single main claim an argumentative essay defends is called its ____.", correctAnswer: "thesis", explanation: "The thesis is the conclusion the whole essay supports." },
+      { topicSlug: "detecting-misinformation", prompt: "Misinformation spread deliberately to deceive is specifically called ____.", correctAnswer: "disinformation", explanation: "Disinformation is intentional; misinformation may be unintentional." },
+      { topicSlug: "critical-thinking-across-domains", prompt: "Using a reasoning skill learned in one area in a brand-new area is called ____.", correctAnswer: "transfer", explanation: "Transfer is using a skill in a new context; it must be built deliberately." },
     ],
   },
   {
@@ -741,18 +1006,18 @@ const ASSIGNMENTS: SeedAssignment[] = [
     weekNumber: 4,
     isTimed: true,
     timeLimitMinutes: 90,
-    instructions: "Cumulative final. 90 minutes. Math keyboard available; pasting disabled.",
+    instructions: "Cumulative final. 90 minutes. Pasting disabled.",
     problems: [
-      { topicSlug: "fractions-decimals-percents", prompt: "If a price rises 10% then falls 10%, what is the net percent change? Use a negative sign if decrease.", correctAnswer: "-1%", explanation: "$1.1 \\times 0.9 = 0.99 = -1\\%$." },
-      { topicSlug: "linear-equations", prompt: "Solve: $5(x - 2) = 3x + 4$.", correctAnswer: "7", explanation: "$5x - 10 = 3x + 4 \\Rightarrow 2x = 14 \\Rightarrow x = 7$." },
-      { topicSlug: "quadratics", prompt: "Solve: $x^2 = 49$. Give the positive root.", correctAnswer: "7", explanation: "$x = \\pm 7$." },
-      { topicSlug: "exponentials-logs", prompt: "Solve: $\\log_2(x) = 5$.", correctAnswer: "32", explanation: "$x = 2^5 = 32$." },
-      { topicSlug: "descriptive-statistics", prompt: "Mean of: 10, 20, 30, 40, 100?", correctAnswer: "40", explanation: "$200/5 = 40$." },
-      { topicSlug: "conditional-probability", prompt: "$P(A) = 0.3$, $P(B) = 0.5$, $A$ and $B$ independent. $P(A \\cap B) = ?$", correctAnswer: "0.15", explanation: "$0.3 \\times 0.5 = 0.15$." },
-      { topicSlug: "set-theory", prompt: "$|A| = 10$, $|B| = 15$, $|A \\cap B| = 4$. $|A \\cup B| = ?$", correctAnswer: "21", explanation: "$10 + 15 - 4 = 21$." },
-      { topicSlug: "combinatorics", prompt: "How many 4-letter arrangements of A, B, C, D, E (no repeats)?", correctAnswer: "120", explanation: "$5 \\times 4 \\times 3 \\times 2 = 120$." },
-      { topicSlug: "geometry-trig", prompt: "$\\sin(30°) = ?$ Give a fraction.", correctAnswer: "1/2", explanation: "Standard value." },
-      { topicSlug: "financial-math", prompt: "\\$1000 at 5% APR compounded annually for 2 years. Value? (No dollar sign.)", correctAnswer: "1102.50", explanation: "$1000 \\times 1.05^2 = 1102.50$." },
+      { topicSlug: "arguments-vs-nonarguments", prompt: "'We should leave now, because the storm is coming.' Argument or non-argument?", correctAnswer: "argument", explanation: "A reason supports a conclusion, so it is an argument." },
+      { topicSlug: "premises-and-conclusions", prompt: "In 'Since taxes rose, prices increased,' which word is the premise indicator?", correctAnswer: "since", explanation: "'Since' flags the premise 'taxes rose'." },
+      { topicSlug: "validity-and-soundness", prompt: "An argument that is valid and has all true premises is ____.", correctAnswer: "sound", explanation: "Validity plus true premises equals soundness." },
+      { topicSlug: "deductive-vs-inductive", prompt: "Reasoning from a representative sample to a claim about the whole population is deductive or inductive?", correctAnswer: "inductive", explanation: "Generalization from a sample is inductive." },
+      { topicSlug: "propositional-logic-truth-tables", prompt: "Denying the antecedent (P→Q, not P, therefore not Q) is valid or invalid?", correctAnswer: "invalid", explanation: "It is a formal fallacy; Q may still hold for other reasons." },
+      { topicSlug: "fallacies-of-relevance", prompt: "Dismissing a study because of who funded it, rather than its evidence, is which fallacy? (Latin.)", correctAnswer: "ad hominem", explanation: "Attacking the source instead of the argument is ad hominem (circumstantial)." },
+      { topicSlug: "fallacies-weak-induction", prompt: "'I took the supplement and my cold went away, so it cured me.' Which fallacy? (Latin, two words.)", correctAnswer: "post hoc", explanation: "Post hoc mistakes sequence for causation." },
+      { topicSlug: "cognitive-biases-motivated-reasoning", prompt: "Favoring evidence that confirms what you already believe is ____ bias.", correctAnswer: "confirmation", explanation: "Confirmation bias is the tendency to seek belief-consistent evidence." },
+      { topicSlug: "probability-statistical-reasoning", prompt: "An outcome's value times its probability gives its ____ value.", correctAnswer: "expected", explanation: "Expected value combines magnitude and probability." },
+      { topicSlug: "capstone-synthesis", prompt: "A claim is worth believing when its premises are true AND its reasoning is valid or ____.", correctAnswer: "strong", explanation: "Deductive reasoning must be valid; inductive reasoning must be strong." },
     ],
   },
 ];

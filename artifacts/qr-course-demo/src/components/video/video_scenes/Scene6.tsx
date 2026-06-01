@@ -94,7 +94,7 @@ export function Scene6({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
               >
                 <div>
                   <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Homework</div>
-                  <h4 className="font-serif text-lg text-primary mb-1">Homework 1.1 — Number, fractions, ratios</h4>
+                  <h4 className="font-serif text-lg text-primary mb-1">Homework 1.1 — Claims and arguments</h4>
                   <div className="text-sm text-muted-foreground">3 problems</div>
                 </div>
                 <div className="flex items-center space-x-6">
@@ -117,7 +117,7 @@ export function Scene6({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
               >
                 <div>
                   <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Homework</div>
-                  <h4 className="font-serif text-lg text-primary mb-1">Homework 1.2 — Units, expressions, equations</h4>
+                  <h4 className="font-serif text-lg text-primary mb-1">Homework 1.2 — Structure of arguments</h4>
                   <div className="text-sm text-muted-foreground">4 problems</div>
                 </div>
                 <div className="flex items-center space-x-6">
@@ -141,7 +141,7 @@ export function Scene6({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
                 <div>
                   <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Test</div>
                   <h4 className="font-serif text-lg text-primary mb-1">Week 1 Test</h4>
-                  <div className="text-sm text-muted-foreground">5 problems · 30 min</div>
+                  <div className="text-sm text-muted-foreground">6 problems · 30 min</div>
                 </div>
                 <div className="flex items-center space-x-6">
                   <div className="text-right">
@@ -174,11 +174,11 @@ export function Scene6({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
             <div className="bg-white border border-border rounded-xl shadow-sm p-8 mb-6 relative overflow-hidden">
               <div className="absolute top-0 right-0 bg-emerald-100 text-emerald-700 px-4 py-1.5 text-xs font-bold tracking-widest rounded-bl-xl border-b border-l border-emerald-200">GRADED</div>
               
-              <h3 className="font-medium text-lg mb-6 max-w-2xl text-foreground">Q1. Express 0.625 as a fraction in lowest terms.</h3>
+              <h3 className="font-medium text-lg mb-6 max-w-2xl text-foreground">Q1. A sentence that is either true or false is called a ___.</h3>
               
               <div className="w-fit mb-6">
                 <div className="text-xs text-muted-foreground mb-2">Your answer:</div>
-                <div className="px-6 py-3 bg-muted/30 border border-border rounded-lg text-lg font-mono">5/8</div>
+                <div className="px-6 py-3 bg-muted/30 border border-border rounded-lg text-lg font-mono">claim</div>
               </div>
 
               <AnimatePresence>
@@ -193,7 +193,7 @@ export function Scene6({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
                       <span>AI Tutor Feedback</span>
                     </div>
                     <div className="text-sm text-blue-900 leading-relaxed">
-                      <StreamingText text="Correct. 0.625 = 625/1000 = 5/8 after dividing by 125. Nice reduction." delay={0} />
+                      <StreamingText text="Correct. A claim (also called a statement or proposition) is a sentence that is either true or false — the building block of every argument." delay={0} />
                     </div>
                   </motion.div>
                 )}
@@ -219,7 +219,7 @@ export function Scene6({ setCursorPos, setIsClicking }: { setCursorPos: (pos: {x
             </div>
             
             <div className="bg-white border border-border rounded-xl shadow-sm p-8 opacity-50">
-              <h3 className="font-medium text-lg mb-6 max-w-2xl text-foreground">Q2. A recipe calls for...</h3>
+              <h3 className="font-medium text-lg mb-6 max-w-2xl text-foreground">Q2. In "All dogs are mammals, so Rex is a mammal," the word "so" signals the...</h3>
               <div className="text-sm text-muted-foreground">Problem content hidden...</div>
             </div>
           </motion.div>
