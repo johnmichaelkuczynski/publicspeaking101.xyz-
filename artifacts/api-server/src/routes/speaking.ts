@@ -431,6 +431,13 @@ router.post(
       return;
     }
 
+    if (body.mode !== prompt.mode) {
+      res.status(400).json({
+        error: `response mode "${body.mode}" does not match prompt mode "${prompt.mode}"`,
+      });
+      return;
+    }
+
     if (body.mode === "spoken" && !body.recordingObjectPath) {
       res.status(400).json({ error: "recordingObjectPath is required for spoken responses" });
       return;
