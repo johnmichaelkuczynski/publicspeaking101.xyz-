@@ -67,7 +67,9 @@ export default function VideoTemplate({
       audio.currentTime = targetTime;
     }
     audio.play().catch(() => {});
-  }, [currentSceneKey, baseSceneKey, muted]);
+    // `muted` is intentionally excluded: mute is declarative via the <audio> prop
+    // and must not re-trigger a scene reseek.
+  }, [currentSceneKey, baseSceneKey]);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[var(--color-bg-dark)] font-body text-white">
