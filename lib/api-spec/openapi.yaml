@@ -10,18 +10,6 @@ servers:
 tags:
   - name: health
     description: Health operations
-  - name: course
-    description: Course content (weeks, lectures, topics)
-  - name: assignments
-    description: Homeworks, tests, midterm, final
-  - name: practice
-    description: Infinite practice sessions and adaptive problem generation
-  - name: tutor
-    description: AI tutor chat
-  - name: detection
-    description: AI-generation and diachronic detection
-  - name: analytics
-    description: User performance analytics and reports
   - name: speaking
     description: Public-speaking course content, spoken assignments, and evaluation
   - name: Storage
@@ -30,7 +18,7 @@ paths:
   /healthz:
     get:
       operationId: healthCheck
-      tags: [health]
+      tags: [ health ]
       summary: Health check
       responses:
         "200":
@@ -40,346 +28,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
 
-  /course/overview:
-    get:
-      operationId: getCourseOverview
-      tags: [course]
-      summary: Course-level overview with weeks, assignments, and progress
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CourseOverview"
-
-  /course/weeks/{weekNumber}:
-    get:
-      operationId: getWeek
-      tags: [course]
-      summary: Get one week's lectures and assignment list
-      parameters:
-        - name: weekNumber
-          in: path
-          required: true
-          schema: { type: integer, minimum: 1, maximum: 4 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Week"
-
-  /course/lectures/{lectureId}:
-    get:
-      operationId: getLecture
-      tags: [course]
-      summary: Get the full lecture text for a topic
-      parameters:
-        - name: lectureId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Lecture"
-
-  /course/topics:
-    get:
-      operationId: listTopics
-      tags: [course]
-      summary: List all course topics (used for analytics + tutor scoping)
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Topic"
-
-  /assignments:
-    get:
-      operationId: listAssignments
-      tags: [assignments]
-      summary: List all assignments (homeworks, tests, midterm, final)
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AssignmentSummary"
-
-  /assignments/{assignmentId}:
-    get:
-      operationId: getAssignment
-      tags: [assignments]
-      summary: Get an assignment with its problems
-      parameters:
-        - name: assignmentId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Assignment"
-
-  /assignments/{assignmentId}/start:
-    post:
-      operationId: startAssignmentAttempt
-      tags: [assignments]
-      summary: Start (or resume) an attempt on an assignment
-      parameters:
-        - name: assignmentId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AttemptState"
-
-  /assignments/attempts/{attemptId}:
-    get:
-      operationId: getAttempt
-      tags: [assignments]
-      summary: Get current attempt state (answers, time remaining)
-      parameters:
-        - name: attemptId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AttemptState"
-
-  /assignments/attempts/{attemptId}/answer:
-    put:
-      operationId: saveAnswer
-      tags: [assignments]
-      summary: Save (or update) a single answer with keystroke trace
-      parameters:
-        - name: attemptId
-          in: path
-          required: true
-          schema: { type: integer }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AnswerInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AnswerSaved"
-
-  /assignments/attempts/{attemptId}/submit:
-    post:
-      operationId: submitAttempt
-      tags: [assignments]
-      summary: Submit the attempt for grading (also runs AI + diachronic detection)
-      parameters:
-        - name: attemptId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AttemptResult"
-
-  /practice/sessions:
-    post:
-      operationId: startPracticeSession
-      tags: [practice]
-      summary: Start a new practice session (infinite, adaptive)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PracticeSessionInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PracticeSession"
-
-  /practice/sessions/{sessionId}/next:
-    post:
-      operationId: nextPracticeProblem
-      tags: [practice]
-      summary: Generate the next problem (adaptive difficulty, de-novo)
-      parameters:
-        - name: sessionId
-          in: path
-          required: true
-          schema: { type: integer }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NextProblemInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PracticeProblem"
-
-  /practice/sessions/{sessionId}/grade:
-    post:
-      operationId: gradePracticeAnswer
-      tags: [practice]
-      summary: Grade a practice answer; returns correct/incorrect and explanation
-      parameters:
-        - name: sessionId
-          in: path
-          required: true
-          schema: { type: integer }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PracticeAnswerInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PracticeGrade"
-
-  /tutor/ask:
-    post:
-      operationId: askTutor
-      tags: [tutor]
-      summary: Ask the AI tutor a question (text reply with optional spoken audio URL)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TutorAskInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TutorReply"
-
-  /detection/scan:
-    post:
-      operationId: scanText
-      tags: [detection]
-      summary: Run AI-generation + diachronic detection on a candidate answer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DetectionScanInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DetectionResult"
-
-  /analytics/summary:
-    get:
-      operationId: getAnalyticsSummary
-      tags: [analytics]
-      summary: Overall performance summary (averages, attempts, streaks)
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AnalyticsSummary"
-
-  /analytics/topics:
-    get:
-      operationId: getTopicAnalytics
-      tags: [analytics]
-      summary: Per-topic accuracy and strength/weakness ranking
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TopicAnalytics"
-
-  /analytics/activity:
-    get:
-      operationId: getRecentActivity
-      tags: [analytics]
-      summary: Recent practice + assignment activity timeline
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ActivityItem"
-
-  /analytics/report:
-    post:
-      operationId: generateReport
-      tags: [analytics]
-      summary: Generate a narrative strengths/weaknesses report
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AnalyticsReport"
-
   /speaking/overview:
     get:
       operationId: getSpeakingOverview
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Course-level overview with units, assignments, and progress
       responses:
         "200":
@@ -392,7 +44,7 @@ paths:
   /speaking/units/{unitNumber}:
     get:
       operationId: getSpeakingUnit
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Get one unit's lectures and assignment list
       parameters:
         - name: unitNumber
@@ -416,7 +68,7 @@ paths:
   /speaking/lectures/{lectureId}:
     get:
       operationId: getSpeakingLecture
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Get a single lecture
       parameters:
         - name: lectureId
@@ -440,7 +92,7 @@ paths:
   /speaking/assignments/{assignmentId}:
     get:
       operationId: getSpeakingAssignment
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Get an assignment with its prompts
       parameters:
         - name: assignmentId
@@ -464,7 +116,7 @@ paths:
   /speaking/assignments/{assignmentId}/start:
     post:
       operationId: startSpeakingAttempt
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Start (or resume) an attempt for an assignment
       parameters:
         - name: assignmentId
@@ -488,7 +140,7 @@ paths:
   /speaking/attempts:
     get:
       operationId: listSpeakingAttempts
-      tags: [speaking]
+      tags: [ speaking ]
       summary: List all attempts, most recent first
       responses:
         "200":
@@ -503,7 +155,7 @@ paths:
   /speaking/attempts/{attemptId}:
     get:
       operationId: getSpeakingAttempt
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Get an attempt and its responses
       parameters:
         - name: attemptId
@@ -527,7 +179,7 @@ paths:
   /speaking/attempts/{attemptId}/responses:
     post:
       operationId: submitSpeakingResponse
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Submit one response (spoken or written); transcribes and evaluates it
       parameters:
         - name: attemptId
@@ -569,7 +221,7 @@ paths:
   /speaking/attempts/{attemptId}/submit:
     post:
       operationId: finalizeSpeakingAttempt
-      tags: [speaking]
+      tags: [ speaking ]
       summary: Finalize an attempt and roll up the overall score
       parameters:
         - name: attemptId
@@ -593,7 +245,7 @@ paths:
   /speaking/progress:
     get:
       operationId: getSpeakingProgress
-      tags: [speaking]
+      tags: [ speaking ]
       summary: KPIs, per-unit progress, and recent activity
       responses:
         "200":
@@ -605,7 +257,7 @@ paths:
 
   /storage/uploads/request-url:
     post:
-      tags: [Storage]
+      tags: [ Storage ]
       operationId: requestUploadUrl
       summary: Request a presigned URL for file upload
       requestBody:
@@ -636,7 +288,7 @@ paths:
 
   /storage/public-objects/{filePath}:
     get:
-      tags: [Storage]
+      tags: [ Storage ]
       operationId: getPublicObject
       summary: Serve a public asset from PUBLIC_OBJECT_SEARCH_PATHS
       parameters:
@@ -667,7 +319,7 @@ paths:
 
   /storage/objects/{objectPath}:
     get:
-      tags: [Storage]
+      tags: [ Storage ]
       operationId: getStorageObject
       summary: Serve an object entity from PRIVATE_OBJECT_DIR
       parameters:
@@ -700,20 +352,20 @@ components:
   schemas:
     ErrorEnvelope:
       type: object
-      required: [error]
+      required: [ error ]
       properties:
         error: { type: string }
 
     UploadUrlRequest:
       type: object
-      required: [name, size, contentType]
+      required: [ name, size, contentType ]
       properties:
         name: { type: string, minLength: 1 }
         size: { type: integer, minimum: 1 }
         contentType: { type: string, minLength: 1 }
     UploadUrlResponse:
       type: object
-      required: [uploadURL, objectPath]
+      required: [ uploadURL, objectPath ]
       properties:
         uploadURL: { type: string, format: uri }
         objectPath: { type: string }
@@ -722,7 +374,7 @@ components:
 
     SpeakingLectureRef:
       type: object
-      required: [id, code, title]
+      required: [ id, code, title ]
       properties:
         id: { type: integer }
         code: { type: string }
@@ -730,62 +382,62 @@ components:
 
     SpeakingLecture:
       type: object
-      required: [id, unitNumber, code, title, body]
+      required: [ id, unitNumber, code, title, body ]
       properties:
         id: { type: integer }
         unitNumber: { type: integer }
         code: { type: string }
         title: { type: string }
         body: { type: string }
-        unitTitle: { type: ["string", "null"] }
+        unitTitle: { type: [ "string", "null" ] }
 
     SpeakingPrompt:
       type: object
-      required: [id, position, mode, prompt]
+      required: [ id, position, mode, prompt ]
       properties:
         id: { type: integer }
         position: { type: integer }
         mode:
           type: string
-          enum: [spoken, written]
+          enum: [ spoken, written ]
         prompt: { type: string }
-        code: { type: ["string", "null"] }
-        topicTitle: { type: ["string", "null"] }
-        targetSeconds: { type: ["integer", "null"] }
-        rubric: { type: ["string", "null"] }
-        guidance: { type: ["string", "null"] }
+        code: { type: [ "string", "null" ] }
+        topicTitle: { type: [ "string", "null" ] }
+        targetSeconds: { type: [ "integer", "null" ] }
+        rubric: { type: [ "string", "null" ] }
+        guidance: { type: [ "string", "null" ] }
 
     SpeakingAssignmentSummary:
       type: object
-      required: [id, kind, title, unitNumber, mode, promptCount, status]
+      required: [ id, kind, title, unitNumber, mode, promptCount, status ]
       properties:
         id: { type: integer }
         kind:
           type: string
-          enum: [homework, test, capstone]
+          enum: [ homework, test, capstone ]
         title: { type: string }
         unitNumber: { type: integer }
         mode:
           type: string
-          enum: [spoken, written, mixed]
+          enum: [ spoken, written, mixed ]
         promptCount: { type: integer }
         status:
           type: string
-          enum: [not_started, in_progress, submitted]
-        bestScore: { type: ["number", "null"] }
-        lastAttemptId: { type: ["integer", "null"] }
+          enum: [ not_started, in_progress, submitted ]
+        bestScore: { type: [ "number", "null" ] }
+        lastAttemptId: { type: [ "integer", "null" ] }
 
     SpeakingAssignment:
       type: object
-      required: [id, kind, title, unitNumber, prompts]
+      required: [ id, kind, title, unitNumber, prompts ]
       properties:
         id: { type: integer }
         kind:
           type: string
-          enum: [homework, test, capstone]
+          enum: [ homework, test, capstone ]
         title: { type: string }
         unitNumber: { type: integer }
-        instructions: { type: ["string", "null"] }
+        instructions: { type: [ "string", "null" ] }
         prompts:
           type: array
           items:
@@ -793,11 +445,11 @@ components:
 
     SpeakingUnit:
       type: object
-      required: [unitNumber, title, lectures, assignments]
+      required: [ unitNumber, title, lectures, assignments ]
       properties:
         unitNumber: { type: integer }
         title: { type: string }
-        summary: { type: ["string", "null"] }
+        summary: { type: [ "string", "null" ] }
         lectures:
           type: array
           items:
@@ -809,7 +461,7 @@ components:
 
     SpeakingOverview:
       type: object
-      required: [title, units, totals]
+      required: [ title, units, totals ]
       properties:
         title: { type: string }
         units:
@@ -818,7 +470,7 @@ components:
             $ref: "#/components/schemas/SpeakingUnit"
         totals:
           type: object
-          required: [assignmentsCompleted, assignmentsTotal, attemptsCount]
+          required: [ assignmentsCompleted, assignmentsTotal, attemptsCount ]
           properties:
             assignmentsCompleted: { type: integer }
             assignmentsTotal: { type: integer }
@@ -836,7 +488,7 @@ components:
           pauseCount,
           longestPauseMs,
           fluencyScore,
-          vocalVarietyScore,
+          vocalVarietyScore
         ]
       properties:
         durationSeconds: { type: number }
@@ -851,56 +503,56 @@ components:
 
     SpeakingResponse:
       type: object
-      required: [id, promptId, mode, status]
+      required: [ id, promptId, mode, status ]
       properties:
         id: { type: integer }
         promptId: { type: integer }
         mode:
           type: string
-          enum: [spoken, written]
+          enum: [ spoken, written ]
         status:
           type: string
-          enum: [pending, graded, failed]
-        textAnswer: { type: ["string", "null"] }
-        recordingObjectPath: { type: ["string", "null"] }
+          enum: [ pending, graded, failed ]
+        textAnswer: { type: [ "string", "null" ] }
+        recordingObjectPath: { type: [ "string", "null" ] }
         mediaKind:
-          type: ["string", "null"]
-          enum: [audio, video, null]
-        durationMs: { type: ["integer", "null"] }
-        transcript: { type: ["string", "null"] }
+          type: [ "string", "null" ]
+          enum: [ audio, video, null ]
+        durationMs: { type: [ "integer", "null" ] }
+        transcript: { type: [ "string", "null" ] }
         metrics:
           oneOf:
             - $ref: "#/components/schemas/SpeakingMetrics"
             - type: "null"
-        contentScore: { type: ["number", "null"] }
-        deliveryScore: { type: ["number", "null"] }
-        overallScore: { type: ["number", "null"] }
-        grade: { type: ["string", "null"] }
-        summary: { type: ["string", "null"] }
+        contentScore: { type: [ "number", "null" ] }
+        deliveryScore: { type: [ "number", "null" ] }
+        overallScore: { type: [ "number", "null" ] }
+        grade: { type: [ "string", "null" ] }
+        summary: { type: [ "string", "null" ] }
         whatWorked:
           type: array
           items: { type: string }
         whatToFix:
           type: array
           items: { type: string }
-        errorMessage: { type: ["string", "null"] }
-        gradedAt: { type: ["string", "null"], format: date-time }
+        errorMessage: { type: [ "string", "null" ] }
+        gradedAt: { type: [ "string", "null" ], format: date-time }
 
     SpeakingAttempt:
       type: object
-      required: [id, assignmentId, status, startedAt, responses]
+      required: [ id, assignmentId, status, startedAt, responses ]
       properties:
         id: { type: integer }
         assignmentId: { type: integer }
-        assignmentTitle: { type: ["string", "null"] }
-        unitNumber: { type: ["integer", "null"] }
-        kind: { type: ["string", "null"] }
+        assignmentTitle: { type: [ "string", "null" ] }
+        unitNumber: { type: [ "integer", "null" ] }
+        kind: { type: [ "string", "null" ] }
         status:
           type: string
-          enum: [in_progress, submitted]
-        overallScore: { type: ["number", "null"] }
+          enum: [ in_progress, submitted ]
+        overallScore: { type: [ "number", "null" ] }
         startedAt: { type: string, format: date-time }
-        submittedAt: { type: ["string", "null"], format: date-time }
+        submittedAt: { type: [ "string", "null" ], format: date-time }
         prompts:
           type: array
           items:
@@ -912,7 +564,7 @@ components:
 
     SpeakingAttemptSummary:
       type: object
-      required: [id, assignmentId, assignmentTitle, unitNumber, kind, status, startedAt]
+      required: [ id, assignmentId, assignmentTitle, unitNumber, kind, status, startedAt ]
       properties:
         id: { type: integer }
         assignmentId: { type: integer }
@@ -921,70 +573,77 @@ components:
         kind: { type: string }
         status:
           type: string
-          enum: [in_progress, submitted]
-        overallScore: { type: ["number", "null"] }
+          enum: [ in_progress, submitted ]
+        overallScore: { type: [ "number", "null" ] }
         startedAt: { type: string, format: date-time }
-        submittedAt: { type: ["string", "null"], format: date-time }
+        submittedAt: { type: [ "string", "null" ], format: date-time }
 
     SpeakingResponseInput:
       type: object
-      required: [promptId, mode]
+      required: [ promptId, mode ]
       properties:
         promptId: { type: integer }
         mode:
           type: string
-          enum: [spoken, written]
-        textAnswer: { type: ["string", "null"] }
-        recordingObjectPath: { type: ["string", "null"] }
+          enum: [ spoken, written ]
+        textAnswer: { type: [ "string", "null" ] }
+        recordingObjectPath: { type: [ "string", "null" ] }
         mediaKind:
-          type: ["string", "null"]
-          enum: [audio, video, null]
-        durationMs: { type: ["integer", "null"] }
+          type: [ "string", "null" ]
+          enum: [ audio, video, null ]
+        durationMs: { type: [ "integer", "null" ] }
 
     SpeakingUnitProgress:
       type: object
-      required: [unitNumber, title, completed, total]
+      required: [ unitNumber, title, completed, total ]
       properties:
         unitNumber: { type: integer }
         title: { type: string }
         completed: { type: integer }
         total: { type: integer }
-        averageScore: { type: ["number", "null"] }
+        averageScore: { type: [ "number", "null" ] }
 
     SpeakingTopicProgress:
       type: object
-      required: [topicId, title, unitNumber, responses, gradedResponses]
+      required: [ topicId, title, unitNumber, responses, gradedResponses ]
       properties:
         topicId: { type: integer }
         title: { type: string }
         unitNumber: { type: integer }
         responses: { type: integer }
         gradedResponses: { type: integer }
-        averageScore: { type: ["number", "null"] }
+        averageScore: { type: [ "number", "null" ] }
 
     SpeakingActivityItem:
       type: object
-      required: [id, title, kind, at]
+      required: [ id, title, kind, at ]
       properties:
         id: { type: integer }
         title: { type: string }
         kind: { type: string }
         at: { type: string, format: date-time }
-        score: { type: ["number", "null"] }
-        unitNumber: { type: ["integer", "null"] }
+        score: { type: [ "number", "null" ] }
+        unitNumber: { type: [ "integer", "null" ] }
 
     SpeakingProgress:
       type: object
       required:
-        [totalAssignments, completedAssignments, totalAttempts, units, topics, recent]
+        [
+          totalAssignments,
+          completedAssignments,
+          totalAttempts,
+          units,
+          topics,
+          recent
+        ]
       properties:
         totalAssignments: { type: integer }
         completedAssignments: { type: integer }
         totalAttempts: { type: integer }
-        averageScore: { type: ["number", "null"] }
-        averageContent: { type: ["number", "null"] }
-        averageDelivery: { type: ["number", "null"] }
-        bestScore: { type: ["number", "null"] }
+        averageScore: { type: [ "number", "null" ] }
+        averageContent: { type: [ "number", "null" ] }
+        averageDelivery: { type: [ "number", "null" ] }
+        bestScore: { type: [ "number", "null" ] }
         units:
           type: array
           items:
@@ -1002,355 +661,4 @@ components:
       type: object
       properties:
         status: { type: string }
-      required: [status]
-
-    Topic:
-      type: object
-      required: [id, slug, title, weekNumber]
-      properties:
-        id: { type: integer }
-        slug: { type: string }
-        title: { type: string }
-        weekNumber: { type: integer }
-        blurb: { type: ["string", "null"] }
-
-    Lecture:
-      type: object
-      required: [id, topicId, title, weekNumber, body]
-      properties:
-        id: { type: integer }
-        topicId: { type: integer }
-        title: { type: string }
-        weekNumber: { type: integer }
-        body:
-          type: string
-          description: Short Markdown lecture text (the baseline / minimum-detail version). The frontend lets users select passages and send them to the tutor.
-        bodyMedium:
-          type: ["string", "null"]
-          description: Medium-length version with more explanation and more examples. Null if not yet generated.
-        bodyLong:
-          type: ["string", "null"]
-          description: Long version with the most explanation and the most examples. Null if not yet generated.
-
-    Week:
-      type: object
-      required: [weekNumber, title, lectures, assignments]
-      properties:
-        weekNumber: { type: integer }
-        title: { type: string }
-        summary: { type: ["string", "null"] }
-        lectures:
-          type: array
-          items:
-            $ref: "#/components/schemas/LectureRef"
-        assignments:
-          type: array
-          items:
-            $ref: "#/components/schemas/AssignmentSummary"
-
-    LectureRef:
-      type: object
-      required: [id, title, topicId]
-      properties:
-        id: { type: integer }
-        title: { type: string }
-        topicId: { type: integer }
-
-    AssignmentSummary:
-      type: object
-      required: [id, kind, title, weekNumber, problemCount, isTimed, status]
-      properties:
-        id: { type: integer }
-        kind:
-          type: string
-          enum: [homework, test, midterm, final]
-        title: { type: string }
-        weekNumber: { type: integer }
-        problemCount: { type: integer }
-        isTimed: { type: boolean }
-        timeLimitMinutes: { type: ["integer", "null"] }
-        status:
-          type: string
-          enum: [not_started, in_progress, submitted]
-        bestScore: { type: ["number", "null"] }
-        lastAttemptId: { type: ["integer", "null"] }
-
-    Assignment:
-      type: object
-      required: [id, kind, title, weekNumber, isTimed, problems]
-      properties:
-        id: { type: integer }
-        kind:
-          type: string
-          enum: [homework, test, midterm, final]
-        title: { type: string }
-        weekNumber: { type: integer }
-        isTimed: { type: boolean }
-        timeLimitMinutes: { type: ["integer", "null"] }
-        instructions: { type: ["string", "null"] }
-        problems:
-          type: array
-          items:
-            $ref: "#/components/schemas/Problem"
-
-    Problem:
-      type: object
-      required: [id, position, prompt, topicId]
-      properties:
-        id: { type: integer }
-        position: { type: integer }
-        prompt: { type: string }
-        topicId: { type: integer }
-        topicTitle: { type: ["string", "null"] }
-        hint: { type: ["string", "null"] }
-
-    AttemptState:
-      type: object
-      required: [id, assignmentId, status, startedAt, answers]
-      properties:
-        id: { type: integer }
-        assignmentId: { type: integer }
-        status:
-          type: string
-          enum: [in_progress, submitted]
-        startedAt: { type: string, format: date-time }
-        submittedAt: { type: ["string", "null"], format: date-time }
-        deadlineAt: { type: ["string", "null"], format: date-time }
-        answers:
-          type: array
-          items:
-            $ref: "#/components/schemas/SavedAnswer"
-
-    SavedAnswer:
-      type: object
-      required: [problemId, answer]
-      properties:
-        problemId: { type: integer }
-        answer: { type: string }
-        keystrokeCount: { type: ["integer", "null"] }
-        eraseCount: { type: ["integer", "null"] }
-
-    AnswerInput:
-      type: object
-      required: [problemId, answer, trace]
-      properties:
-        problemId: { type: integer }
-        answer: { type: string }
-        trace:
-          $ref: "#/components/schemas/KeystrokeTrace"
-
-    KeystrokeTrace:
-      type: object
-      required: [keystrokeCount, eraseCount, durationMs]
-      properties:
-        keystrokeCount: { type: integer }
-        eraseCount: { type: integer }
-        bulkInsertCount: { type: integer, default: 0 }
-        longestBulkInsertChars: { type: integer, default: 0 }
-        rewriteSegments: { type: integer, default: 0 }
-        durationMs: { type: integer }
-
-    AnswerSaved:
-      type: object
-      required: [ok]
-      properties:
-        ok: { type: boolean }
-
-    AttemptResult:
-      type: object
-      required: [attemptId, score, total, percent, perProblem, detection]
-      properties:
-        attemptId: { type: integer }
-        score: { type: number }
-        total: { type: number }
-        percent: { type: number }
-        perProblem:
-          type: array
-          items:
-            $ref: "#/components/schemas/ProblemResult"
-        detection:
-          type: array
-          items:
-            $ref: "#/components/schemas/DetectionResult"
-
-    ProblemResult:
-      type: object
-      required: [problemId, correct, explanation]
-      properties:
-        problemId: { type: integer }
-        correct: { type: boolean }
-        userAnswer: { type: string }
-        correctAnswer: { type: string }
-        explanation: { type: string }
-
-    PracticeSessionInput:
-      type: object
-      required: [tutorEnabled]
-      properties:
-        weekNumber: { type: ["integer", "null"] }
-        topicId: { type: ["integer", "null"] }
-        tutorEnabled: { type: boolean }
-        focusOnWeaknesses: { type: boolean, default: true }
-        initialDifficulty:
-          type: ["number", "null"]
-          description: Starting difficulty 1-5; if omitted defaults to 2.0
-
-    PracticeSession:
-      type: object
-      required: [id, tutorEnabled, difficulty, weekNumber]
-      properties:
-        id: { type: integer }
-        tutorEnabled: { type: boolean }
-        difficulty: { type: number }
-        weekNumber: { type: ["integer", "null"] }
-        topicId: { type: ["integer", "null"] }
-        focusOnWeaknesses: { type: boolean }
-
-    NextProblemInput:
-      type: object
-      properties:
-        request:
-          type: ["string", "null"]
-          description: Free-form user request, e.g. "give me harder probability problems"
-        topicId: { type: ["integer", "null"] }
-
-    PracticeProblem:
-      type: object
-      required: [id, prompt, topicId, difficulty]
-      properties:
-        id: { type: integer }
-        prompt: { type: string }
-        topicId: { type: integer }
-        topicTitle: { type: string }
-        difficulty: { type: number }
-
-    PracticeAnswerInput:
-      type: object
-      required: [problemId, answer, trace]
-      properties:
-        problemId: { type: integer }
-        answer: { type: string }
-        trace:
-          $ref: "#/components/schemas/KeystrokeTrace"
-
-    PracticeGrade:
-      type: object
-      required: [problemId, correct, explanation, newDifficulty]
-      properties:
-        problemId: { type: integer }
-        correct: { type: boolean }
-        correctAnswer: { type: string }
-        explanation: { type: string }
-        newDifficulty: { type: number }
-        tutorTip: { type: ["string", "null"] }
-
-    TutorAskInput:
-      type: object
-      required: [message]
-      properties:
-        sessionId: { type: ["integer", "null"] }
-        message: { type: string }
-        selectedLectureText: { type: ["string", "null"] }
-        lectureId: { type: ["integer", "null"] }
-        problemId: { type: ["integer", "null"] }
-
-    TutorReply:
-      type: object
-      required: [text]
-      properties:
-        text: { type: string }
-        audioUrl: { type: ["string", "null"] }
-
-    DetectionScanInput:
-      type: object
-      required: [text, trace]
-      properties:
-        text: { type: string }
-        trace:
-          $ref: "#/components/schemas/KeystrokeTrace"
-
-    DetectionResult:
-      type: object
-      required: [problemId, aiScore, aiFlagged, diachronicScore, diachronicFlagged, rationale]
-      properties:
-        problemId: { type: ["integer", "null"] }
-        aiScore:
-          type: number
-          description: 0..1 probability the text is AI-generated
-        aiFlagged: { type: boolean }
-        diachronicScore:
-          type: number
-          description: 0..1 probability the user is rewording AI output (based on keystroke pattern)
-        diachronicFlagged: { type: boolean }
-        rationale: { type: string }
-
-    AnalyticsSummary:
-      type: object
-      required: [officialAverage, practiceAccuracy, attemptsCount, practiceCount, streakDays]
-      properties:
-        officialAverage: { type: number }
-        practiceAccuracy: { type: number }
-        attemptsCount: { type: integer }
-        practiceCount: { type: integer }
-        streakDays: { type: integer }
-        strongestTopic: { type: ["string", "null"] }
-        weakestTopic: { type: ["string", "null"] }
-
-    TopicAnalytics:
-      type: object
-      required: [topicId, topicTitle, weekNumber, attempts, accuracy, strengthLabel]
-      properties:
-        topicId: { type: integer }
-        topicTitle: { type: string }
-        weekNumber: { type: integer }
-        attempts: { type: integer }
-        accuracy: { type: number }
-        strengthLabel:
-          type: string
-          enum: [strong, solid, developing, weak, untested]
-
-    ActivityItem:
-      type: object
-      required: [id, kind, title, at]
-      properties:
-        id: { type: integer }
-        kind:
-          type: string
-          enum: [practice, assignment]
-        title: { type: string }
-        at: { type: string, format: date-time }
-        score: { type: ["number", "null"] }
-        topicTitle: { type: ["string", "null"] }
-
-    AnalyticsReport:
-      type: object
-      required: [generatedAt, narrative, strengths, weaknesses, recommendations]
-      properties:
-        generatedAt: { type: string, format: date-time }
-        narrative: { type: string }
-        strengths:
-          type: array
-          items: { type: string }
-        weaknesses:
-          type: array
-          items: { type: string }
-        recommendations:
-          type: array
-          items: { type: string }
-
-    CourseOverview:
-      type: object
-      required: [title, weeks, totals]
-      properties:
-        title: { type: string }
-        weeks:
-          type: array
-          items:
-            $ref: "#/components/schemas/Week"
-        totals:
-          type: object
-          required: [assignmentsCompleted, assignmentsTotal, practiceCount]
-          properties:
-            assignmentsCompleted: { type: integer }
-            assignmentsTotal: { type: integer }
-            practiceCount: { type: integer }
+      required: [ status ]
