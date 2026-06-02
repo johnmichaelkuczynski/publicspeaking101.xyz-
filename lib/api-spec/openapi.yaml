@@ -951,6 +951,17 @@ components:
         total: { type: integer }
         averageScore: { type: ["number", "null"] }
 
+    SpeakingTopicProgress:
+      type: object
+      required: [topicId, title, unitNumber, responses, gradedResponses]
+      properties:
+        topicId: { type: integer }
+        title: { type: string }
+        unitNumber: { type: integer }
+        responses: { type: integer }
+        gradedResponses: { type: integer }
+        averageScore: { type: ["number", "null"] }
+
     SpeakingActivityItem:
       type: object
       required: [id, title, kind, at]
@@ -965,7 +976,7 @@ components:
     SpeakingProgress:
       type: object
       required:
-        [totalAssignments, completedAssignments, totalAttempts, units, recent]
+        [totalAssignments, completedAssignments, totalAttempts, units, topics, recent]
       properties:
         totalAssignments: { type: integer }
         completedAssignments: { type: integer }
@@ -978,6 +989,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SpeakingUnitProgress"
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpeakingTopicProgress"
         recent:
           type: array
           items:

@@ -64,6 +64,7 @@ export * from './speakingResponseInputMode';
 export * from './speakingResponseMediaKind';
 export * from './speakingResponseMode';
 export * from './speakingResponseStatus';
+export * from './speakingTopicProgress';
 export * from './speakingUnit';
 export * from './speakingUnitProgress';
 export * from './topic';

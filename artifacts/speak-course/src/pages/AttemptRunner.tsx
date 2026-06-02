@@ -25,7 +25,7 @@ export default function AttemptRunner() {
 
   const [activePromptId, setActivePromptId] = useState<number | null>(null);
   const [writtenAnswer, setWrittenAnswer] = useState("");
-  const [recordedBlob, setRecordedBlob] = useState<{blob: Blob, durationMs: number} | null>(null);
+  const [recordedBlob, setRecordedBlob] = useState<{blob: Blob, durationMs: number, mediaKind: "audio" | "video"} | null>(null);
   
   const { data: attempt, isLoading, error, refetch } = useGetSpeakingAttempt(attemptId, {
     query: {
@@ -72,20 +72,22 @@ export default function AttemptRunner() {
   const activePrompt = prompts.find(p => p.id === activePromptId);
   const isAllAnswered = prompts.length > 0 && prompts.every(p => attempt.responses.some(r => r.promptId === p.id));
 
-  const handleRecordingComplete = (blob: Blob, durationMs: number) => {
-    setRecordedBlob({ blob, durationMs });
+  const handleRecordingComplete = (blob: Blob, durationMs: number, mediaKind: "audio" | "video") => {
+    setRecordedBlob({ blob, durationMs, mediaKind });
   };
 
   const handleSubmitSpoken = async () => {
     if (!activePrompt || !recordedBlob) return;
-    
+
+    const fallbackType = recordedBlob.mediaKind === "video" ? "video/webm" : "audio/webm";
+
     try {
       // 1. Get upload URL
       const { uploadURL, objectPath } = await requestUploadUrl.mutateAsync({
         data: {
           name: `recording-${activePrompt.id}.webm`,
           size: recordedBlob.blob.size,
-          contentType: recordedBlob.blob.type || "audio/webm"
+          contentType: recordedBlob.blob.type || fallbackType
         }
       });
       
@@ -93,7 +95,7 @@ export default function AttemptRunner() {
       const res = await fetch(uploadURL, {
         method: "PUT",
         body: recordedBlob.blob,
-        headers: { "Content-Type": recordedBlob.blob.type || "audio/webm" }
+        headers: { "Content-Type": recordedBlob.blob.type || fallbackType }
       });
       
       if (!res.ok) {
@@ -107,7 +109,7 @@ export default function AttemptRunner() {
           promptId: activePrompt.id,
           mode: "spoken",
           recordingObjectPath: objectPath,
-          mediaKind: "audio",
+          mediaKind: recordedBlob.mediaKind,
           durationMs: recordedBlob.durationMs
         }
       });
@@ -352,7 +354,16 @@ export default function AttemptRunner() {
                 <div className="bg-muted/30 rounded-lg p-4 border">
                   {response.mode === 'spoken' && response.recordingObjectPath && (
                     <div className="mb-4">
-                      <audio controls src={`/api/storage${response.recordingObjectPath}`} className="w-full h-10" />
+                      {response.mediaKind === 'video' ? (
+                        <video
+                          controls
+                          playsInline
+                          src={`/api/storage${response.recordingObjectPath}`}
+                          className="w-full max-w-md rounded-lg bg-black aspect-video"
+                        />
+                      ) : (
+                        <audio controls src={`/api/storage${response.recordingObjectPath}`} className="w-full h-10" />
+                      )}
                     </div>
                   )}
                   

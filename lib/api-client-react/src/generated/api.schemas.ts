@@ -310,6 +310,16 @@ export interface SpeakingUnitProgress {
   averageScore?: number | null;
 }
 
+export interface SpeakingTopicProgress {
+  topicId: number;
+  title: string;
+  unitNumber: number;
+  responses: number;
+  gradedResponses: number;
+  /** @nullable */
+  averageScore?: number | null;
+}
+
 export interface SpeakingActivityItem {
   id: number;
   title: string;
@@ -334,6 +344,7 @@ export interface SpeakingProgress {
   /** @nullable */
   bestScore?: number | null;
   units: SpeakingUnitProgress[];
+  topics: SpeakingTopicProgress[];
   recent: SpeakingActivityItem[];
 }
 

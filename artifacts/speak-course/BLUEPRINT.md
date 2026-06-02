@@ -58,7 +58,7 @@ All routes are contract-bound: responses are validated with Zod schemas from `@w
 | `GET /api/speaking/attempts/:attemptId` | Full attempt: prompts + responses. |
 | `POST /api/speaking/attempts/:attemptId/responses` | Submit one response (spoken or written) → grade. |
 | `POST /api/speaking/attempts/:attemptId/submit` | Finalize an attempt; roll up the overall score. |
-| `GET /api/speaking/progress` | Analytics: per-unit mastery, averages, recent activity. |
+| `GET /api/speaking/progress` | Analytics: per-unit mastery, per-topic mastery, averages, recent activity. |
 
 Diagnostics live in `speakingDiagnostics.ts`:
 

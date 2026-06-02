@@ -822,6 +822,14 @@ export const GetSpeakingProgressResponse = zod.object({
   "total": zod.number(),
   "averageScore": zod.number().nullish()
 })),
+  "topics": zod.array(zod.object({
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "unitNumber": zod.number(),
+  "responses": zod.number(),
+  "gradedResponses": zod.number(),
+  "averageScore": zod.number().nullish()
+})),
   "recent": zod.array(zod.object({
   "id": zod.number(),
   "title": zod.string(),

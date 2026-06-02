@@ -632,6 +632,50 @@ router.get("/speaking/progress", async (_req, res) => {
     };
   });
 
+  // Per-topic progress: responses are linked to topics via their prompt's topicId.
+  const allTopics = await db
+    .select()
+    .from(speakingTopicsTable)
+    .orderBy(asc(speakingTopicsTable.position));
+  const allPrompts = await db.select().from(speakingPromptsTable);
+  const promptTopicById = new Map(
+    allPrompts.map((p) => [p.id, p.topicId ?? null]),
+  );
+  const topicAgg = new Map<
+    number,
+    { responses: number; graded: number; scoreSum: number; scoreCount: number }
+  >();
+  for (const r of allResponses) {
+    const topicId = promptTopicById.get(r.promptId);
+    if (topicId == null) continue;
+    const agg =
+      topicAgg.get(topicId) ??
+      { responses: 0, graded: 0, scoreSum: 0, scoreCount: 0 };
+    agg.responses += 1;
+    if (r.status === "graded") {
+      agg.graded += 1;
+      if (r.overallScore != null) {
+        agg.scoreSum += r.overallScore;
+        agg.scoreCount += 1;
+      }
+    }
+    topicAgg.set(topicId, agg);
+  }
+  const topicProgress = allTopics.map((t) => {
+    const agg = topicAgg.get(t.id);
+    return {
+      topicId: t.id,
+      title: t.title,
+      unitNumber: t.unitNumber,
+      responses: agg?.responses ?? 0,
+      gradedResponses: agg?.graded ?? 0,
+      averageScore:
+        agg && agg.scoreCount > 0
+          ? Math.round((agg.scoreSum / agg.scoreCount) * 100) / 100
+          : null,
+    };
+  });
+
   const assignmentById = new Map(allAssignments.map((a) => [a.id, a]));
   const recent = submitted
     .sort(
@@ -661,6 +705,7 @@ router.get("/speaking/progress", async (_req, res) => {
       averageDelivery: avg(deliveryScores),
       bestScore,
       units: unitProgress,
+      topics: topicProgress,
       recent,
     }),
   );

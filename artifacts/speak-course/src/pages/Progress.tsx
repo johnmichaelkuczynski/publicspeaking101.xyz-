@@ -127,6 +127,45 @@ export default function Progress() {
               })}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Topic Mastery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-5">
+                {progress.topics.map(topic => {
+                  const attempted = topic.responses > 0;
+                  const percent = attempted
+                    ? topic.averageScore != null
+                      ? topic.averageScore
+                      : 0
+                    : 0;
+                  return (
+                    <div key={topic.topicId} className="space-y-1.5">
+                      <div className="flex justify-between items-center gap-4">
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mr-2">U{topic.unitNumber}</span>
+                          <span className="font-medium text-sm">{topic.title}</span>
+                        </div>
+                        <div className="text-xs font-medium shrink-0 text-muted-foreground">
+                          {attempted
+                            ? topic.averageScore != null
+                              ? `${Math.round(topic.averageScore)} avg`
+                              : `${topic.responses} done`
+                            : 'Not started'}
+                        </div>
+                      </div>
+                      <ProgressBar value={percent} className={attempted ? 'h-1.5' : 'h-1.5 opacity-40'} />
+                    </div>
+                  );
+                })}
+                {progress.topics.length === 0 && (
+                  <div className="text-sm text-muted-foreground text-center py-4">No topics yet</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div>

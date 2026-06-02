@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { SpeakingActivityItem } from './speakingActivityItem';
+import type { SpeakingTopicProgress } from './speakingTopicProgress';
 import type { SpeakingUnitProgress } from './speakingUnitProgress';
 
 export interface SpeakingProgress {
@@ -21,5 +22,6 @@ export interface SpeakingProgress {
   /** @nullable */
   bestScore?: number | null;
   units: SpeakingUnitProgress[];
+  topics: SpeakingTopicProgress[];
   recent: SpeakingActivityItem[];
 }
