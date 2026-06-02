@@ -36,6 +36,18 @@ uri = "file://artifacts/speak-course-demo/src/assets/images/sound-waves.png"
 type = "image"
 title = "Abstract sound waves"
 
+[[generated]]
+id = "ATiZ9IgkrQfAgAs1WelE8"
+uri = "file://artifacts/speak-course-marketing/public/images/microphone.png"
+type = "image"
+title = "3d modern microphone"
+
+[[generated]]
+id = "CN9LABBt3si1-_0JFiNtI"
+uri = "file://artifacts/speak-course-marketing/public/images/waveform.png"
+type = "image"
+title = "audio waveform texture"
+
 [[outputs]]
 id = "k9ub7M-_NtEMTP4gQFmL8"
 uri = "file://artifacts/qr-course-demo/public/audio/bg_music.mp3"
@@ -57,5 +69,11 @@ title = "background music"
 [[outputs]]
 id = "XALep8UZBIro4pqJM69yP"
 uri = "file://artifacts/speak-course-demo/public/audio/bg_music.mp3"
+type = "audio"
+title = "background music"
+
+[[outputs]]
+id = "yRXygxOjQKpAVt-Bf_3KV"
+uri = "file://artifacts/speak-course-marketing/public/audio/bg_music.mp3"
 type = "audio"
 title = "background music"

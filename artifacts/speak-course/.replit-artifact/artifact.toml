@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/speak-course/"
+previewPath = "/"
 title = "Podium — Public Speaking Studio"
 version = "1.0.0"
 id = "artifacts/speak-course"
@@ -11,7 +11,7 @@ version = "1.0.0"
 
 [[services]]
 name = "web"
-paths = [ "/speak-course/" ]
+paths = [ "/" ]
 localPort = 24999
 
 [services.development]
@@ -28,4 +28,4 @@ to = "/index.html"
 
 [services.env]
 PORT = "24999"
-BASE_PATH = "/speak-course/"
+BASE_PATH = "/"

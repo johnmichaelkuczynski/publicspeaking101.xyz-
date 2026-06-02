@@ -33,20 +33,20 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// In production, serve the built qr-course frontend from the same process.
+// In production, serve the built speak-course frontend from the same process.
 // On Replit the deploy sidecar handles this; on Render (single web service)
 // the API server serves both /api and the static SPA.
 if (process.env.NODE_ENV === "production") {
   const candidates = [
-    path.resolve(process.cwd(), "artifacts/qr-course/dist/public"),
-    path.resolve(process.cwd(), "../qr-course/dist/public"),
-    path.resolve(process.cwd(), "../../artifacts/qr-course/dist/public"),
+    path.resolve(process.cwd(), "artifacts/speak-course/dist/public"),
+    path.resolve(process.cwd(), "../speak-course/dist/public"),
+    path.resolve(process.cwd(), "../../artifacts/speak-course/dist/public"),
   ];
   const staticDir = candidates.find((p) => fs.existsSync(p));
 
   if (staticDir) {
     const indexHtml = path.join(staticDir, "index.html");
-    logger.info({ staticDir }, "Serving qr-course static bundle");
+    logger.info({ staticDir }, "Serving speak-course static bundle");
     app.use(express.static(staticDir, { index: false }));
     app.get(/^\/(?!api\/).*/, (_req, res, next) => {
       if (!fs.existsSync(indexHtml)) return next();
@@ -55,7 +55,7 @@ if (process.env.NODE_ENV === "production") {
   } else {
     logger.warn(
       { tried: candidates },
-      "qr-course static bundle not found; only /api will be served",
+      "speak-course static bundle not found; only /api will be served",
     );
   }
 }
