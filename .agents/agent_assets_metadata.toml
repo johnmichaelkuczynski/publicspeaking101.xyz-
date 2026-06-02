@@ -18,6 +18,24 @@ uri = "file://artifacts/clearthink-marketing/public/images/bg-keystroke.png"
 type = "image"
 title = "Abstract digital keystroke pattern"
 
+[[generated]]
+id = "iSfED33GEcuh7IF4w8O5l"
+uri = "file://artifacts/speak-course-demo/src/assets/images/spotlight-bg.png"
+type = "image"
+title = "Spotlight stage background"
+
+[[generated]]
+id = "DSmGTBeo0XDvbbxla5hGF"
+uri = "file://artifacts/speak-course-demo/src/assets/images/microphone.png"
+type = "image"
+title = "Professional microphone"
+
+[[generated]]
+id = "4VuKTutJ1N6XgU8cIwkUV"
+uri = "file://artifacts/speak-course-demo/src/assets/images/sound-waves.png"
+type = "image"
+title = "Abstract sound waves"
+
 [[outputs]]
 id = "k9ub7M-_NtEMTP4gQFmL8"
 uri = "file://artifacts/qr-course-demo/public/audio/bg_music.mp3"
@@ -33,5 +51,11 @@ title = "QuantReason — App Blueprint"
 [[outputs]]
 id = "xUk-BnqPbHUbTbs3SBxAQ"
 uri = "file://artifacts/clearthink-marketing/public/audio/bg_music.mp3"
+type = "audio"
+title = "background music"
+
+[[outputs]]
+id = "XALep8UZBIro4pqJM69yP"
+uri = "file://artifacts/speak-course-demo/public/audio/bg_music.mp3"
 type = "audio"
 title = "background music"

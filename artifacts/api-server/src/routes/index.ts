@@ -9,6 +9,7 @@ import analyticsRouter from "./analytics";
 import diagnosticsRouter from "./diagnostics";
 import storageRouter from "./storage";
 import speakingRouter from "./speaking";
+import speakingDiagnosticsRouter from "./speakingDiagnostics";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(analyticsRouter);
 router.use(diagnosticsRouter);
 router.use(storageRouter);
 router.use(speakingRouter);
+router.use(speakingDiagnosticsRouter);
 
 export default router;
