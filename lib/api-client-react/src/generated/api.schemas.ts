@@ -5,6 +5,338 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface ErrorEnvelope {
+  error: string;
+}
+
+export interface UploadUrlRequest {
+  /** @minLength 1 */
+  name: string;
+  /** @minimum 1 */
+  size: number;
+  /** @minLength 1 */
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  uploadURL: string;
+  objectPath: string;
+  metadata?: UploadUrlRequest;
+}
+
+export interface SpeakingLectureRef {
+  id: number;
+  code: string;
+  title: string;
+}
+
+export interface SpeakingLecture {
+  id: number;
+  unitNumber: number;
+  code: string;
+  title: string;
+  body: string;
+  /** @nullable */
+  unitTitle?: string | null;
+}
+
+export type SpeakingPromptMode = typeof SpeakingPromptMode[keyof typeof SpeakingPromptMode];
+
+
+export const SpeakingPromptMode = {
+  spoken: 'spoken',
+  written: 'written',
+} as const;
+
+export interface SpeakingPrompt {
+  id: number;
+  position: number;
+  mode: SpeakingPromptMode;
+  prompt: string;
+  /** @nullable */
+  code?: string | null;
+  /** @nullable */
+  topicTitle?: string | null;
+  /** @nullable */
+  targetSeconds?: number | null;
+  /** @nullable */
+  rubric?: string | null;
+  /** @nullable */
+  guidance?: string | null;
+}
+
+export type SpeakingAssignmentSummaryKind = typeof SpeakingAssignmentSummaryKind[keyof typeof SpeakingAssignmentSummaryKind];
+
+
+export const SpeakingAssignmentSummaryKind = {
+  homework: 'homework',
+  test: 'test',
+  capstone: 'capstone',
+} as const;
+
+export type SpeakingAssignmentSummaryMode = typeof SpeakingAssignmentSummaryMode[keyof typeof SpeakingAssignmentSummaryMode];
+
+
+export const SpeakingAssignmentSummaryMode = {
+  spoken: 'spoken',
+  written: 'written',
+  mixed: 'mixed',
+} as const;
+
+export type SpeakingAssignmentSummaryStatus = typeof SpeakingAssignmentSummaryStatus[keyof typeof SpeakingAssignmentSummaryStatus];
+
+
+export const SpeakingAssignmentSummaryStatus = {
+  not_started: 'not_started',
+  in_progress: 'in_progress',
+  submitted: 'submitted',
+} as const;
+
+export interface SpeakingAssignmentSummary {
+  id: number;
+  kind: SpeakingAssignmentSummaryKind;
+  title: string;
+  unitNumber: number;
+  mode: SpeakingAssignmentSummaryMode;
+  promptCount: number;
+  status: SpeakingAssignmentSummaryStatus;
+  /** @nullable */
+  bestScore?: number | null;
+  /** @nullable */
+  lastAttemptId?: number | null;
+}
+
+export type SpeakingAssignmentKind = typeof SpeakingAssignmentKind[keyof typeof SpeakingAssignmentKind];
+
+
+export const SpeakingAssignmentKind = {
+  homework: 'homework',
+  test: 'test',
+  capstone: 'capstone',
+} as const;
+
+export interface SpeakingAssignment {
+  id: number;
+  kind: SpeakingAssignmentKind;
+  title: string;
+  unitNumber: number;
+  /** @nullable */
+  instructions?: string | null;
+  prompts: SpeakingPrompt[];
+}
+
+export interface SpeakingUnit {
+  unitNumber: number;
+  title: string;
+  /** @nullable */
+  summary?: string | null;
+  lectures: SpeakingLectureRef[];
+  assignments: SpeakingAssignmentSummary[];
+}
+
+export type SpeakingOverviewTotals = {
+  assignmentsCompleted: number;
+  assignmentsTotal: number;
+  attemptsCount: number;
+};
+
+export interface SpeakingOverview {
+  title: string;
+  units: SpeakingUnit[];
+  totals: SpeakingOverviewTotals;
+}
+
+export interface SpeakingMetrics {
+  durationSeconds: number;
+  wordCount: number;
+  wordsPerMinute: number;
+  fillerCount: number;
+  fillerRate: number;
+  pauseCount: number;
+  longestPauseMs: number;
+  fluencyScore: number;
+  vocalVarietyScore: number;
+}
+
+export type SpeakingResponseMode = typeof SpeakingResponseMode[keyof typeof SpeakingResponseMode];
+
+
+export const SpeakingResponseMode = {
+  spoken: 'spoken',
+  written: 'written',
+} as const;
+
+export type SpeakingResponseStatus = typeof SpeakingResponseStatus[keyof typeof SpeakingResponseStatus];
+
+
+export const SpeakingResponseStatus = {
+  pending: 'pending',
+  graded: 'graded',
+  failed: 'failed',
+} as const;
+
+/**
+ * @nullable
+ */
+export type SpeakingResponseMediaKind = typeof SpeakingResponseMediaKind[keyof typeof SpeakingResponseMediaKind] | null;
+
+
+export const SpeakingResponseMediaKind = {
+  audio: 'audio',
+  video: 'video',
+} as const;
+
+export interface SpeakingResponse {
+  id: number;
+  promptId: number;
+  mode: SpeakingResponseMode;
+  status: SpeakingResponseStatus;
+  /** @nullable */
+  textAnswer?: string | null;
+  /** @nullable */
+  recordingObjectPath?: string | null;
+  /** @nullable */
+  mediaKind?: SpeakingResponseMediaKind;
+  /** @nullable */
+  durationMs?: number | null;
+  /** @nullable */
+  transcript?: string | null;
+  metrics?: SpeakingMetrics | null;
+  /** @nullable */
+  contentScore?: number | null;
+  /** @nullable */
+  deliveryScore?: number | null;
+  /** @nullable */
+  overallScore?: number | null;
+  /** @nullable */
+  grade?: string | null;
+  /** @nullable */
+  summary?: string | null;
+  whatWorked?: string[];
+  whatToFix?: string[];
+  /** @nullable */
+  errorMessage?: string | null;
+  /** @nullable */
+  gradedAt?: string | null;
+}
+
+export type SpeakingAttemptStatus = typeof SpeakingAttemptStatus[keyof typeof SpeakingAttemptStatus];
+
+
+export const SpeakingAttemptStatus = {
+  in_progress: 'in_progress',
+  submitted: 'submitted',
+} as const;
+
+export interface SpeakingAttempt {
+  id: number;
+  assignmentId: number;
+  /** @nullable */
+  assignmentTitle?: string | null;
+  /** @nullable */
+  unitNumber?: number | null;
+  /** @nullable */
+  kind?: string | null;
+  status: SpeakingAttemptStatus;
+  /** @nullable */
+  overallScore?: number | null;
+  startedAt: string;
+  /** @nullable */
+  submittedAt?: string | null;
+  prompts?: SpeakingPrompt[];
+  responses: SpeakingResponse[];
+}
+
+export type SpeakingAttemptSummaryStatus = typeof SpeakingAttemptSummaryStatus[keyof typeof SpeakingAttemptSummaryStatus];
+
+
+export const SpeakingAttemptSummaryStatus = {
+  in_progress: 'in_progress',
+  submitted: 'submitted',
+} as const;
+
+export interface SpeakingAttemptSummary {
+  id: number;
+  assignmentId: number;
+  assignmentTitle: string;
+  unitNumber: number;
+  kind: string;
+  status: SpeakingAttemptSummaryStatus;
+  /** @nullable */
+  overallScore?: number | null;
+  startedAt: string;
+  /** @nullable */
+  submittedAt?: string | null;
+}
+
+export type SpeakingResponseInputMode = typeof SpeakingResponseInputMode[keyof typeof SpeakingResponseInputMode];
+
+
+export const SpeakingResponseInputMode = {
+  spoken: 'spoken',
+  written: 'written',
+} as const;
+
+/**
+ * @nullable
+ */
+export type SpeakingResponseInputMediaKind = typeof SpeakingResponseInputMediaKind[keyof typeof SpeakingResponseInputMediaKind] | null;
+
+
+export const SpeakingResponseInputMediaKind = {
+  audio: 'audio',
+  video: 'video',
+} as const;
+
+export interface SpeakingResponseInput {
+  promptId: number;
+  mode: SpeakingResponseInputMode;
+  /** @nullable */
+  textAnswer?: string | null;
+  /** @nullable */
+  recordingObjectPath?: string | null;
+  /** @nullable */
+  mediaKind?: SpeakingResponseInputMediaKind;
+  /** @nullable */
+  durationMs?: number | null;
+}
+
+export interface SpeakingUnitProgress {
+  unitNumber: number;
+  title: string;
+  completed: number;
+  total: number;
+  /** @nullable */
+  averageScore?: number | null;
+}
+
+export interface SpeakingActivityItem {
+  id: number;
+  title: string;
+  kind: string;
+  at: string;
+  /** @nullable */
+  score?: number | null;
+  /** @nullable */
+  unitNumber?: number | null;
+}
+
+export interface SpeakingProgress {
+  totalAssignments: number;
+  completedAssignments: number;
+  totalAttempts: number;
+  /** @nullable */
+  averageScore?: number | null;
+  /** @nullable */
+  averageContent?: number | null;
+  /** @nullable */
+  averageDelivery?: number | null;
+  /** @nullable */
+  bestScore?: number | null;
+  units: SpeakingUnitProgress[];
+  recent: SpeakingActivityItem[];
+}
+
 export interface HealthStatus {
   status: string;
 }

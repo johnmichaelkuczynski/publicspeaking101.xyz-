@@ -32,6 +32,7 @@ import type {
   CourseOverview,
   DetectionResult,
   DetectionScanInput,
+  ErrorEnvelope,
   HealthStatus,
   Lecture,
   NextProblemInput,
@@ -40,10 +41,21 @@ import type {
   PracticeProblem,
   PracticeSession,
   PracticeSessionInput,
+  SpeakingAssignment,
+  SpeakingAttempt,
+  SpeakingAttemptSummary,
+  SpeakingLecture,
+  SpeakingOverview,
+  SpeakingProgress,
+  SpeakingResponse,
+  SpeakingResponseInput,
+  SpeakingUnit,
   Topic,
   TopicAnalytics,
   TutorAskInput,
   TutorReply,
+  UploadUrlRequest,
+  UploadUrlResponse,
   Week
 } from './api.schemas';
 
@@ -1544,4 +1556,980 @@ export const useGenerateReport = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getGenerateReportMutationOptions(options));
     }
+
+export const getGetSpeakingOverviewUrl = () => {
+
+
+
+
+  return `/api/speaking/overview`
+}
+
+/**
+ * @summary Course-level overview with units, assignments, and progress
+ */
+export const getSpeakingOverview = async ( options?: RequestInit): Promise<SpeakingOverview> => {
+
+  return customFetch<SpeakingOverview>(getGetSpeakingOverviewUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingOverviewQueryKey = () => {
+    return [
+    `/api/speaking/overview`
+    ] as const;
+    }
+
+
+export const getGetSpeakingOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingOverview>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingOverview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingOverviewQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingOverview>>> = ({ signal }) => getSpeakingOverview({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingOverview>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingOverviewQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingOverview>>>
+export type GetSpeakingOverviewQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Course-level overview with units, assignments, and progress
+ */
+
+export function useGetSpeakingOverview<TData = Awaited<ReturnType<typeof getSpeakingOverview>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingOverview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingOverviewQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSpeakingUnitUrl = (unitNumber: number,) => {
+
+
+
+
+  return `/api/speaking/units/${unitNumber}`
+}
+
+/**
+ * @summary Get one unit's lectures and assignment list
+ */
+export const getSpeakingUnit = async (unitNumber: number, options?: RequestInit): Promise<SpeakingUnit> => {
+
+  return customFetch<SpeakingUnit>(getGetSpeakingUnitUrl(unitNumber),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingUnitQueryKey = (unitNumber: number,) => {
+    return [
+    `/api/speaking/units/${unitNumber}`
+    ] as const;
+    }
+
+
+export const getGetSpeakingUnitQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingUnit>>, TError = ErrorType<ErrorEnvelope>>(unitNumber: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingUnit>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingUnitQueryKey(unitNumber);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingUnit>>> = ({ signal }) => getSpeakingUnit(unitNumber, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(unitNumber), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingUnit>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingUnitQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingUnit>>>
+export type GetSpeakingUnitQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get one unit's lectures and assignment list
+ */
+
+export function useGetSpeakingUnit<TData = Awaited<ReturnType<typeof getSpeakingUnit>>, TError = ErrorType<ErrorEnvelope>>(
+ unitNumber: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingUnit>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingUnitQueryOptions(unitNumber,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSpeakingLectureUrl = (lectureId: number,) => {
+
+
+
+
+  return `/api/speaking/lectures/${lectureId}`
+}
+
+/**
+ * @summary Get a single lecture
+ */
+export const getSpeakingLecture = async (lectureId: number, options?: RequestInit): Promise<SpeakingLecture> => {
+
+  return customFetch<SpeakingLecture>(getGetSpeakingLectureUrl(lectureId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingLectureQueryKey = (lectureId: number,) => {
+    return [
+    `/api/speaking/lectures/${lectureId}`
+    ] as const;
+    }
+
+
+export const getGetSpeakingLectureQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingLecture>>, TError = ErrorType<ErrorEnvelope>>(lectureId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingLecture>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingLectureQueryKey(lectureId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingLecture>>> = ({ signal }) => getSpeakingLecture(lectureId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(lectureId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingLecture>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingLectureQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingLecture>>>
+export type GetSpeakingLectureQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get a single lecture
+ */
+
+export function useGetSpeakingLecture<TData = Awaited<ReturnType<typeof getSpeakingLecture>>, TError = ErrorType<ErrorEnvelope>>(
+ lectureId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingLecture>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingLectureQueryOptions(lectureId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSpeakingAssignmentUrl = (assignmentId: number,) => {
+
+
+
+
+  return `/api/speaking/assignments/${assignmentId}`
+}
+
+/**
+ * @summary Get an assignment with its prompts
+ */
+export const getSpeakingAssignment = async (assignmentId: number, options?: RequestInit): Promise<SpeakingAssignment> => {
+
+  return customFetch<SpeakingAssignment>(getGetSpeakingAssignmentUrl(assignmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingAssignmentQueryKey = (assignmentId: number,) => {
+    return [
+    `/api/speaking/assignments/${assignmentId}`
+    ] as const;
+    }
+
+
+export const getGetSpeakingAssignmentQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingAssignment>>, TError = ErrorType<ErrorEnvelope>>(assignmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssignment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingAssignmentQueryKey(assignmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingAssignment>>> = ({ signal }) => getSpeakingAssignment(assignmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(assignmentId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssignment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingAssignmentQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingAssignment>>>
+export type GetSpeakingAssignmentQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get an assignment with its prompts
+ */
+
+export function useGetSpeakingAssignment<TData = Awaited<ReturnType<typeof getSpeakingAssignment>>, TError = ErrorType<ErrorEnvelope>>(
+ assignmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssignment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingAssignmentQueryOptions(assignmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getStartSpeakingAttemptUrl = (assignmentId: number,) => {
+
+
+
+
+  return `/api/speaking/assignments/${assignmentId}/start`
+}
+
+/**
+ * @summary Start (or resume) an attempt for an assignment
+ */
+export const startSpeakingAttempt = async (assignmentId: number, options?: RequestInit): Promise<SpeakingAttempt> => {
+
+  return customFetch<SpeakingAttempt>(getStartSpeakingAttemptUrl(assignmentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getStartSpeakingAttemptMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startSpeakingAttempt>>, TError,{assignmentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startSpeakingAttempt>>, TError,{assignmentId: number}, TContext> => {
+
+const mutationKey = ['startSpeakingAttempt'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startSpeakingAttempt>>, {assignmentId: number}> = (props) => {
+          const {assignmentId} = props ?? {};
+
+          return  startSpeakingAttempt(assignmentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartSpeakingAttemptMutationResult = NonNullable<Awaited<ReturnType<typeof startSpeakingAttempt>>>
+
+    export type StartSpeakingAttemptMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Start (or resume) an attempt for an assignment
+ */
+export const useStartSpeakingAttempt = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startSpeakingAttempt>>, TError,{assignmentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startSpeakingAttempt>>,
+        TError,
+        {assignmentId: number},
+        TContext
+      > => {
+      return useMutation(getStartSpeakingAttemptMutationOptions(options));
+    }
+
+export const getListSpeakingAttemptsUrl = () => {
+
+
+
+
+  return `/api/speaking/attempts`
+}
+
+/**
+ * @summary List all attempts, most recent first
+ */
+export const listSpeakingAttempts = async ( options?: RequestInit): Promise<SpeakingAttemptSummary[]> => {
+
+  return customFetch<SpeakingAttemptSummary[]>(getListSpeakingAttemptsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSpeakingAttemptsQueryKey = () => {
+    return [
+    `/api/speaking/attempts`
+    ] as const;
+    }
+
+
+export const getListSpeakingAttemptsQueryOptions = <TData = Awaited<ReturnType<typeof listSpeakingAttempts>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSpeakingAttempts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSpeakingAttemptsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSpeakingAttempts>>> = ({ signal }) => listSpeakingAttempts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSpeakingAttempts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSpeakingAttemptsQueryResult = NonNullable<Awaited<ReturnType<typeof listSpeakingAttempts>>>
+export type ListSpeakingAttemptsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all attempts, most recent first
+ */
+
+export function useListSpeakingAttempts<TData = Awaited<ReturnType<typeof listSpeakingAttempts>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSpeakingAttempts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSpeakingAttemptsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSpeakingAttemptUrl = (attemptId: number,) => {
+
+
+
+
+  return `/api/speaking/attempts/${attemptId}`
+}
+
+/**
+ * @summary Get an attempt and its responses
+ */
+export const getSpeakingAttempt = async (attemptId: number, options?: RequestInit): Promise<SpeakingAttempt> => {
+
+  return customFetch<SpeakingAttempt>(getGetSpeakingAttemptUrl(attemptId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingAttemptQueryKey = (attemptId: number,) => {
+    return [
+    `/api/speaking/attempts/${attemptId}`
+    ] as const;
+    }
+
+
+export const getGetSpeakingAttemptQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingAttempt>>, TError = ErrorType<ErrorEnvelope>>(attemptId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAttempt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingAttemptQueryKey(attemptId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingAttempt>>> = ({ signal }) => getSpeakingAttempt(attemptId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(attemptId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAttempt>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingAttemptQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingAttempt>>>
+export type GetSpeakingAttemptQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get an attempt and its responses
+ */
+
+export function useGetSpeakingAttempt<TData = Awaited<ReturnType<typeof getSpeakingAttempt>>, TError = ErrorType<ErrorEnvelope>>(
+ attemptId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAttempt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingAttemptQueryOptions(attemptId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSubmitSpeakingResponseUrl = (attemptId: number,) => {
+
+
+
+
+  return `/api/speaking/attempts/${attemptId}/responses`
+}
+
+/**
+ * @summary Submit one response (spoken or written); transcribes and evaluates it
+ */
+export const submitSpeakingResponse = async (attemptId: number,
+    speakingResponseInput: SpeakingResponseInput, options?: RequestInit): Promise<SpeakingResponse> => {
+
+  return customFetch<SpeakingResponse>(getSubmitSpeakingResponseUrl(attemptId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      speakingResponseInput,)
+  }
+);}
+
+
+
+
+export const getSubmitSpeakingResponseMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitSpeakingResponse>>, TError,{attemptId: number;data: BodyType<SpeakingResponseInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitSpeakingResponse>>, TError,{attemptId: number;data: BodyType<SpeakingResponseInput>}, TContext> => {
+
+const mutationKey = ['submitSpeakingResponse'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitSpeakingResponse>>, {attemptId: number;data: BodyType<SpeakingResponseInput>}> = (props) => {
+          const {attemptId,data} = props ?? {};
+
+          return  submitSpeakingResponse(attemptId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitSpeakingResponseMutationResult = NonNullable<Awaited<ReturnType<typeof submitSpeakingResponse>>>
+    export type SubmitSpeakingResponseMutationBody = BodyType<SpeakingResponseInput>
+    export type SubmitSpeakingResponseMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Submit one response (spoken or written); transcribes and evaluates it
+ */
+export const useSubmitSpeakingResponse = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitSpeakingResponse>>, TError,{attemptId: number;data: BodyType<SpeakingResponseInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitSpeakingResponse>>,
+        TError,
+        {attemptId: number;data: BodyType<SpeakingResponseInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitSpeakingResponseMutationOptions(options));
+    }
+
+export const getFinalizeSpeakingAttemptUrl = (attemptId: number,) => {
+
+
+
+
+  return `/api/speaking/attempts/${attemptId}/submit`
+}
+
+/**
+ * @summary Finalize an attempt and roll up the overall score
+ */
+export const finalizeSpeakingAttempt = async (attemptId: number, options?: RequestInit): Promise<SpeakingAttempt> => {
+
+  return customFetch<SpeakingAttempt>(getFinalizeSpeakingAttemptUrl(attemptId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getFinalizeSpeakingAttemptMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizeSpeakingAttempt>>, TError,{attemptId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof finalizeSpeakingAttempt>>, TError,{attemptId: number}, TContext> => {
+
+const mutationKey = ['finalizeSpeakingAttempt'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof finalizeSpeakingAttempt>>, {attemptId: number}> = (props) => {
+          const {attemptId} = props ?? {};
+
+          return  finalizeSpeakingAttempt(attemptId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FinalizeSpeakingAttemptMutationResult = NonNullable<Awaited<ReturnType<typeof finalizeSpeakingAttempt>>>
+
+    export type FinalizeSpeakingAttemptMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Finalize an attempt and roll up the overall score
+ */
+export const useFinalizeSpeakingAttempt = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizeSpeakingAttempt>>, TError,{attemptId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof finalizeSpeakingAttempt>>,
+        TError,
+        {attemptId: number},
+        TContext
+      > => {
+      return useMutation(getFinalizeSpeakingAttemptMutationOptions(options));
+    }
+
+export const getGetSpeakingProgressUrl = () => {
+
+
+
+
+  return `/api/speaking/progress`
+}
+
+/**
+ * @summary KPIs, per-unit progress, and recent activity
+ */
+export const getSpeakingProgress = async ( options?: RequestInit): Promise<SpeakingProgress> => {
+
+  return customFetch<SpeakingProgress>(getGetSpeakingProgressUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingProgressQueryKey = () => {
+    return [
+    `/api/speaking/progress`
+    ] as const;
+    }
+
+
+export const getGetSpeakingProgressQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingProgress>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingProgressQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingProgress>>> = ({ signal }) => getSpeakingProgress({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingProgress>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingProgressQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingProgress>>>
+export type GetSpeakingProgressQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary KPIs, per-unit progress, and recent activity
+ */
+
+export function useGetSpeakingProgress<TData = Awaited<ReturnType<typeof getSpeakingProgress>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingProgressQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getRequestUploadUrlUrl = () => {
+
+
+
+
+  return `/api/storage/uploads/request-url`
+}
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+export const requestUploadUrl = async (uploadUrlRequest: UploadUrlRequest, options?: RequestInit): Promise<UploadUrlResponse> => {
+
+  return customFetch<UploadUrlResponse>(getRequestUploadUrlUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      uploadUrlRequest,)
+  }
+);}
+
+
+
+
+export const getRequestUploadUrlMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestUploadUrl>>, TError,{data: BodyType<UploadUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestUploadUrl>>, TError,{data: BodyType<UploadUrlRequest>}, TContext> => {
+
+const mutationKey = ['requestUploadUrl'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestUploadUrl>>, {data: BodyType<UploadUrlRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestUploadUrl(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestUploadUrlMutationResult = NonNullable<Awaited<ReturnType<typeof requestUploadUrl>>>
+    export type RequestUploadUrlMutationBody = BodyType<UploadUrlRequest>
+    export type RequestUploadUrlMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Request a presigned URL for file upload
+ */
+export const useRequestUploadUrl = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestUploadUrl>>, TError,{data: BodyType<UploadUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestUploadUrl>>,
+        TError,
+        {data: BodyType<UploadUrlRequest>},
+        TContext
+      > => {
+      return useMutation(getRequestUploadUrlMutationOptions(options));
+    }
+
+export const getGetPublicObjectUrl = (filePath: string,) => {
+
+
+
+
+  return `/api/storage/public-objects/${filePath}`
+}
+
+/**
+ * @summary Serve a public asset from PUBLIC_OBJECT_SEARCH_PATHS
+ */
+export const getPublicObject = async (filePath: string, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetPublicObjectUrl(filePath),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPublicObjectQueryKey = (filePath: string,) => {
+    return [
+    `/api/storage/public-objects/${filePath}`
+    ] as const;
+    }
+
+
+export const getGetPublicObjectQueryOptions = <TData = Awaited<ReturnType<typeof getPublicObject>>, TError = ErrorType<ErrorEnvelope>>(filePath: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPublicObject>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicObjectQueryKey(filePath);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicObject>>> = ({ signal }) => getPublicObject(filePath, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(filePath), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicObject>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPublicObjectQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicObject>>>
+export type GetPublicObjectQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Serve a public asset from PUBLIC_OBJECT_SEARCH_PATHS
+ */
+
+export function useGetPublicObject<TData = Awaited<ReturnType<typeof getPublicObject>>, TError = ErrorType<ErrorEnvelope>>(
+ filePath: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPublicObject>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPublicObjectQueryOptions(filePath,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetStorageObjectUrl = (objectPath: string,) => {
+
+
+
+
+  return `/api/storage/objects/${objectPath}`
+}
+
+/**
+ * @summary Serve an object entity from PRIVATE_OBJECT_DIR
+ */
+export const getStorageObject = async (objectPath: string, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetStorageObjectUrl(objectPath),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStorageObjectQueryKey = (objectPath: string,) => {
+    return [
+    `/api/storage/objects/${objectPath}`
+    ] as const;
+    }
+
+
+export const getGetStorageObjectQueryOptions = <TData = Awaited<ReturnType<typeof getStorageObject>>, TError = ErrorType<ErrorEnvelope>>(objectPath: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStorageObject>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStorageObjectQueryKey(objectPath);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStorageObject>>> = ({ signal }) => getStorageObject(objectPath, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(objectPath), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStorageObject>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStorageObjectQueryResult = NonNullable<Awaited<ReturnType<typeof getStorageObject>>>
+export type GetStorageObjectQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Serve an object entity from PRIVATE_OBJECT_DIR
+ */
+
+export function useGetStorageObject<TData = Awaited<ReturnType<typeof getStorageObject>>, TError = ErrorType<ErrorEnvelope>>(
+ objectPath: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStorageObject>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStorageObjectQueryOptions(objectPath,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 

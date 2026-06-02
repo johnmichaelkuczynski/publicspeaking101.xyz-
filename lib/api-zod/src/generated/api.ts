@@ -444,3 +444,438 @@ export const GenerateReportResponse = zod.object({
 })
 
 
+/**
+ * @summary Course-level overview with units, assignments, and progress
+ */
+export const GetSpeakingOverviewResponse = zod.object({
+  "title": zod.string(),
+  "units": zod.array(zod.object({
+  "unitNumber": zod.number(),
+  "title": zod.string(),
+  "summary": zod.string().nullish(),
+  "lectures": zod.array(zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "title": zod.string()
+})),
+  "assignments": zod.array(zod.object({
+  "id": zod.number(),
+  "kind": zod.enum(['homework', 'test', 'capstone']),
+  "title": zod.string(),
+  "unitNumber": zod.number(),
+  "mode": zod.enum(['spoken', 'written', 'mixed']),
+  "promptCount": zod.number(),
+  "status": zod.enum(['not_started', 'in_progress', 'submitted']),
+  "bestScore": zod.number().nullish(),
+  "lastAttemptId": zod.number().nullish()
+}))
+})),
+  "totals": zod.object({
+  "assignmentsCompleted": zod.number(),
+  "assignmentsTotal": zod.number(),
+  "attemptsCount": zod.number()
+})
+})
+
+
+/**
+ * @summary Get one unit's lectures and assignment list
+ */
+export const GetSpeakingUnitParams = zod.object({
+  "unitNumber": zod.coerce.number()
+})
+
+export const GetSpeakingUnitResponse = zod.object({
+  "unitNumber": zod.number(),
+  "title": zod.string(),
+  "summary": zod.string().nullish(),
+  "lectures": zod.array(zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "title": zod.string()
+})),
+  "assignments": zod.array(zod.object({
+  "id": zod.number(),
+  "kind": zod.enum(['homework', 'test', 'capstone']),
+  "title": zod.string(),
+  "unitNumber": zod.number(),
+  "mode": zod.enum(['spoken', 'written', 'mixed']),
+  "promptCount": zod.number(),
+  "status": zod.enum(['not_started', 'in_progress', 'submitted']),
+  "bestScore": zod.number().nullish(),
+  "lastAttemptId": zod.number().nullish()
+}))
+})
+
+
+/**
+ * @summary Get a single lecture
+ */
+export const GetSpeakingLectureParams = zod.object({
+  "lectureId": zod.coerce.number()
+})
+
+export const GetSpeakingLectureResponse = zod.object({
+  "id": zod.number(),
+  "unitNumber": zod.number(),
+  "code": zod.string(),
+  "title": zod.string(),
+  "body": zod.string(),
+  "unitTitle": zod.string().nullish()
+})
+
+
+/**
+ * @summary Get an assignment with its prompts
+ */
+export const GetSpeakingAssignmentParams = zod.object({
+  "assignmentId": zod.coerce.number()
+})
+
+export const GetSpeakingAssignmentResponse = zod.object({
+  "id": zod.number(),
+  "kind": zod.enum(['homework', 'test', 'capstone']),
+  "title": zod.string(),
+  "unitNumber": zod.number(),
+  "instructions": zod.string().nullish(),
+  "prompts": zod.array(zod.object({
+  "id": zod.number(),
+  "position": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "prompt": zod.string(),
+  "code": zod.string().nullish(),
+  "topicTitle": zod.string().nullish(),
+  "targetSeconds": zod.number().nullish(),
+  "rubric": zod.string().nullish(),
+  "guidance": zod.string().nullish()
+}))
+})
+
+
+/**
+ * @summary Start (or resume) an attempt for an assignment
+ */
+export const StartSpeakingAttemptParams = zod.object({
+  "assignmentId": zod.coerce.number()
+})
+
+export const StartSpeakingAttemptResponse = zod.object({
+  "id": zod.number(),
+  "assignmentId": zod.number(),
+  "assignmentTitle": zod.string().nullish(),
+  "unitNumber": zod.number().nullish(),
+  "kind": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "overallScore": zod.number().nullish(),
+  "startedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullish(),
+  "prompts": zod.array(zod.object({
+  "id": zod.number(),
+  "position": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "prompt": zod.string(),
+  "code": zod.string().nullish(),
+  "topicTitle": zod.string().nullish(),
+  "targetSeconds": zod.number().nullish(),
+  "rubric": zod.string().nullish(),
+  "guidance": zod.string().nullish()
+})).optional(),
+  "responses": zod.array(zod.object({
+  "id": zod.number(),
+  "promptId": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "status": zod.enum(['pending', 'graded', 'failed']),
+  "textAnswer": zod.string().nullish(),
+  "recordingObjectPath": zod.string().nullish(),
+  "mediaKind": zod.union([zod.literal('audio'),zod.literal('video'),zod.literal(null)]).nullish(),
+  "durationMs": zod.number().nullish(),
+  "transcript": zod.string().nullish(),
+  "metrics": zod.union([zod.object({
+  "durationSeconds": zod.number(),
+  "wordCount": zod.number(),
+  "wordsPerMinute": zod.number(),
+  "fillerCount": zod.number(),
+  "fillerRate": zod.number(),
+  "pauseCount": zod.number(),
+  "longestPauseMs": zod.number(),
+  "fluencyScore": zod.number(),
+  "vocalVarietyScore": zod.number()
+}),zod.null()]).optional(),
+  "contentScore": zod.number().nullish(),
+  "deliveryScore": zod.number().nullish(),
+  "overallScore": zod.number().nullish(),
+  "grade": zod.string().nullish(),
+  "summary": zod.string().nullish(),
+  "whatWorked": zod.array(zod.string()).optional(),
+  "whatToFix": zod.array(zod.string()).optional(),
+  "errorMessage": zod.string().nullish(),
+  "gradedAt": zod.coerce.date().nullish()
+}))
+})
+
+
+/**
+ * @summary List all attempts, most recent first
+ */
+export const ListSpeakingAttemptsResponseItem = zod.object({
+  "id": zod.number(),
+  "assignmentId": zod.number(),
+  "assignmentTitle": zod.string(),
+  "unitNumber": zod.number(),
+  "kind": zod.string(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "overallScore": zod.number().nullish(),
+  "startedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullish()
+})
+export const ListSpeakingAttemptsResponse = zod.array(ListSpeakingAttemptsResponseItem)
+
+
+/**
+ * @summary Get an attempt and its responses
+ */
+export const GetSpeakingAttemptParams = zod.object({
+  "attemptId": zod.coerce.number()
+})
+
+export const GetSpeakingAttemptResponse = zod.object({
+  "id": zod.number(),
+  "assignmentId": zod.number(),
+  "assignmentTitle": zod.string().nullish(),
+  "unitNumber": zod.number().nullish(),
+  "kind": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "overallScore": zod.number().nullish(),
+  "startedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullish(),
+  "prompts": zod.array(zod.object({
+  "id": zod.number(),
+  "position": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "prompt": zod.string(),
+  "code": zod.string().nullish(),
+  "topicTitle": zod.string().nullish(),
+  "targetSeconds": zod.number().nullish(),
+  "rubric": zod.string().nullish(),
+  "guidance": zod.string().nullish()
+})).optional(),
+  "responses": zod.array(zod.object({
+  "id": zod.number(),
+  "promptId": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "status": zod.enum(['pending', 'graded', 'failed']),
+  "textAnswer": zod.string().nullish(),
+  "recordingObjectPath": zod.string().nullish(),
+  "mediaKind": zod.union([zod.literal('audio'),zod.literal('video'),zod.literal(null)]).nullish(),
+  "durationMs": zod.number().nullish(),
+  "transcript": zod.string().nullish(),
+  "metrics": zod.union([zod.object({
+  "durationSeconds": zod.number(),
+  "wordCount": zod.number(),
+  "wordsPerMinute": zod.number(),
+  "fillerCount": zod.number(),
+  "fillerRate": zod.number(),
+  "pauseCount": zod.number(),
+  "longestPauseMs": zod.number(),
+  "fluencyScore": zod.number(),
+  "vocalVarietyScore": zod.number()
+}),zod.null()]).optional(),
+  "contentScore": zod.number().nullish(),
+  "deliveryScore": zod.number().nullish(),
+  "overallScore": zod.number().nullish(),
+  "grade": zod.string().nullish(),
+  "summary": zod.string().nullish(),
+  "whatWorked": zod.array(zod.string()).optional(),
+  "whatToFix": zod.array(zod.string()).optional(),
+  "errorMessage": zod.string().nullish(),
+  "gradedAt": zod.coerce.date().nullish()
+}))
+})
+
+
+/**
+ * @summary Submit one response (spoken or written); transcribes and evaluates it
+ */
+export const SubmitSpeakingResponseParams = zod.object({
+  "attemptId": zod.coerce.number()
+})
+
+export const SubmitSpeakingResponseBody = zod.object({
+  "promptId": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "textAnswer": zod.string().nullish(),
+  "recordingObjectPath": zod.string().nullish(),
+  "mediaKind": zod.union([zod.literal('audio'),zod.literal('video'),zod.literal(null)]).nullish(),
+  "durationMs": zod.number().nullish()
+})
+
+export const SubmitSpeakingResponseResponse = zod.object({
+  "id": zod.number(),
+  "promptId": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "status": zod.enum(['pending', 'graded', 'failed']),
+  "textAnswer": zod.string().nullish(),
+  "recordingObjectPath": zod.string().nullish(),
+  "mediaKind": zod.union([zod.literal('audio'),zod.literal('video'),zod.literal(null)]).nullish(),
+  "durationMs": zod.number().nullish(),
+  "transcript": zod.string().nullish(),
+  "metrics": zod.union([zod.object({
+  "durationSeconds": zod.number(),
+  "wordCount": zod.number(),
+  "wordsPerMinute": zod.number(),
+  "fillerCount": zod.number(),
+  "fillerRate": zod.number(),
+  "pauseCount": zod.number(),
+  "longestPauseMs": zod.number(),
+  "fluencyScore": zod.number(),
+  "vocalVarietyScore": zod.number()
+}),zod.null()]).optional(),
+  "contentScore": zod.number().nullish(),
+  "deliveryScore": zod.number().nullish(),
+  "overallScore": zod.number().nullish(),
+  "grade": zod.string().nullish(),
+  "summary": zod.string().nullish(),
+  "whatWorked": zod.array(zod.string()).optional(),
+  "whatToFix": zod.array(zod.string()).optional(),
+  "errorMessage": zod.string().nullish(),
+  "gradedAt": zod.coerce.date().nullish()
+})
+
+
+/**
+ * @summary Finalize an attempt and roll up the overall score
+ */
+export const FinalizeSpeakingAttemptParams = zod.object({
+  "attemptId": zod.coerce.number()
+})
+
+export const FinalizeSpeakingAttemptResponse = zod.object({
+  "id": zod.number(),
+  "assignmentId": zod.number(),
+  "assignmentTitle": zod.string().nullish(),
+  "unitNumber": zod.number().nullish(),
+  "kind": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "overallScore": zod.number().nullish(),
+  "startedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullish(),
+  "prompts": zod.array(zod.object({
+  "id": zod.number(),
+  "position": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "prompt": zod.string(),
+  "code": zod.string().nullish(),
+  "topicTitle": zod.string().nullish(),
+  "targetSeconds": zod.number().nullish(),
+  "rubric": zod.string().nullish(),
+  "guidance": zod.string().nullish()
+})).optional(),
+  "responses": zod.array(zod.object({
+  "id": zod.number(),
+  "promptId": zod.number(),
+  "mode": zod.enum(['spoken', 'written']),
+  "status": zod.enum(['pending', 'graded', 'failed']),
+  "textAnswer": zod.string().nullish(),
+  "recordingObjectPath": zod.string().nullish(),
+  "mediaKind": zod.union([zod.literal('audio'),zod.literal('video'),zod.literal(null)]).nullish(),
+  "durationMs": zod.number().nullish(),
+  "transcript": zod.string().nullish(),
+  "metrics": zod.union([zod.object({
+  "durationSeconds": zod.number(),
+  "wordCount": zod.number(),
+  "wordsPerMinute": zod.number(),
+  "fillerCount": zod.number(),
+  "fillerRate": zod.number(),
+  "pauseCount": zod.number(),
+  "longestPauseMs": zod.number(),
+  "fluencyScore": zod.number(),
+  "vocalVarietyScore": zod.number()
+}),zod.null()]).optional(),
+  "contentScore": zod.number().nullish(),
+  "deliveryScore": zod.number().nullish(),
+  "overallScore": zod.number().nullish(),
+  "grade": zod.string().nullish(),
+  "summary": zod.string().nullish(),
+  "whatWorked": zod.array(zod.string()).optional(),
+  "whatToFix": zod.array(zod.string()).optional(),
+  "errorMessage": zod.string().nullish(),
+  "gradedAt": zod.coerce.date().nullish()
+}))
+})
+
+
+/**
+ * @summary KPIs, per-unit progress, and recent activity
+ */
+export const GetSpeakingProgressResponse = zod.object({
+  "totalAssignments": zod.number(),
+  "completedAssignments": zod.number(),
+  "totalAttempts": zod.number(),
+  "averageScore": zod.number().nullish(),
+  "averageContent": zod.number().nullish(),
+  "averageDelivery": zod.number().nullish(),
+  "bestScore": zod.number().nullish(),
+  "units": zod.array(zod.object({
+  "unitNumber": zod.number(),
+  "title": zod.string(),
+  "completed": zod.number(),
+  "total": zod.number(),
+  "averageScore": zod.number().nullish()
+})),
+  "recent": zod.array(zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "kind": zod.string(),
+  "at": zod.coerce.date(),
+  "score": zod.number().nullish(),
+  "unitNumber": zod.number().nullish()
+}))
+})
+
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+
+
+
+
+
+export const RequestUploadUrlBody = zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().min(1),
+  "contentType": zod.string().min(1)
+})
+
+
+
+
+
+
+export const RequestUploadUrlResponse = zod.object({
+  "uploadURL": zod.string().url(),
+  "objectPath": zod.string(),
+  "metadata": zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().min(1),
+  "contentType": zod.string().min(1)
+}).optional()
+})
+
+
+/**
+ * @summary Serve a public asset from PUBLIC_OBJECT_SEARCH_PATHS
+ */
+export const GetPublicObjectParams = zod.object({
+  "filePath": zod.coerce.string()
+})
+
+
+/**
+ * @summary Serve an object entity from PRIVATE_OBJECT_DIR
+ */
+export const GetStorageObjectParams = zod.object({
+  "objectPath": zod.coerce.string()
+})
+
+

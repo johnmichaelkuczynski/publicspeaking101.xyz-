@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { seedIfEmpty } from "./lib/seed";
+import { seedSpeakingIfEmpty } from "./lib/seedSpeaking";
 
 const rawPort = process.env["PORT"];
 
@@ -18,6 +19,10 @@ if (Number.isNaN(port) || port <= 0) {
 
 seedIfEmpty().catch((err) => {
   logger.error({ err }, "Seed failed");
+});
+
+seedSpeakingIfEmpty().catch((err) => {
+  logger.error({ err }, "Speaking seed failed");
 });
 
 app.listen(port, (err) => {
