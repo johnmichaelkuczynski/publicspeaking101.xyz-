@@ -1,8 +1,11 @@
 import { useGetSpeakingOverview } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, Mic2 } from "lucide-react";
+import { ArrowRight, BookOpen, Mic2, CheckCircle2, CircleDashed, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
   const { data: overview, isLoading, error } = useGetSpeakingOverview();
@@ -68,44 +71,112 @@ export default function Dashboard() {
       <div className="space-y-6">
         <h2 className="text-2xl font-serif font-semibold">Your Modules</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {overview.units.map((unit) => (
-            <Card key={unit.unitNumber} className="hover:shadow-md transition-shadow group">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="text-sm font-medium text-primary mb-1">
-                      Unit {unit.unitNumber}
+          {overview.units.map((unit) => {
+            const total = unit.assignments.length;
+            const completed = unit.assignments.filter((a) => a.status === "submitted").length;
+            const anyStarted = unit.assignments.some(
+              (a) => a.status === "in_progress" || a.status === "submitted",
+            );
+            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            const scored = unit.assignments
+              .map((a) => a.bestScore)
+              .filter((s): s is number => typeof s === "number");
+            const avgScore =
+              scored.length > 0
+                ? Math.round(scored.reduce((sum, s) => sum + s, 0) / scored.length)
+                : null;
+
+            const state: "complete" | "in_progress" | "not_started" =
+              total > 0 && completed === total
+                ? "complete"
+                : anyStarted
+                  ? "in_progress"
+                  : "not_started";
+
+            const statusConfig = {
+              complete: {
+                label: "Completed",
+                Icon: CheckCircle2,
+                className: "bg-secondary/15 text-secondary border-secondary/30",
+                bar: "[&>div]:bg-secondary",
+              },
+              in_progress: {
+                label: "In progress",
+                Icon: Loader2,
+                className: "bg-primary/10 text-primary border-primary/30",
+                bar: "[&>div]:bg-primary",
+              },
+              not_started: {
+                label: "Not started",
+                Icon: CircleDashed,
+                className: "bg-muted text-muted-foreground border-border",
+                bar: "[&>div]:bg-muted-foreground/40",
+              },
+            }[state];
+            const StatusIcon = statusConfig.Icon;
+
+            return (
+              <Card key={unit.unitNumber} className="hover:shadow-md transition-shadow group">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start gap-3 mb-4">
+                    <div>
+                      <div className="text-sm font-medium text-primary mb-1">
+                        Unit {unit.unitNumber}
+                      </div>
+                      <h3 className="text-xl font-bold">{unit.title}</h3>
                     </div>
-                    <h3 className="text-xl font-bold">{unit.title}</h3>
+                    <Badge
+                      variant="outline"
+                      className={cn("shrink-0 gap-1 font-medium", statusConfig.className)}
+                    >
+                      <StatusIcon className="w-3.5 h-3.5" />
+                      {statusConfig.label}
+                    </Badge>
                   </div>
-                </div>
-                
-                {unit.summary && (
-                  <p className="text-muted-foreground text-sm mb-6 line-clamp-2">
-                    {unit.summary}
-                  </p>
-                )}
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <BookOpen className="w-4 h-4" />
-                    {unit.lectures.length} Lectures
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Mic2 className="w-4 h-4" />
-                    {unit.assignments.length} Assignments
-                  </div>
-                </div>
+                  {unit.summary && (
+                    <p className="text-muted-foreground text-sm mb-5 line-clamp-2">
+                      {unit.summary}
+                    </p>
+                  )}
 
-                <Link href={`/units/${unit.unitNumber}`}>
-                  <div className="mt-6 flex items-center justify-between text-sm font-medium text-secondary-foreground cursor-pointer group-hover:text-primary transition-colors">
-                    <span>Enter Module</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  <div className="mb-5 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-foreground">
+                        {completed} of {total} assignments complete
+                      </span>
+                      <span className="text-muted-foreground tabular-nums">
+                        {pct}%
+                        {avgScore !== null && (
+                          <span className="ml-2 text-secondary font-medium">avg {avgScore}</span>
+                        )}
+                      </span>
+                    </div>
+                    <Progress value={pct} className={cn("h-2", statusConfig.bar)} />
                   </div>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <BookOpen className="w-4 h-4" />
+                      {unit.lectures.length} Lectures
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Mic2 className="w-4 h-4" />
+                      {unit.assignments.length} Assignments
+                    </div>
+                  </div>
+
+                  <Link href={`/units/${unit.unitNumber}`}>
+                    <div className="mt-6 flex items-center justify-between text-sm font-medium text-secondary-foreground cursor-pointer group-hover:text-primary transition-colors">
+                      <span>Enter Module</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </Link>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
