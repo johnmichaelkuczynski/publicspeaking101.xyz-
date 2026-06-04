@@ -6,14 +6,14 @@ import {
   useSubmitSpeakingResponse, 
   useFinalizeSpeakingAttempt 
 } from "@workspace/api-client-react";
-import { useRoute, useLocation } from "wouter";
+import { useRoute, useLocation, Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AudioRecorder } from "@/components/AudioRecorder";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, Mic2, Star, RotateCcw, Pencil } from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft, Mic2, Star, RotateCcw, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { cn } from "@/lib/utils";
@@ -197,6 +197,21 @@ export default function AttemptRunner() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <Button
+          variant="ghost"
+          onClick={() => setLocation("/")}
+          className="pl-0 hover:bg-transparent hover:text-primary text-muted-foreground"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Studio
+        </Button>
+        <Link href={`/units/${attempt.unitNumber}`}>
+          <span className="text-muted-foreground hover:text-primary cursor-pointer transition-colors">
+            Back to Unit {attempt.unitNumber}
+          </span>
+        </Link>
+      </div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wider">
