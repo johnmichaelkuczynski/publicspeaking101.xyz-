@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AudioRecorder } from "@/components/AudioRecorder";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, Mic2, Star } from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, Mic2, Star, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
@@ -343,12 +343,28 @@ export default function AttemptRunner() {
                     <div className="font-medium">{prompt.prompt}</div>
                   </div>
                   
-                  {response.status === 'graded' && response.overallScore !== undefined && response.overallScore !== null && (
-                    <div className="shrink-0 bg-primary/10 text-primary px-4 py-2 rounded-lg text-center h-fit">
-                      <div className="text-xs font-bold uppercase tracking-wider">Score</div>
-                      <div className="text-2xl font-bold">{Math.round(response.overallScore)}</div>
-                    </div>
-                  )}
+                  <div className="flex flex-row sm:flex-col items-center gap-2 shrink-0">
+                    {response.status === 'graded' && response.overallScore !== undefined && response.overallScore !== null && (
+                      <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg text-center h-fit">
+                        <div className="text-xs font-bold uppercase tracking-wider">Score</div>
+                        <div className="text-2xl font-bold">{Math.round(response.overallScore)}</div>
+                      </div>
+                    )}
+                    {!isFinalized && !isPendingGrade && activePromptId !== prompt.id && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setActivePromptId(prompt.id);
+                          setRecordedBlob(null);
+                          setWrittenAnswer("");
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                      >
+                        <RotateCcw className="w-4 h-4 mr-2" /> Redo
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="bg-muted/30 rounded-lg p-4 border">
