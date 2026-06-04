@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { 
   useGetSpeakingAttempt, 
   getGetSpeakingAttemptQueryKey, 
@@ -13,9 +13,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AudioRecorder } from "@/components/AudioRecorder";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, Mic2, Star, RotateCcw } from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, Mic2, Star, RotateCcw, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { cn } from "@/lib/utils";
 
 export default function AttemptRunner() {
   const [, params] = useRoute("/attempts/:attemptId");
@@ -38,6 +39,20 @@ export default function AttemptRunner() {
   const submitResponse = useSubmitSpeakingResponse();
   const finalizeAttempt = useFinalizeSpeakingAttempt();
 
+  // One-time default selection per loaded attempt: jump to the first unanswered
+  // prompt as a convenience. After this, navigation is fully user-driven so we
+  // never fight the user or re-select from stale post-submit data.
+  const initializedAttemptRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!attempt || attempt.status === "submitted") return;
+    if (initializedAttemptRef.current === attempt.id) return;
+    initializedAttemptRef.current = attempt.id;
+    const unanswered = (attempt.prompts || []).find(
+      (p) => !attempt.responses.some((r) => r.promptId === p.id),
+    );
+    if (unanswered) setActivePromptId(unanswered.id);
+  }, [attempt]);
+
   if (isLoading) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
@@ -58,19 +73,17 @@ export default function AttemptRunner() {
 
   const isFinalized = attempt.status === 'submitted';
   const prompts = attempt.prompts || [];
-  
-  // Find the first unanswered prompt if not finalized
-  if (!isFinalized && !activePromptId && prompts.length > 0) {
-    const unanswered = prompts.find(p => !attempt.responses.some(r => r.promptId === p.id));
-    if (unanswered) {
-      setActivePromptId(unanswered.id);
-    } else {
-      // All answered, wait for finalize
-    }
-  }
 
   const activePrompt = prompts.find(p => p.id === activePromptId);
   const isAllAnswered = prompts.length > 0 && prompts.every(p => attempt.responses.some(r => r.promptId === p.id));
+
+  // Freely select any prompt (any order, redo at will), resetting any staged input.
+  const selectPrompt = (promptId: number) => {
+    setActivePromptId(promptId);
+    setRecordedBlob(null);
+    setWrittenAnswer("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleRecordingComplete = (blob: Blob, durationMs: number, mediaKind: "audio" | "video") => {
     setRecordedBlob({ blob, durationMs, mediaKind });
@@ -120,15 +133,9 @@ export default function AttemptRunner() {
       });
       
       setRecordedBlob(null);
+      // Return to the prompt overview; the user chooses what to do next.
+      setActivePromptId(null);
       refetch();
-      
-      // Move to next if available
-      const nextUnanswered = prompts.find(p => p.id !== activePrompt.id && !attempt.responses.some(r => r.promptId === p.id));
-      if (nextUnanswered) {
-        setActivePromptId(nextUnanswered.id);
-      } else {
-        setActivePromptId(null);
-      }
       
     } catch (err: any) {
       toast({
@@ -158,15 +165,9 @@ export default function AttemptRunner() {
       });
       
       setWrittenAnswer("");
+      // Return to the prompt overview; the user chooses what to do next.
+      setActivePromptId(null);
       refetch();
-      
-      // Move to next if available
-      const nextUnanswered = prompts.find(p => p.id !== activePrompt.id && !attempt.responses.some(r => r.promptId === p.id));
-      if (nextUnanswered) {
-        setActivePromptId(nextUnanswered.id);
-      } else {
-        setActivePromptId(null);
-      }
       
     } catch (err: any) {
       toast({
@@ -215,6 +216,59 @@ export default function AttemptRunner() {
           </div>
         )}
       </div>
+
+      {!isFinalized && prompts.length > 0 && (
+        <div className="space-y-3">
+          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Prompts in this assignment — pick any, in any order
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {prompts.map((p, idx) => {
+              const r = attempt.responses.find(x => x.promptId === p.id);
+              const isActive = activePromptId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => selectPrompt(p.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors",
+                    isActive
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-muted-foreground/30 bg-background hover:bg-muted",
+                  )}
+                >
+                  {p.mode === "spoken" ? <Mic2 className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+                  <span>Prompt {idx + 1}</span>
+                  {r?.status === "graded" && r.overallScore !== undefined && r.overallScore !== null && (
+                    <span
+                      className={cn(
+                        "ml-1 text-xs font-bold px-2 py-0.5 rounded-full",
+                        isActive ? "bg-primary-foreground/20" : "bg-primary/10 text-primary",
+                      )}
+                    >
+                      {Math.round(r.overallScore)}
+                    </span>
+                  )}
+                  {r?.status === "pending" && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {r?.status === "failed" && (
+                    <AlertTriangle className={cn("w-3.5 h-3.5", isActive ? "" : "text-destructive")} />
+                  )}
+                  {!r && (
+                    <span
+                      className={cn(
+                        "ml-1 text-xs",
+                        isActive ? "text-primary-foreground/70" : "text-muted-foreground",
+                      )}
+                    >
+                      Not started
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {!isFinalized && !activePrompt && isAllAnswered && (
         <Card className="border-secondary border-2 bg-secondary/5">
@@ -324,7 +378,7 @@ export default function AttemptRunner() {
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="font-medium text-muted-foreground">Prompt {idx + 1}: Unanswered</div>
                   {activePromptId !== prompt.id && (
-                    <Button variant="ghost" size="sm" onClick={() => setActivePromptId(prompt.id)}>Answer Now</Button>
+                    <Button variant="ghost" size="sm" onClick={() => selectPrompt(prompt.id)}>Answer Now</Button>
                   )}
                 </CardContent>
               </Card>
@@ -354,12 +408,7 @@ export default function AttemptRunner() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          setActivePromptId(prompt.id);
-                          setRecordedBlob(null);
-                          setWrittenAnswer("");
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
+                        onClick={() => selectPrompt(prompt.id)}
                       >
                         <RotateCcw className="w-4 h-4 mr-2" /> Redo
                       </Button>
