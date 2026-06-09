@@ -98,6 +98,37 @@ export const GetSpeakingLectureResponse = zod.object({
 
 
 /**
+ * @summary Ask the lecture AI tutor a question
+ */
+export const AskLectureTutorParams = zod.object({
+  "lectureId": zod.coerce.number()
+})
+
+export const AskLectureTutorBody = zod.object({
+  "messages": zod.array(zod.object({
+  "role": zod.enum(['user', 'assistant']),
+  "content": zod.string()
+}))
+})
+
+export const AskLectureTutorResponse = zod.object({
+  "reply": zod.string()
+})
+
+
+/**
+ * @summary Get suggested starter questions for the lecture tutor
+ */
+export const GetLectureTutorSuggestionsParams = zod.object({
+  "lectureId": zod.coerce.number()
+})
+
+export const GetLectureTutorSuggestionsResponse = zod.object({
+  "suggestions": zod.array(zod.string())
+})
+
+
+/**
  * @summary Get an assignment with its prompts
  */
 export const GetSpeakingAssignmentParams = zod.object({

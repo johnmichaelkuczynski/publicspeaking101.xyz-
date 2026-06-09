@@ -2,6 +2,7 @@ import { useGetSpeakingLecture, getGetSpeakingLectureQueryKey } from "@workspace
 import { useRoute } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { LectureTutor } from "@/components/LectureTutor";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
@@ -40,26 +41,34 @@ export default function LectureView() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link href={`/units/${lecture.unitNumber}`}>
         <Button variant="ghost" className="mb-6 pl-0 hover:bg-transparent hover:text-primary">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Unit {lecture.unitNumber}
         </Button>
       </Link>
-      
-      <div className="mb-10">
-        <div className="text-sm font-mono text-muted-foreground mb-3">{lecture.code}</div>
-        <h1 className="text-4xl font-serif font-bold text-foreground leading-tight">
-          {lecture.title}
-        </h1>
-        {lecture.unitTitle && (
-          <div className="text-primary mt-2 font-medium">Part of: {lecture.unitTitle}</div>
-        )}
-      </div>
 
-      <div className="bg-card border rounded-lg p-6 md:p-10 shadow-sm text-lg leading-relaxed">
-        <MarkdownRenderer content={lecture.body} />
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_24rem] gap-8 items-start">
+        <div className="min-w-0">
+          <div className="mb-10">
+            <div className="text-sm font-mono text-muted-foreground mb-3">{lecture.code}</div>
+            <h1 className="text-4xl font-serif font-bold text-foreground leading-tight">
+              {lecture.title}
+            </h1>
+            {lecture.unitTitle && (
+              <div className="text-primary mt-2 font-medium">Part of: {lecture.unitTitle}</div>
+            )}
+          </div>
+
+          <div className="bg-card border rounded-lg p-6 md:p-10 shadow-sm text-lg leading-relaxed">
+            <MarkdownRenderer content={lecture.body} />
+          </div>
+        </div>
+
+        <aside className="lg:sticky lg:top-6 h-[calc(100vh-7rem)] min-h-[28rem]">
+          <LectureTutor lectureId={lecture.id} lectureTitle={lecture.title} />
+        </aside>
       </div>
     </div>
   );

@@ -8,6 +8,11 @@
 
 export * from './errorEnvelope';
 export * from './healthStatus';
+export * from './lectureTutorMessage';
+export * from './lectureTutorMessageRole';
+export * from './lectureTutorReply';
+export * from './lectureTutorRequest';
+export * from './lectureTutorSuggestions';
 export * from './speakingActivityItem';
 export * from './speakingAssignment';
 export * from './speakingAssignmentKind';

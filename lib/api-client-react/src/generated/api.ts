@@ -22,6 +22,9 @@ import type {
 import type {
   ErrorEnvelope,
   HealthStatus,
+  LectureTutorReply,
+  LectureTutorRequest,
+  LectureTutorSuggestions,
   SpeakingAssignment,
   SpeakingAttempt,
   SpeakingAttemptSummary,
@@ -343,6 +346,155 @@ export function useGetSpeakingLecture<TData = Awaited<ReturnType<typeof getSpeak
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSpeakingLectureQueryOptions(lectureId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAskLectureTutorUrl = (lectureId: number,) => {
+
+
+
+
+  return `/api/speaking/lectures/${lectureId}/tutor`
+}
+
+/**
+ * @summary Ask the lecture AI tutor a question
+ */
+export const askLectureTutor = async (lectureId: number,
+    lectureTutorRequest: LectureTutorRequest, options?: RequestInit): Promise<LectureTutorReply> => {
+
+  return customFetch<LectureTutorReply>(getAskLectureTutorUrl(lectureId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      lectureTutorRequest,)
+  }
+);}
+
+
+
+
+export const getAskLectureTutorMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof askLectureTutor>>, TError,{lectureId: number;data: BodyType<LectureTutorRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof askLectureTutor>>, TError,{lectureId: number;data: BodyType<LectureTutorRequest>}, TContext> => {
+
+const mutationKey = ['askLectureTutor'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof askLectureTutor>>, {lectureId: number;data: BodyType<LectureTutorRequest>}> = (props) => {
+          const {lectureId,data} = props ?? {};
+
+          return  askLectureTutor(lectureId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AskLectureTutorMutationResult = NonNullable<Awaited<ReturnType<typeof askLectureTutor>>>
+    export type AskLectureTutorMutationBody = BodyType<LectureTutorRequest>
+    export type AskLectureTutorMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Ask the lecture AI tutor a question
+ */
+export const useAskLectureTutor = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof askLectureTutor>>, TError,{lectureId: number;data: BodyType<LectureTutorRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof askLectureTutor>>,
+        TError,
+        {lectureId: number;data: BodyType<LectureTutorRequest>},
+        TContext
+      > => {
+      return useMutation(getAskLectureTutorMutationOptions(options));
+    }
+
+export const getGetLectureTutorSuggestionsUrl = (lectureId: number,) => {
+
+
+
+
+  return `/api/speaking/lectures/${lectureId}/tutor/suggestions`
+}
+
+/**
+ * @summary Get suggested starter questions for the lecture tutor
+ */
+export const getLectureTutorSuggestions = async (lectureId: number, options?: RequestInit): Promise<LectureTutorSuggestions> => {
+
+  return customFetch<LectureTutorSuggestions>(getGetLectureTutorSuggestionsUrl(lectureId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLectureTutorSuggestionsQueryKey = (lectureId: number,) => {
+    return [
+    `/api/speaking/lectures/${lectureId}/tutor/suggestions`
+    ] as const;
+    }
+
+
+export const getGetLectureTutorSuggestionsQueryOptions = <TData = Awaited<ReturnType<typeof getLectureTutorSuggestions>>, TError = ErrorType<ErrorEnvelope>>(lectureId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLectureTutorSuggestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLectureTutorSuggestionsQueryKey(lectureId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLectureTutorSuggestions>>> = ({ signal }) => getLectureTutorSuggestions(lectureId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(lectureId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLectureTutorSuggestions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLectureTutorSuggestionsQueryResult = NonNullable<Awaited<ReturnType<typeof getLectureTutorSuggestions>>>
+export type GetLectureTutorSuggestionsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get suggested starter questions for the lecture tutor
+ */
+
+export function useGetLectureTutorSuggestions<TData = Awaited<ReturnType<typeof getLectureTutorSuggestions>>, TError = ErrorType<ErrorEnvelope>>(
+ lectureId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLectureTutorSuggestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLectureTutorSuggestionsQueryOptions(lectureId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

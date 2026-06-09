@@ -21,9 +21,17 @@ import {
   SubmitSpeakingResponseResponse,
   FinalizeSpeakingAttemptResponse,
   GetSpeakingProgressResponse,
+  AskLectureTutorBody,
+  AskLectureTutorResponse,
+  GetLectureTutorSuggestionsResponse,
 } from "@workspace/api-zod";
 import { transcribeRecording } from "../lib/speech";
 import { evaluateResponse } from "../lib/evaluate";
+import {
+  askLectureTutor,
+  suggestLectureQuestions,
+  type LectureContext,
+} from "../lib/tutor";
 
 const router: IRouter = Router();
 
@@ -281,6 +289,84 @@ router.get("/speaking/lectures/:lectureId", async (req, res): Promise<void> => {
     }),
   );
 });
+
+async function loadLectureContext(
+  lectureId: number,
+): Promise<LectureContext | null> {
+  const [lecture] = await db
+    .select()
+    .from(speakingLecturesTable)
+    .where(eq(speakingLecturesTable.id, lectureId));
+  if (!lecture) return null;
+  const meta = UNIT_TITLES[lecture.unitNumber];
+  return {
+    unitNumber: lecture.unitNumber,
+    unitTitle: meta?.title ?? null,
+    code: lecture.code,
+    title: lecture.title,
+    body: lecture.body,
+  };
+}
+
+router.post(
+  "/speaking/lectures/:lectureId/tutor",
+  async (req, res): Promise<void> => {
+    const lectureId = parseId(req.params.lectureId);
+    if (!Number.isFinite(lectureId)) {
+      res.status(404).json({ error: "lecture not found" });
+      return;
+    }
+    const parsed = AskLectureTutorBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "invalid tutor request" });
+      return;
+    }
+    const hasMessage = parsed.data.messages.some(
+      (m) => m.content.trim().length > 0,
+    );
+    if (!hasMessage) {
+      res.status(400).json({ error: "at least one message is required" });
+      return;
+    }
+    const context = await loadLectureContext(lectureId);
+    if (!context) {
+      res.status(404).json({ error: "lecture not found" });
+      return;
+    }
+    try {
+      const reply = await askLectureTutor(context, parsed.data.messages);
+      res.json(AskLectureTutorResponse.parse({ reply }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "tutor failed";
+      req.log.error({ err: error }, "Lecture tutor request failed");
+      res.status(502).json({ error: message });
+    }
+  },
+);
+
+router.get(
+  "/speaking/lectures/:lectureId/tutor/suggestions",
+  async (req, res): Promise<void> => {
+    const lectureId = parseId(req.params.lectureId);
+    if (!Number.isFinite(lectureId)) {
+      res.status(404).json({ error: "lecture not found" });
+      return;
+    }
+    const context = await loadLectureContext(lectureId);
+    if (!context) {
+      res.status(404).json({ error: "lecture not found" });
+      return;
+    }
+    try {
+      const suggestions = await suggestLectureQuestions(context);
+      res.json(GetLectureTutorSuggestionsResponse.parse({ suggestions }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "tutor failed";
+      req.log.error({ err: error }, "Lecture tutor suggestions failed");
+      res.status(502).json({ error: message });
+    }
+  },
+);
 
 router.get(
   "/speaking/assignments/:assignmentId",

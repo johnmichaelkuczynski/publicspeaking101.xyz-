@@ -89,6 +89,78 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
 
+  /speaking/lectures/{lectureId}/tutor:
+    post:
+      operationId: askLectureTutor
+      tags: [ speaking ]
+      summary: Ask the lecture AI tutor a question
+      parameters:
+        - name: lectureId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LectureTutorRequest"
+      responses:
+        "200":
+          description: Tutor reply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LectureTutorReply"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Tutor upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /speaking/lectures/{lectureId}/tutor/suggestions:
+    get:
+      operationId: getLectureTutorSuggestions
+      tags: [ speaking ]
+      summary: Get suggested starter questions for the lecture tutor
+      parameters:
+        - name: lectureId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Suggested questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LectureTutorSuggestions"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Tutor upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
   /speaking/assignments/{assignmentId}:
     get:
       operationId: getSpeakingAssignment
@@ -390,6 +462,38 @@ components:
         title: { type: string }
         body: { type: string }
         unitTitle: { type: [ "string", "null" ] }
+
+    LectureTutorMessage:
+      type: object
+      required: [ role, content ]
+      properties:
+        role:
+          type: string
+          enum: [ user, assistant ]
+        content: { type: string }
+
+    LectureTutorRequest:
+      type: object
+      required: [ messages ]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/LectureTutorMessage"
+
+    LectureTutorReply:
+      type: object
+      required: [ reply ]
+      properties:
+        reply: { type: string }
+
+    LectureTutorSuggestions:
+      type: object
+      required: [ suggestions ]
+      properties:
+        suggestions:
+          type: array
+          items: { type: string }
 
     SpeakingPrompt:
       type: object

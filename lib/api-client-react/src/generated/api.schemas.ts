@@ -40,6 +40,31 @@ export interface SpeakingLecture {
   unitTitle?: string | null;
 }
 
+export type LectureTutorMessageRole = typeof LectureTutorMessageRole[keyof typeof LectureTutorMessageRole];
+
+
+export const LectureTutorMessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+} as const;
+
+export interface LectureTutorMessage {
+  role: LectureTutorMessageRole;
+  content: string;
+}
+
+export interface LectureTutorRequest {
+  messages: LectureTutorMessage[];
+}
+
+export interface LectureTutorReply {
+  reply: string;
+}
+
+export interface LectureTutorSuggestions {
+  suggestions: string[];
+}
+
 export type SpeakingPromptMode = typeof SpeakingPromptMode[keyof typeof SpeakingPromptMode];
 
 
