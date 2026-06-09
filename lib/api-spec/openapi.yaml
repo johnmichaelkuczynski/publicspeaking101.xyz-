@@ -327,6 +327,121 @@ paths:
               schema:
                 $ref: "#/components/schemas/SpeakingProgress"
 
+  /speaking/assignments/{assignmentId}/practice:
+    post:
+      operationId: generateSpeakingPractice
+      tags: [ speaking ]
+      summary: Generate a fresh, unofficial practice version of an assignment and start an attempt
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Practice set generated and attempt started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeakingPracticeStart"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Practice generation upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    get:
+      operationId: listSpeakingPractice
+      tags: [ speaking ]
+      summary: List previously generated practice sets for an assignment
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SpeakingPracticeSet"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /speaking/attempts/{attemptId}/tutor:
+    post:
+      operationId: askPracticeTutor
+      tags: [ speaking ]
+      summary: Ask the on-screen practice coach about this practice attempt and its feedback
+      parameters:
+        - name: attemptId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AskPracticeTutorRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LectureTutorReply"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Tutor upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /speaking/profile:
+    get:
+      operationId: getSpeakingProfile
+      tags: [ speaking ]
+      summary: The evolving coaching profile and analytics built from all logged activity
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeakingProfile"
+        "502":
+          description: Profile generation upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
   /storage/uploads/request-url:
     post:
       tags: [ Storage ]
@@ -639,18 +754,27 @@ components:
         whatToFix:
           type: array
           items: { type: string }
+        focusPointers:
+          type: array
+          items: { type: string }
+        drills:
+          type: array
+          items: { type: string }
         errorMessage: { type: [ "string", "null" ] }
         gradedAt: { type: [ "string", "null" ], format: date-time }
 
     SpeakingAttempt:
       type: object
-      required: [ id, assignmentId, status, startedAt, responses ]
+      required: [ id, assignmentId, status, startedAt, responses, isPractice ]
       properties:
         id: { type: integer }
         assignmentId: { type: integer }
         assignmentTitle: { type: [ "string", "null" ] }
         unitNumber: { type: [ "integer", "null" ] }
         kind: { type: [ "string", "null" ] }
+        isPractice: { type: boolean }
+        practiceForAssignmentId: { type: [ "integer", "null" ] }
+        practiceParentTitle: { type: [ "string", "null" ] }
         status:
           type: string
           enum: [ in_progress, submitted ]
@@ -668,13 +792,15 @@ components:
 
     SpeakingAttemptSummary:
       type: object
-      required: [ id, assignmentId, assignmentTitle, unitNumber, kind, status, startedAt ]
+      required: [ id, assignmentId, assignmentTitle, unitNumber, kind, status, startedAt, isPractice ]
       properties:
         id: { type: integer }
         assignmentId: { type: integer }
         assignmentTitle: { type: string }
         unitNumber: { type: integer }
         kind: { type: string }
+        isPractice: { type: boolean }
+        practiceForAssignmentId: { type: [ "integer", "null" ] }
         status:
           type: string
           enum: [ in_progress, submitted ]
@@ -760,6 +886,98 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SpeakingActivityItem"
+
+    SpeakingPracticeStart:
+      type: object
+      required: [ assignmentId, attemptId ]
+      properties:
+        assignmentId: { type: integer }
+        attemptId: { type: integer }
+
+    SpeakingPracticeSet:
+      type: object
+      required: [ assignmentId, attemptId, title, mode, promptCount, status, createdAt ]
+      properties:
+        assignmentId: { type: integer }
+        attemptId: { type: integer }
+        title: { type: string }
+        mode:
+          type: string
+          enum: [ spoken, written, mixed ]
+        promptCount: { type: integer }
+        status:
+          type: string
+          enum: [ in_progress, submitted ]
+        overallScore: { type: [ "number", "null" ] }
+        gradedCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    AskPracticeTutorRequest:
+      type: object
+      required: [ messages ]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/LectureTutorMessage"
+
+    SpeakingTopicStat:
+      type: object
+      required: [ title, unitNumber, averageScore, responses ]
+      properties:
+        title: { type: string }
+        unitNumber: { type: integer }
+        averageScore: { type: [ "number", "null" ] }
+        responses: { type: integer }
+
+    SpeakingAnalytics:
+      type: object
+      required:
+        [
+          gradedResponses,
+          practiceResponses,
+          tutorExchanges,
+          trend
+        ]
+      properties:
+        gradedResponses: { type: integer }
+        practiceResponses: { type: integer }
+        tutorExchanges: { type: integer }
+        averageContent: { type: [ "number", "null" ] }
+        averageDelivery: { type: [ "number", "null" ] }
+        averageOverall: { type: [ "number", "null" ] }
+        averageWordsPerMinute: { type: [ "number", "null" ] }
+        averageFillerRate: { type: [ "number", "null" ] }
+        averagePauseCount: { type: [ "number", "null" ] }
+        trend:
+          type: string
+          enum: [ improving, declining, steady, insufficient ]
+        recurringFixes:
+          type: array
+          items: { type: string }
+        strongTopics:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpeakingTopicStat"
+        weakTopics:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpeakingTopicStat"
+
+    SpeakingProfile:
+      type: object
+      required: [ strengths, focusAreas, analytics ]
+      properties:
+        summary: { type: [ "string", "null" ] }
+        strengths:
+          type: array
+          items: { type: string }
+        focusAreas:
+          type: array
+          items: { type: string }
+        generatedAt: { type: [ "string", "null" ], format: date-time }
+        analytics:
+          $ref: "#/components/schemas/SpeakingAnalytics"
 
     HealthStatus:
       type: object

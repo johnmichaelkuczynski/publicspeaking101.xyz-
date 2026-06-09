@@ -168,6 +168,9 @@ export const StartSpeakingAttemptResponse = zod.object({
   "assignmentTitle": zod.string().nullish(),
   "unitNumber": zod.number().nullish(),
   "kind": zod.string().nullish(),
+  "isPractice": zod.boolean(),
+  "practiceForAssignmentId": zod.number().nullish(),
+  "practiceParentTitle": zod.string().nullish(),
   "status": zod.enum(['in_progress', 'submitted']),
   "overallScore": zod.number().nullish(),
   "startedAt": zod.coerce.date(),
@@ -211,6 +214,8 @@ export const StartSpeakingAttemptResponse = zod.object({
   "summary": zod.string().nullish(),
   "whatWorked": zod.array(zod.string()).optional(),
   "whatToFix": zod.array(zod.string()).optional(),
+  "focusPointers": zod.array(zod.string()).optional(),
+  "drills": zod.array(zod.string()).optional(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 }))
@@ -226,6 +231,8 @@ export const ListSpeakingAttemptsResponseItem = zod.object({
   "assignmentTitle": zod.string(),
   "unitNumber": zod.number(),
   "kind": zod.string(),
+  "isPractice": zod.boolean(),
+  "practiceForAssignmentId": zod.number().nullish(),
   "status": zod.enum(['in_progress', 'submitted']),
   "overallScore": zod.number().nullish(),
   "startedAt": zod.coerce.date(),
@@ -247,6 +254,9 @@ export const GetSpeakingAttemptResponse = zod.object({
   "assignmentTitle": zod.string().nullish(),
   "unitNumber": zod.number().nullish(),
   "kind": zod.string().nullish(),
+  "isPractice": zod.boolean(),
+  "practiceForAssignmentId": zod.number().nullish(),
+  "practiceParentTitle": zod.string().nullish(),
   "status": zod.enum(['in_progress', 'submitted']),
   "overallScore": zod.number().nullish(),
   "startedAt": zod.coerce.date(),
@@ -290,6 +300,8 @@ export const GetSpeakingAttemptResponse = zod.object({
   "summary": zod.string().nullish(),
   "whatWorked": zod.array(zod.string()).optional(),
   "whatToFix": zod.array(zod.string()).optional(),
+  "focusPointers": zod.array(zod.string()).optional(),
+  "drills": zod.array(zod.string()).optional(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 }))
@@ -340,6 +352,8 @@ export const SubmitSpeakingResponseResponse = zod.object({
   "summary": zod.string().nullish(),
   "whatWorked": zod.array(zod.string()).optional(),
   "whatToFix": zod.array(zod.string()).optional(),
+  "focusPointers": zod.array(zod.string()).optional(),
+  "drills": zod.array(zod.string()).optional(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 })
@@ -358,6 +372,9 @@ export const FinalizeSpeakingAttemptResponse = zod.object({
   "assignmentTitle": zod.string().nullish(),
   "unitNumber": zod.number().nullish(),
   "kind": zod.string().nullish(),
+  "isPractice": zod.boolean(),
+  "practiceForAssignmentId": zod.number().nullish(),
+  "practiceParentTitle": zod.string().nullish(),
   "status": zod.enum(['in_progress', 'submitted']),
   "overallScore": zod.number().nullish(),
   "startedAt": zod.coerce.date(),
@@ -401,6 +418,8 @@ export const FinalizeSpeakingAttemptResponse = zod.object({
   "summary": zod.string().nullish(),
   "whatWorked": zod.array(zod.string()).optional(),
   "whatToFix": zod.array(zod.string()).optional(),
+  "focusPointers": zod.array(zod.string()).optional(),
+  "drills": zod.array(zod.string()).optional(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 }))
@@ -441,6 +460,95 @@ export const GetSpeakingProgressResponse = zod.object({
   "score": zod.number().nullish(),
   "unitNumber": zod.number().nullish()
 }))
+})
+
+
+/**
+ * @summary Generate a fresh, unofficial practice version of an assignment and start an attempt
+ */
+export const GenerateSpeakingPracticeParams = zod.object({
+  "assignmentId": zod.coerce.number()
+})
+
+export const GenerateSpeakingPracticeResponse = zod.object({
+  "assignmentId": zod.number(),
+  "attemptId": zod.number()
+})
+
+
+/**
+ * @summary List previously generated practice sets for an assignment
+ */
+export const ListSpeakingPracticeParams = zod.object({
+  "assignmentId": zod.coerce.number()
+})
+
+export const ListSpeakingPracticeResponseItem = zod.object({
+  "assignmentId": zod.number(),
+  "attemptId": zod.number(),
+  "title": zod.string(),
+  "mode": zod.enum(['spoken', 'written', 'mixed']),
+  "promptCount": zod.number(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "overallScore": zod.number().nullish(),
+  "gradedCount": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+export const ListSpeakingPracticeResponse = zod.array(ListSpeakingPracticeResponseItem)
+
+
+/**
+ * @summary Ask the on-screen practice coach about this practice attempt and its feedback
+ */
+export const AskPracticeTutorParams = zod.object({
+  "attemptId": zod.coerce.number()
+})
+
+export const AskPracticeTutorBody = zod.object({
+  "messages": zod.array(zod.object({
+  "role": zod.enum(['user', 'assistant']),
+  "content": zod.string()
+}))
+})
+
+export const AskPracticeTutorResponse = zod.object({
+  "reply": zod.string()
+})
+
+
+/**
+ * @summary The evolving coaching profile and analytics built from all logged activity
+ */
+export const GetSpeakingProfileResponse = zod.object({
+  "summary": zod.string().nullish(),
+  "strengths": zod.array(zod.string()),
+  "focusAreas": zod.array(zod.string()),
+  "generatedAt": zod.coerce.date().nullish(),
+  "analytics": zod.object({
+  "gradedResponses": zod.number(),
+  "practiceResponses": zod.number(),
+  "tutorExchanges": zod.number(),
+  "averageContent": zod.number().nullish(),
+  "averageDelivery": zod.number().nullish(),
+  "averageOverall": zod.number().nullish(),
+  "averageWordsPerMinute": zod.number().nullish(),
+  "averageFillerRate": zod.number().nullish(),
+  "averagePauseCount": zod.number().nullish(),
+  "trend": zod.enum(['improving', 'declining', 'steady', 'insufficient']),
+  "recurringFixes": zod.array(zod.string()).optional(),
+  "strongTopics": zod.array(zod.object({
+  "title": zod.string(),
+  "unitNumber": zod.number(),
+  "averageScore": zod.number().nullable(),
+  "responses": zod.number()
+})).optional(),
+  "weakTopics": zod.array(zod.object({
+  "title": zod.string(),
+  "unitNumber": zod.number(),
+  "averageScore": zod.number().nullable(),
+  "responses": zod.number()
+})).optional()
+})
 })
 
 

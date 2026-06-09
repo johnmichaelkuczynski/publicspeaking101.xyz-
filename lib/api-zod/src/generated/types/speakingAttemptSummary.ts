@@ -13,6 +13,9 @@ export interface SpeakingAttemptSummary {
   assignmentTitle: string;
   unitNumber: number;
   kind: string;
+  isPractice: boolean;
+  /** @nullable */
+  practiceForAssignmentId?: number | null;
   status: SpeakingAttemptSummaryStatus;
   /** @nullable */
   overallScore?: number | null;

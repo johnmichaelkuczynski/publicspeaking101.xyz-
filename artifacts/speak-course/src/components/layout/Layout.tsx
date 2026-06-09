@@ -1,12 +1,13 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Mic2, Activity, List, LayoutDashboard, Settings } from "lucide-react";
+import { Mic2, Activity, LayoutDashboard, Settings, Sparkles } from "lucide-react";
 
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
 
   const navItems = [
     { href: "/", label: "Studio", icon: LayoutDashboard },
+    { href: "/coach", label: "Coach", icon: Sparkles },
     { href: "/attempts", label: "Recordings", icon: Mic2 },
     { href: "/progress", label: "Progress", icon: Activity },
     { href: "/diagnostics", label: "Diagnostics", icon: Settings },

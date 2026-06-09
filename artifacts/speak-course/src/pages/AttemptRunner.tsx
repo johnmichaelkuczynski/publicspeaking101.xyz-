@@ -13,9 +13,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AudioRecorder } from "@/components/AudioRecorder";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft, Mic2, Star, RotateCcw, Pencil } from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft, Mic2, Star, RotateCcw, Pencil, Sparkles, Target, Dumbbell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { PracticeTutor } from "@/components/PracticeTutor";
 import { cn } from "@/lib/utils";
 
 export default function AttemptRunner() {
@@ -72,6 +73,8 @@ export default function AttemptRunner() {
   }
 
   const isFinalized = attempt.status === 'submitted';
+  const isPractice = attempt.isPractice === true;
+  const hasAnyResponse = (attempt.responses?.length ?? 0) > 0;
   const prompts = attempt.prompts || [];
 
   const activePrompt = prompts.find(p => p.id === activePromptId);
@@ -181,10 +184,17 @@ export default function AttemptRunner() {
   const handleFinalize = async () => {
     try {
       await finalizeAttempt.mutateAsync({ attemptId });
-      toast({
-        title: "Assignment Completed",
-        description: "Your overall score is now available.",
-      });
+      toast(
+        attempt?.isPractice
+          ? {
+              title: "Practice round finished",
+              description: "Unofficial score ready. Generate another fresh round any time.",
+            }
+          : {
+              title: "Assignment Completed",
+              description: "Your overall score is now available.",
+            },
+      );
       refetch();
     } catch (err: any) {
       toast({
@@ -214,16 +224,36 @@ export default function AttemptRunner() {
       </div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wider">
-            Unit {attempt.unitNumber} • {attempt.kind}
+          <div className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wider flex items-center gap-2 flex-wrap">
+            <span>Unit {attempt.unitNumber} • {attempt.kind}</span>
+            {isPractice && (
+              <Badge className="bg-secondary/20 text-secondary-foreground border-secondary/40 hover:bg-secondary/20 gap-1">
+                <Sparkles className="w-3 h-3" /> Practice — unofficial
+              </Badge>
+            )}
           </div>
           <h1 className="text-3xl font-serif font-bold text-foreground">
-            {attempt.assignmentTitle}
+            {isPractice && attempt.practiceParentTitle
+              ? `Practice: ${attempt.practiceParentTitle}`
+              : attempt.assignmentTitle}
           </h1>
+          {isPractice && (
+            <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+              Fresh questions, never the graded ones. Nothing here counts toward your record — it's
+              pure reps. Your coach is on screen the whole time.
+            </p>
+          )}
         </div>
         {isFinalized && attempt.overallScore !== undefined && attempt.overallScore !== null && (
-          <div className="bg-primary/10 text-primary px-6 py-3 rounded-xl border border-primary/20 flex flex-col items-center">
-            <div className="text-xs font-bold uppercase tracking-wider mb-1">Final Score</div>
+          <div className={cn(
+            "px-6 py-3 rounded-xl border flex flex-col items-center",
+            isPractice
+              ? "bg-secondary/10 text-secondary-foreground border-secondary/30"
+              : "bg-primary/10 text-primary border-primary/20",
+          )}>
+            <div className="text-xs font-bold uppercase tracking-wider mb-1">
+              {isPractice ? "Unofficial Score" : "Final Score"}
+            </div>
             <div className="text-3xl font-bold flex items-center gap-2">
               <Star className="w-6 h-6 fill-current" />
               {Math.round(attempt.overallScore)}
@@ -231,6 +261,10 @@ export default function AttemptRunner() {
           </div>
         )}
       </div>
+
+      {isPractice && (
+        <PracticeTutor attemptId={attempt.id} hasWork={hasAnyResponse} />
+      )}
 
       {!isFinalized && prompts.length > 0 && (
         <div className="space-y-3">
@@ -290,7 +324,11 @@ export default function AttemptRunner() {
           <CardContent className="p-8 text-center flex flex-col items-center">
             <CheckCircle2 className="w-16 h-16 text-secondary mb-4" />
             <h2 className="text-2xl font-serif font-bold mb-2">All Prompts Answered</h2>
-            <p className="text-muted-foreground mb-6">You have completed all prompts for this assignment. Submit to finalize and see your overall score.</p>
+            <p className="text-muted-foreground mb-6">
+              {isPractice
+                ? "Nice reps. Finish to see your unofficial overall — then generate another fresh round any time. Practice is unlimited."
+                : "You have completed all prompts for this assignment. Submit to finalize and see your overall score."}
+            </p>
             <Button 
               size="lg" 
               onClick={handleFinalize}
@@ -298,7 +336,7 @@ export default function AttemptRunner() {
               className="px-8"
             >
               {finalizeAttempt.isPending ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-5 h-5 mr-2" />}
-              Complete Assignment
+              {isPractice ? "Finish Practice Round" : "Complete Assignment"}
             </Button>
           </CardContent>
         </Card>
@@ -496,6 +534,31 @@ export default function AttemptRunner() {
                               <div className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">To Improve</div>
                               <ul className="list-disc pl-4 space-y-1 text-sm">
                                 {response.whatToFix.map((item, i) => <li key={i}>{item}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {((response.focusPointers?.length ?? 0) > 0 || (response.drills?.length ?? 0) > 0) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-secondary/30">
+                          {response.focusPointers && response.focusPointers.length > 0 && (
+                            <div className="rounded-lg bg-secondary/10 p-4">
+                              <div className="text-xs font-bold text-secondary-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <Target className="w-3.5 h-3.5" /> Focus on this
+                              </div>
+                              <ul className="list-disc pl-4 space-y-1 text-sm">
+                                {response.focusPointers.map((item, i) => <li key={i}>{item}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                          {response.drills && response.drills.length > 0 && (
+                            <div className="rounded-lg bg-secondary/10 p-4">
+                              <div className="text-xs font-bold text-secondary-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <Dumbbell className="w-3.5 h-3.5" /> Try this drill
+                              </div>
+                              <ul className="list-disc pl-4 space-y-1 text-sm">
+                                {response.drills.map((item, i) => <li key={i}>{item}</li>)}
                               </ul>
                             </div>
                           )}

@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AskPracticeTutorRequest,
   ErrorEnvelope,
   HealthStatus,
   LectureTutorReply,
@@ -30,6 +31,9 @@ import type {
   SpeakingAttemptSummary,
   SpeakingLecture,
   SpeakingOverview,
+  SpeakingPracticeSet,
+  SpeakingPracticeStart,
+  SpeakingProfile,
   SpeakingProgress,
   SpeakingResponse,
   SpeakingResponseInput,
@@ -1015,6 +1019,302 @@ export function useGetSpeakingProgress<TData = Awaited<ReturnType<typeof getSpea
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSpeakingProgressQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGenerateSpeakingPracticeUrl = (assignmentId: number,) => {
+
+
+
+
+  return `/api/speaking/assignments/${assignmentId}/practice`
+}
+
+/**
+ * @summary Generate a fresh, unofficial practice version of an assignment and start an attempt
+ */
+export const generateSpeakingPractice = async (assignmentId: number, options?: RequestInit): Promise<SpeakingPracticeStart> => {
+
+  return customFetch<SpeakingPracticeStart>(getGenerateSpeakingPracticeUrl(assignmentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getGenerateSpeakingPracticeMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateSpeakingPractice>>, TError,{assignmentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateSpeakingPractice>>, TError,{assignmentId: number}, TContext> => {
+
+const mutationKey = ['generateSpeakingPractice'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateSpeakingPractice>>, {assignmentId: number}> = (props) => {
+          const {assignmentId} = props ?? {};
+
+          return  generateSpeakingPractice(assignmentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateSpeakingPracticeMutationResult = NonNullable<Awaited<ReturnType<typeof generateSpeakingPractice>>>
+
+    export type GenerateSpeakingPracticeMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Generate a fresh, unofficial practice version of an assignment and start an attempt
+ */
+export const useGenerateSpeakingPractice = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateSpeakingPractice>>, TError,{assignmentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateSpeakingPractice>>,
+        TError,
+        {assignmentId: number},
+        TContext
+      > => {
+      return useMutation(getGenerateSpeakingPracticeMutationOptions(options));
+    }
+
+export const getListSpeakingPracticeUrl = (assignmentId: number,) => {
+
+
+
+
+  return `/api/speaking/assignments/${assignmentId}/practice`
+}
+
+/**
+ * @summary List previously generated practice sets for an assignment
+ */
+export const listSpeakingPractice = async (assignmentId: number, options?: RequestInit): Promise<SpeakingPracticeSet[]> => {
+
+  return customFetch<SpeakingPracticeSet[]>(getListSpeakingPracticeUrl(assignmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSpeakingPracticeQueryKey = (assignmentId: number,) => {
+    return [
+    `/api/speaking/assignments/${assignmentId}/practice`
+    ] as const;
+    }
+
+
+export const getListSpeakingPracticeQueryOptions = <TData = Awaited<ReturnType<typeof listSpeakingPractice>>, TError = ErrorType<ErrorEnvelope>>(assignmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSpeakingPractice>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSpeakingPracticeQueryKey(assignmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSpeakingPractice>>> = ({ signal }) => listSpeakingPractice(assignmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(assignmentId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSpeakingPractice>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSpeakingPracticeQueryResult = NonNullable<Awaited<ReturnType<typeof listSpeakingPractice>>>
+export type ListSpeakingPracticeQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List previously generated practice sets for an assignment
+ */
+
+export function useListSpeakingPractice<TData = Awaited<ReturnType<typeof listSpeakingPractice>>, TError = ErrorType<ErrorEnvelope>>(
+ assignmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSpeakingPractice>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSpeakingPracticeQueryOptions(assignmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAskPracticeTutorUrl = (attemptId: number,) => {
+
+
+
+
+  return `/api/speaking/attempts/${attemptId}/tutor`
+}
+
+/**
+ * @summary Ask the on-screen practice coach about this practice attempt and its feedback
+ */
+export const askPracticeTutor = async (attemptId: number,
+    askPracticeTutorRequest: AskPracticeTutorRequest, options?: RequestInit): Promise<LectureTutorReply> => {
+
+  return customFetch<LectureTutorReply>(getAskPracticeTutorUrl(attemptId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      askPracticeTutorRequest,)
+  }
+);}
+
+
+
+
+export const getAskPracticeTutorMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof askPracticeTutor>>, TError,{attemptId: number;data: BodyType<AskPracticeTutorRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof askPracticeTutor>>, TError,{attemptId: number;data: BodyType<AskPracticeTutorRequest>}, TContext> => {
+
+const mutationKey = ['askPracticeTutor'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof askPracticeTutor>>, {attemptId: number;data: BodyType<AskPracticeTutorRequest>}> = (props) => {
+          const {attemptId,data} = props ?? {};
+
+          return  askPracticeTutor(attemptId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AskPracticeTutorMutationResult = NonNullable<Awaited<ReturnType<typeof askPracticeTutor>>>
+    export type AskPracticeTutorMutationBody = BodyType<AskPracticeTutorRequest>
+    export type AskPracticeTutorMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Ask the on-screen practice coach about this practice attempt and its feedback
+ */
+export const useAskPracticeTutor = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof askPracticeTutor>>, TError,{attemptId: number;data: BodyType<AskPracticeTutorRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof askPracticeTutor>>,
+        TError,
+        {attemptId: number;data: BodyType<AskPracticeTutorRequest>},
+        TContext
+      > => {
+      return useMutation(getAskPracticeTutorMutationOptions(options));
+    }
+
+export const getGetSpeakingProfileUrl = () => {
+
+
+
+
+  return `/api/speaking/profile`
+}
+
+/**
+ * @summary The evolving coaching profile and analytics built from all logged activity
+ */
+export const getSpeakingProfile = async ( options?: RequestInit): Promise<SpeakingProfile> => {
+
+  return customFetch<SpeakingProfile>(getGetSpeakingProfileUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingProfileQueryKey = () => {
+    return [
+    `/api/speaking/profile`
+    ] as const;
+    }
+
+
+export const getGetSpeakingProfileQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingProfile>>, TError = ErrorType<ErrorEnvelope>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingProfileQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingProfile>>> = ({ signal }) => getSpeakingProfile({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingProfile>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingProfile>>>
+export type GetSpeakingProfileQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary The evolving coaching profile and analytics built from all logged activity
+ */
+
+export function useGetSpeakingProfile<TData = Awaited<ReturnType<typeof getSpeakingProfile>>, TError = ErrorType<ErrorEnvelope>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingProfileQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

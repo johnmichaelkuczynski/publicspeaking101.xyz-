@@ -18,6 +18,11 @@ export interface SpeakingAttempt {
   unitNumber?: number | null;
   /** @nullable */
   kind?: string | null;
+  isPractice: boolean;
+  /** @nullable */
+  practiceForAssignmentId?: number | null;
+  /** @nullable */
+  practiceParentTitle?: string | null;
   status: SpeakingAttemptStatus;
   /** @nullable */
   overallScore?: number | null;

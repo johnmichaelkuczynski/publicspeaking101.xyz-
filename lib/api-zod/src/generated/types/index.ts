@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './askPracticeTutorRequest';
 export * from './errorEnvelope';
 export * from './healthStatus';
 export * from './lectureTutorMessage';
@@ -14,6 +15,8 @@ export * from './lectureTutorReply';
 export * from './lectureTutorRequest';
 export * from './lectureTutorSuggestions';
 export * from './speakingActivityItem';
+export * from './speakingAnalytics';
+export * from './speakingAnalyticsTrend';
 export * from './speakingAssignment';
 export * from './speakingAssignmentKind';
 export * from './speakingAssignmentSummary';
@@ -29,6 +32,11 @@ export * from './speakingLectureRef';
 export * from './speakingMetrics';
 export * from './speakingOverview';
 export * from './speakingOverviewTotals';
+export * from './speakingPracticeSet';
+export * from './speakingPracticeSetMode';
+export * from './speakingPracticeSetStatus';
+export * from './speakingPracticeStart';
+export * from './speakingProfile';
 export * from './speakingProgress';
 export * from './speakingPrompt';
 export * from './speakingPromptMode';
@@ -40,6 +48,7 @@ export * from './speakingResponseMediaKind';
 export * from './speakingResponseMode';
 export * from './speakingResponseStatus';
 export * from './speakingTopicProgress';
+export * from './speakingTopicStat';
 export * from './speakingUnit';
 export * from './speakingUnitProgress';
 export * from './uploadUrlRequest';

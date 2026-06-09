@@ -36,6 +36,13 @@ export const speakingAssignmentsTable = pgTable("speaking_assignments", {
   unitNumber: integer("unit_number").notNull(),
   position: integer("position").notNull().default(0),
   instructions: text("instructions"),
+  // When set, this row is an AI-generated PRACTICE set that mirrors the graded
+  // assignment with this id. Practice assignments are excluded from official
+  // progress and never reuse the graded prompts.
+  practiceForAssignmentId: integer("practice_for_assignment_id"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const speakingPromptsTable = pgTable("speaking_prompts", {
@@ -88,9 +95,43 @@ export const speakingResponsesTable = pgTable("speaking_responses", {
   summary: text("summary"),
   whatWorked: jsonb("what_worked"),
   whatToFix: jsonb("what_to_fix"),
+  // Practice-only enrichment: surgically precise, analytics-aware pointers toward
+  // the real graded assignment, plus concrete rehearsal drills.
+  focusPointers: jsonb("focus_pointers"),
+  drills: jsonb("drills"),
   errorMessage: text("error_message"),
   gradedAt: timestamp("graded_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+// Append-only log of everything the student does, used to build the evolving
+// profile and the analytics that drive practice generation and the tutor.
+export const speakingActivityTable = pgTable("speaking_activity", {
+  id: serial("id").primaryKey(),
+  // practice_generated | response_graded | response_failed | attempt_finalized
+  // | tutor_lecture | tutor_practice
+  type: text("type").notNull(),
+  assignmentId: integer("assignment_id"),
+  attemptId: integer("attempt_id"),
+  responseId: integer("response_id"),
+  isPractice: integer("is_practice").notNull().default(0),
+  summary: text("summary"),
+  payload: jsonb("payload"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// Singleton (id = 1) evolving coaching profile of the single student. The AI
+// summary/strengths/focusAreas are regenerated as new graded + practice work
+// accumulates; basedOnResponses tracks how fresh it is.
+export const speakingProfileTable = pgTable("speaking_profile", {
+  id: serial("id").primaryKey(),
+  summary: text("summary"),
+  strengths: jsonb("strengths"),
+  focusAreas: jsonb("focus_areas"),
+  basedOnResponses: integer("based_on_responses").notNull().default(0),
+  generatedAt: timestamp("generated_at", { withTimezone: true }),
 });

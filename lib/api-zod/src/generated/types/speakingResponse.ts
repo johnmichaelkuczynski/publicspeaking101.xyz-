@@ -38,6 +38,8 @@ export interface SpeakingResponse {
   summary?: string | null;
   whatWorked?: string[];
   whatToFix?: string[];
+  focusPointers?: string[];
+  drills?: string[];
   /** @nullable */
   errorMessage?: string | null;
   /** @nullable */

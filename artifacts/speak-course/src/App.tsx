@@ -13,6 +13,7 @@ import AssignmentDetail from "@/pages/AssignmentDetail";
 import AttemptsList from "@/pages/AttemptsList";
 import AttemptRunner from "@/pages/AttemptRunner";
 import Progress from "@/pages/Progress";
+import Coach from "@/pages/Coach";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ function Router() {
         <Route path="/attempts" component={AttemptsList} />
         <Route path="/attempts/:attemptId" component={AttemptRunner} />
         <Route path="/progress" component={Progress} />
+        <Route path="/coach" component={Coach} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

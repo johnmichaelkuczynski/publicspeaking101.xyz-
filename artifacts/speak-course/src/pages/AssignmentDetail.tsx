@@ -1,16 +1,36 @@
-import { useGetSpeakingAssignment, getGetSpeakingAssignmentQueryKey, useStartSpeakingAttempt } from "@workspace/api-client-react";
+import {
+  useGetSpeakingAssignment,
+  getGetSpeakingAssignmentQueryKey,
+  useStartSpeakingAttempt,
+  useGenerateSpeakingPractice,
+  useListSpeakingPractice,
+  getListSpeakingPracticeQueryKey,
+} from "@workspace/api-client-react";
 import { useRoute, useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Play,
+  AlertCircle,
+  Sparkles,
+  Loader2,
+  Repeat,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AssignmentDetail() {
   const [, params] = useRoute("/assignments/:assignmentId");
   const assignmentId = params?.assignmentId ? parseInt(params.assignmentId, 10) : 0;
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: assignment, isLoading, error } = useGetSpeakingAssignment(assignmentId, {
     query: {
@@ -19,7 +39,15 @@ export default function AssignmentDetail() {
     }
   });
 
+  const { data: practiceSets } = useListSpeakingPractice(assignmentId, {
+    query: {
+      enabled: !!assignmentId,
+      queryKey: getListSpeakingPracticeQueryKey(assignmentId),
+    },
+  });
+
   const startAttempt = useStartSpeakingAttempt();
+  const generatePractice = useGenerateSpeakingPractice();
 
   if (isLoading) {
     return (
@@ -46,6 +74,28 @@ export default function AssignmentDetail() {
       }
     });
   };
+
+  const handleGeneratePractice = async () => {
+    try {
+      const result = await generatePractice.mutateAsync({ assignmentId });
+      await queryClient.invalidateQueries({
+        queryKey: getListSpeakingPracticeQueryKey(assignmentId),
+      });
+      toast({
+        title: "Fresh practice ready",
+        description: "Brand-new questions — never the graded ones. Coach is on call.",
+      });
+      setLocation(`/attempts/${result.attemptId}`);
+    } catch (err: any) {
+      toast({
+        title: "Couldn't build practice",
+        description: err?.message || "Please try again in a moment.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const sets = practiceSets ?? [];
 
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -107,6 +157,82 @@ export default function AssignmentDetail() {
           )}
         </Button>
       </div>
+
+      {/* PRACTICE MODE — unlimited unofficial reps, never the graded prompts. */}
+      <Card className="mt-10 border-2 border-secondary/40 bg-secondary/5 overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-4">
+            <div className="bg-secondary/20 p-3 rounded-full text-secondary-foreground shrink-0">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
+                Practice as much as you want
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Generate a fresh, <strong>unofficial</strong> version of this {assignment.kind} — brand-new
+                questions every time, <strong>never</strong> the real graded prompts. Record or write your
+                answer, get an instant unofficial grade with lots of feedback, and talk it through with
+                Coach, your live tutor. None of it counts — it just makes you sharper.
+              </p>
+              <Button
+                onClick={handleGeneratePractice}
+                disabled={generatePractice.isPending}
+                className="rounded-full font-semibold"
+              >
+                {generatePractice.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Building fresh questions…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate practice round
+                  </>
+                )}
+              </Button>
+
+              {sets.length > 0 && (
+                <div className="mt-6 space-y-2">
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Your practice rounds
+                  </div>
+                  {sets.map((s) => (
+                    <button
+                      key={s.assignmentId}
+                      onClick={() => s.attemptId && setLocation(`/attempts/${s.attemptId}`)}
+                      className="w-full flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:border-secondary/50 hover:bg-secondary/5"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-medium truncate flex items-center gap-2">
+                          <Repeat className="w-4 h-4 text-secondary-foreground shrink-0" />
+                          {s.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {s.promptCount} prompt{s.promptCount === 1 ? "" : "s"} ·{" "}
+                          {s.status === "submitted" ? (
+                            <span className="text-primary font-medium">
+                              Finished{s.overallScore != null ? ` · ${Math.round(s.overallScore)}/100 (unofficial)` : ""}
+                            </span>
+                          ) : (
+                            <span>{s.gradedCount ?? 0} graded · in progress</span>
+                          )}
+                        </div>
+                      </div>
+                      {s.status === "submitted" ? (
+                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                      ) : (
+                        <ArrowRight className="w-5 h-5 text-muted-foreground shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="mt-12 space-y-4">
         <h3 className="text-xl font-serif font-semibold">Prompts Preview</h3>

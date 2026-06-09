@@ -39,7 +39,7 @@ export default function AttemptsList() {
           Your Recordings
         </h1>
         <p className="text-muted-foreground mt-2 text-lg">
-          Review past practice sessions and feedback.
+          Review your graded submissions and feedback. Practice rounds live on each assignment.
         </p>
       </div>
 

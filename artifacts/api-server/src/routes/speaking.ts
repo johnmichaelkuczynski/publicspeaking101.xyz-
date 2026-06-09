@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { eq, asc, desc, inArray } from "drizzle-orm";
+import { eq, asc, desc, inArray, isNull, and } from "drizzle-orm";
 import {
   db,
   speakingTopicsTable,
@@ -8,6 +8,7 @@ import {
   speakingPromptsTable,
   speakingAttemptsTable,
   speakingResponsesTable,
+  speakingActivityTable,
 } from "@workspace/db";
 import {
   GetSpeakingOverviewResponse,
@@ -24,14 +25,56 @@ import {
   AskLectureTutorBody,
   AskLectureTutorResponse,
   GetLectureTutorSuggestionsResponse,
+  GenerateSpeakingPracticeResponse,
+  ListSpeakingPracticeResponse,
+  AskPracticeTutorBody,
+  AskPracticeTutorResponse,
+  GetSpeakingProfileResponse,
 } from "@workspace/api-zod";
 import { transcribeRecording } from "../lib/speech";
 import { evaluateResponse } from "../lib/evaluate";
 import {
   askLectureTutor,
   suggestLectureQuestions,
+  askPracticeTutor,
   type LectureContext,
+  type PracticeTutorContext,
 } from "../lib/tutor";
+import { generatePracticePrompts } from "../lib/practice";
+import { getSpeakingProfile, buildProfileContext } from "../lib/profile";
+import { existingPromptTexts, practiceAssignmentIdSet } from "../lib/analytics";
+
+type ActivityType =
+  | "practice_generated"
+  | "response_graded"
+  | "response_failed"
+  | "attempt_finalized"
+  | "tutor_lecture"
+  | "tutor_practice";
+
+async function logActivity(entry: {
+  type: ActivityType;
+  assignmentId?: number | null;
+  attemptId?: number | null;
+  responseId?: number | null;
+  isPractice?: boolean;
+  summary?: string | null;
+  payload?: Record<string, unknown> | null;
+}): Promise<void> {
+  try {
+    await db.insert(speakingActivityTable).values({
+      type: entry.type,
+      assignmentId: entry.assignmentId ?? null,
+      attemptId: entry.attemptId ?? null,
+      responseId: entry.responseId ?? null,
+      isPractice: entry.isPractice ? 1 : 0,
+      summary: entry.summary ?? null,
+      payload: entry.payload ?? null,
+    });
+  } catch {
+    // Activity logging is best-effort and must never break the request.
+  }
+}
 
 const router: IRouter = Router();
 
@@ -129,6 +172,8 @@ function serializeResponse(row: ResponseRow) {
     summary: row.summary ?? null,
     whatWorked: (row.whatWorked as string[] | null) ?? [],
     whatToFix: (row.whatToFix as string[] | null) ?? [],
+    focusPointers: (row.focusPointers as string[] | null) ?? [],
+    drills: (row.drills as string[] | null) ?? [],
     errorMessage: row.errorMessage ?? null,
     gradedAt: row.gradedAt ? row.gradedAt.toISOString() : null,
   };
@@ -180,10 +225,16 @@ async function buildUnit(unitNumber: number) {
     .where(eq(speakingLecturesTable.unitNumber, unitNumber))
     .orderBy(asc(speakingLecturesTable.position), asc(speakingLecturesTable.id));
 
+  // Practice sets (practiceForAssignmentId set) are unofficial and excluded.
   const assignments = await db
     .select()
     .from(speakingAssignmentsTable)
-    .where(eq(speakingAssignmentsTable.unitNumber, unitNumber))
+    .where(
+      and(
+        eq(speakingAssignmentsTable.unitNumber, unitNumber),
+        isNull(speakingAssignmentsTable.practiceForAssignmentId),
+      ),
+    )
     .orderBy(asc(speakingAssignmentsTable.position));
 
   const assignmentSummaries = await Promise.all(
@@ -216,12 +267,25 @@ async function serializeAttempt(attempt: AttemptRow) {
     .where(eq(speakingResponsesTable.attemptId, attempt.id))
     .orderBy(asc(speakingResponsesTable.id));
 
+  const practiceForAssignmentId = assignment?.practiceForAssignmentId ?? null;
+  let practiceParentTitle: string | null = null;
+  if (practiceForAssignmentId != null) {
+    const [parent] = await db
+      .select({ title: speakingAssignmentsTable.title })
+      .from(speakingAssignmentsTable)
+      .where(eq(speakingAssignmentsTable.id, practiceForAssignmentId));
+    practiceParentTitle = parent?.title ?? null;
+  }
+
   return {
     id: attempt.id,
     assignmentId: attempt.assignmentId,
     assignmentTitle: assignment?.title ?? null,
     unitNumber: assignment?.unitNumber ?? null,
     kind: assignment?.kind ?? null,
+    isPractice: practiceForAssignmentId != null,
+    practiceForAssignmentId,
+    practiceParentTitle,
     status: attempt.status as "in_progress" | "submitted",
     overallScore: attempt.overallScore ?? null,
     startedAt: attempt.startedAt.toISOString(),
@@ -239,6 +303,10 @@ router.get("/speaking/overview", async (_req, res) => {
     0,
   );
   const allAttempts = await db.select().from(speakingAttemptsTable);
+  const practiceIds = await practiceAssignmentIdSet();
+  const officialAttempts = allAttempts.filter(
+    (a) => !practiceIds.has(a.assignmentId),
+  );
 
   res.json(
     GetSpeakingOverviewResponse.parse({
@@ -247,7 +315,7 @@ router.get("/speaking/overview", async (_req, res) => {
       totals: {
         assignmentsCompleted,
         assignmentsTotal,
-        attemptsCount: allAttempts.length,
+        attemptsCount: officialAttempts.length,
       },
     }),
   );
@@ -335,6 +403,14 @@ router.post(
     }
     try {
       const reply = await askLectureTutor(context, parsed.data.messages);
+      const lastUser = [...parsed.data.messages]
+        .reverse()
+        .find((m) => m.role === "user");
+      await logActivity({
+        type: "tutor_lecture",
+        summary: `Lecture tutor dialogue on "${context.title}"`,
+        payload: { lectureId, question: lastUser?.content ?? null },
+      });
       res.json(AskLectureTutorResponse.parse({ reply }));
     } catch (error) {
       const message = error instanceof Error ? error.message : "tutor failed";
@@ -449,20 +525,25 @@ router.get("/speaking/attempts", async (_req, res) => {
     : [];
   const byId = new Map(assignments.map((a) => [a.id, a]));
 
-  const summaries = attempts.map((a) => {
-    const assignment = byId.get(a.assignmentId);
-    return {
-      id: a.id,
-      assignmentId: a.assignmentId,
-      assignmentTitle: assignment?.title ?? "Assignment",
-      unitNumber: assignment?.unitNumber ?? 0,
-      kind: assignment?.kind ?? "homework",
-      status: a.status as "in_progress" | "submitted",
-      overallScore: a.overallScore ?? null,
-      startedAt: a.startedAt.toISOString(),
-      submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
-    };
-  });
+  // Official attempts list — practice sets are excluded from the graded record.
+  const summaries = attempts
+    .filter((a) => byId.get(a.assignmentId)?.practiceForAssignmentId == null)
+    .map((a) => {
+      const assignment = byId.get(a.assignmentId);
+      return {
+        id: a.id,
+        assignmentId: a.assignmentId,
+        assignmentTitle: assignment?.title ?? "Assignment",
+        unitNumber: assignment?.unitNumber ?? 0,
+        kind: assignment?.kind ?? "homework",
+        isPractice: false,
+        practiceForAssignmentId: null,
+        status: a.status as "in_progress" | "submitted",
+        overallScore: a.overallScore ?? null,
+        startedAt: a.startedAt.toISOString(),
+        submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
+      };
+    });
 
   res.json(ListSpeakingAttemptsResponse.parse(summaries));
 });
@@ -545,6 +626,31 @@ router.post(
         .where(eq(speakingResponsesTable.id, existing.id));
     }
 
+    // Determine whether this attempt belongs to a practice set, and if so
+    // build the evolving-profile context so practice grading is personalized.
+    const [attemptAssignment] = await db
+      .select()
+      .from(speakingAssignmentsTable)
+      .where(eq(speakingAssignmentsTable.id, attempt.assignmentId));
+    const isPractice = attemptAssignment?.practiceForAssignmentId != null;
+    let profileContext: string | null = null;
+    let parentTitle: string | null = null;
+    if (isPractice) {
+      try {
+        profileContext = await buildProfileContext();
+      } catch (error) {
+        req.log.warn({ err: error }, "Failed to load profile context for practice");
+      }
+      const parentId = attemptAssignment?.practiceForAssignmentId ?? null;
+      if (parentId != null) {
+        const [parent] = await db
+          .select({ title: speakingAssignmentsTable.title })
+          .from(speakingAssignmentsTable)
+          .where(eq(speakingAssignmentsTable.id, parentId));
+        parentTitle = parent?.title ?? null;
+      }
+    }
+
     try {
       let transcript: string | null = null;
       let metrics: Record<string, number> | null = null;
@@ -567,6 +673,9 @@ router.post(
           body.mode === "spoken"
             ? (metrics as unknown as import("../lib/speech").SpeechMetrics)
             : null,
+        isPractice,
+        profileContext,
+        parentTitle,
       });
 
       const [saved] = await db
@@ -589,25 +698,54 @@ router.post(
           summary: evaluation.summary,
           whatWorked: evaluation.whatWorked,
           whatToFix: evaluation.whatToFix,
+          focusPointers: evaluation.focusPointers,
+          drills: evaluation.drills,
           gradedAt: new Date(),
         })
         .returning();
+
+      await logActivity({
+        type: "response_graded",
+        assignmentId: attempt.assignmentId,
+        attemptId,
+        responseId: saved!.id,
+        isPractice,
+        summary: `Graded ${isPractice ? "practice" : "official"} ${body.mode} response — ${evaluation.grade} (${evaluation.overallScore}/100)`,
+        payload: {
+          contentScore: evaluation.contentScore,
+          deliveryScore: evaluation.deliveryScore,
+          overallScore: evaluation.overallScore,
+          grade: evaluation.grade,
+        },
+      });
 
       res.json(SubmitSpeakingResponseResponse.parse(serializeResponse(saved!)));
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "evaluation failed";
       req.log.error({ err: error }, "Speaking response evaluation failed");
-      await db.insert(speakingResponsesTable).values({
+      const [failedRow] = await db
+        .insert(speakingResponsesTable)
+        .values({
+          attemptId,
+          promptId: body.promptId,
+          mode: body.mode,
+          status: "failed",
+          textAnswer: body.mode === "written" ? (body.textAnswer ?? null) : null,
+          recordingObjectPath: body.recordingObjectPath ?? null,
+          mediaKind: body.mediaKind ?? null,
+          durationMs: body.durationMs ?? null,
+          errorMessage: message,
+        })
+        .returning();
+      await logActivity({
+        type: "response_failed",
+        assignmentId: attempt.assignmentId,
         attemptId,
-        promptId: body.promptId,
-        mode: body.mode,
-        status: "failed",
-        textAnswer: body.mode === "written" ? (body.textAnswer ?? null) : null,
-        recordingObjectPath: body.recordingObjectPath ?? null,
-        mediaKind: body.mediaKind ?? null,
-        durationMs: body.durationMs ?? null,
-        errorMessage: message,
+        responseId: failedRow?.id ?? null,
+        isPractice,
+        summary: `Evaluation failed for ${body.mode} response`,
+        payload: { error: message },
       });
       res.status(502).json({ error: `Evaluation failed: ${message}` });
     }
@@ -653,6 +791,20 @@ router.post(
       .where(eq(speakingAttemptsTable.id, attemptId))
       .returning();
 
+    const [finAssignment] = await db
+      .select()
+      .from(speakingAssignmentsTable)
+      .where(eq(speakingAssignmentsTable.id, attempt.assignmentId));
+    const finIsPractice = finAssignment?.practiceForAssignmentId != null;
+    await logActivity({
+      type: "attempt_finalized",
+      assignmentId: attempt.assignmentId,
+      attemptId,
+      isPractice: finIsPractice,
+      summary: `Finalized ${finIsPractice ? "practice" : "official"} attempt — ${overallScore ?? "n/a"}/100`,
+      payload: { overallScore },
+    });
+
     res.json(
       FinalizeSpeakingAttemptResponse.parse(await serializeAttempt(updated!)),
     );
@@ -661,8 +813,20 @@ router.post(
 
 router.get("/speaking/progress", async (_req, res) => {
   const units = await Promise.all([1, 2, 3, 4].map(buildUnit));
-  const allAssignments = await db.select().from(speakingAssignmentsTable);
-  const attempts = await db.select().from(speakingAttemptsTable);
+  const allAssignmentsRaw = await db.select().from(speakingAssignmentsTable);
+  // Official progress excludes practice sets entirely.
+  const allAssignments = allAssignmentsRaw.filter(
+    (a) => a.practiceForAssignmentId == null,
+  );
+  const practiceIds = new Set(
+    allAssignmentsRaw
+      .filter((a) => a.practiceForAssignmentId != null)
+      .map((a) => a.id),
+  );
+  const attempts = (await db.select().from(speakingAttemptsTable)).filter(
+    (a) => !practiceIds.has(a.assignmentId),
+  );
+  const officialAttemptIds = new Set(attempts.map((a) => a.id));
   const submitted = attempts.filter((a) => a.status === "submitted");
 
   const totalAssignments = allAssignments.length;
@@ -685,7 +849,9 @@ router.get("/speaking/progress", async (_req, res) => {
   const bestScore =
     submittedScores.length > 0 ? Math.max(...submittedScores) : null;
 
-  const allResponses = await db.select().from(speakingResponsesTable);
+  const allResponses = (await db.select().from(speakingResponsesTable)).filter(
+    (r) => officialAttemptIds.has(r.attemptId),
+  );
   const gradedResponses = allResponses.filter((r) => r.status === "graded");
   const contentScores = gradedResponses
     .map((r) => r.contentScore)
@@ -795,6 +961,327 @@ router.get("/speaking/progress", async (_req, res) => {
       recent,
     }),
   );
+});
+
+router.post(
+  "/speaking/assignments/:assignmentId/practice",
+  async (req, res): Promise<void> => {
+    const assignmentId = parseId(req.params.assignmentId);
+    if (!Number.isFinite(assignmentId)) {
+      res.status(404).json({ error: "assignment not found" });
+      return;
+    }
+    const [assignment] = await db
+      .select()
+      .from(speakingAssignmentsTable)
+      .where(eq(speakingAssignmentsTable.id, assignmentId));
+    if (!assignment) {
+      res.status(404).json({ error: "assignment not found" });
+      return;
+    }
+    if (assignment.practiceForAssignmentId != null) {
+      res
+        .status(400)
+        .json({ error: "cannot generate practice from a practice set" });
+      return;
+    }
+
+    const sourcePrompts = await loadPrompts(assignmentId);
+    if (sourcePrompts.length === 0) {
+      res.status(400).json({ error: "assignment has no prompts to mirror" });
+      return;
+    }
+    // loadPrompts omits raw topicId, so resolve it directly for the specs.
+    const sourceTopicRows = await db
+      .select({
+        id: speakingPromptsTable.id,
+        topicId: speakingPromptsTable.topicId,
+      })
+      .from(speakingPromptsTable)
+      .where(eq(speakingPromptsTable.assignmentId, assignmentId));
+    const topicIdByPromptId = new Map(
+      sourceTopicRows.map((r) => [r.id, r.topicId ?? null]),
+    );
+
+    try {
+      const excludePrompts = await existingPromptTexts(assignmentId);
+      const profileContext = await buildProfileContext();
+      const unitMeta = UNIT_TITLES[assignment.unitNumber];
+
+      const generated = await generatePracticePrompts({
+        assignmentKind: assignment.kind,
+        assignmentTitle: assignment.title,
+        unitNumber: assignment.unitNumber,
+        unitTitle: unitMeta?.title ?? null,
+        instructions: assignment.instructions ?? null,
+        specs: sourcePrompts.map((p) => ({
+          mode: p.mode,
+          topicId: topicIdByPromptId.get(p.id) ?? null,
+          topicTitle: p.topicTitle,
+          targetSeconds: p.targetSeconds,
+        })),
+        excludePrompts,
+        profileContext,
+      });
+
+      const priorPractice = await db
+        .select({ id: speakingAssignmentsTable.id })
+        .from(speakingAssignmentsTable)
+        .where(
+          eq(speakingAssignmentsTable.practiceForAssignmentId, assignmentId),
+        );
+      const practiceNumber = priorPractice.length + 1;
+
+      const [practiceAssignment] = await db
+        .insert(speakingAssignmentsTable)
+        .values({
+          kind: assignment.kind,
+          title: `Practice #${practiceNumber} — ${assignment.title}`,
+          unitNumber: assignment.unitNumber,
+          position: assignment.position,
+          instructions: assignment.instructions ?? null,
+          practiceForAssignmentId: assignmentId,
+        })
+        .returning();
+
+      await db.insert(speakingPromptsTable).values(
+        generated.map((g, i) => ({
+          assignmentId: practiceAssignment!.id,
+          topicId:
+            g.topicId ??
+            topicIdByPromptId.get(sourcePrompts[i]?.id ?? -1) ??
+            null,
+          position: i,
+          mode: g.mode,
+          prompt: g.prompt,
+          targetSeconds: g.targetSeconds,
+          rubric: g.rubric,
+          guidance: g.guidance,
+        })),
+      );
+
+      const [attempt] = await db
+        .insert(speakingAttemptsTable)
+        .values({ assignmentId: practiceAssignment!.id })
+        .returning();
+
+      await logActivity({
+        type: "practice_generated",
+        assignmentId: practiceAssignment!.id,
+        attemptId: attempt!.id,
+        isPractice: true,
+        summary: `Generated practice #${practiceNumber} for "${assignment.title}" (${generated.length} prompts)`,
+        payload: { parentAssignmentId: assignmentId, promptCount: generated.length },
+      });
+
+      res.json(
+        GenerateSpeakingPracticeResponse.parse({
+          assignmentId: practiceAssignment!.id,
+          attemptId: attempt!.id,
+        }),
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "practice generation failed";
+      req.log.error({ err: error }, "Practice generation failed");
+      res.status(502).json({ error: `Practice generation failed: ${message}` });
+    }
+  },
+);
+
+router.get(
+  "/speaking/assignments/:assignmentId/practice",
+  async (req, res): Promise<void> => {
+    const assignmentId = parseId(req.params.assignmentId);
+    if (!Number.isFinite(assignmentId)) {
+      res.status(404).json({ error: "assignment not found" });
+      return;
+    }
+
+    const practiceAssignments = await db
+      .select()
+      .from(speakingAssignmentsTable)
+      .where(
+        eq(speakingAssignmentsTable.practiceForAssignmentId, assignmentId),
+      )
+      .orderBy(desc(speakingAssignmentsTable.id));
+
+    const sets = await Promise.all(
+      practiceAssignments.map(async (pa) => {
+        const prompts = await db
+          .select({ mode: speakingPromptsTable.mode })
+          .from(speakingPromptsTable)
+          .where(eq(speakingPromptsTable.assignmentId, pa.id));
+        const modes = new Set(prompts.map((p) => p.mode));
+        const mode: "spoken" | "written" | "mixed" =
+          modes.size > 1
+            ? "mixed"
+            : modes.has("written")
+              ? "written"
+              : "spoken";
+
+        const attempts = await db
+          .select()
+          .from(speakingAttemptsTable)
+          .where(eq(speakingAttemptsTable.assignmentId, pa.id))
+          .orderBy(desc(speakingAttemptsTable.id));
+        const attempt = attempts[0];
+
+        let gradedCount = 0;
+        if (attempt) {
+          const responses = await db
+            .select({ status: speakingResponsesTable.status })
+            .from(speakingResponsesTable)
+            .where(eq(speakingResponsesTable.attemptId, attempt.id));
+          gradedCount = responses.filter((r) => r.status === "graded").length;
+        }
+
+        return {
+          assignmentId: pa.id,
+          attemptId: attempt?.id ?? 0,
+          title: pa.title,
+          mode,
+          promptCount: prompts.length,
+          status: (attempt?.status ?? "in_progress") as
+            | "in_progress"
+            | "submitted",
+          overallScore: attempt?.overallScore ?? null,
+          gradedCount,
+          createdAt: pa.createdAt.toISOString(),
+        };
+      }),
+    );
+
+    res.json(ListSpeakingPracticeResponse.parse(sets));
+  },
+);
+
+router.post(
+  "/speaking/attempts/:attemptId/tutor",
+  async (req, res): Promise<void> => {
+    const attemptId = parseId(req.params.attemptId);
+    if (!Number.isFinite(attemptId)) {
+      res.status(404).json({ error: "attempt not found" });
+      return;
+    }
+    const parsed = AskPracticeTutorBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "invalid tutor request" });
+      return;
+    }
+    const hasMessage = parsed.data.messages.some(
+      (m) => m.content.trim().length > 0,
+    );
+    if (!hasMessage) {
+      res.status(400).json({ error: "at least one message is required" });
+      return;
+    }
+
+    const [attempt] = await db
+      .select()
+      .from(speakingAttemptsTable)
+      .where(eq(speakingAttemptsTable.id, attemptId));
+    if (!attempt) {
+      res.status(404).json({ error: "attempt not found" });
+      return;
+    }
+    const [assignment] = await db
+      .select()
+      .from(speakingAssignmentsTable)
+      .where(eq(speakingAssignmentsTable.id, attempt.assignmentId));
+    if (!assignment || assignment.practiceForAssignmentId == null) {
+      res
+        .status(400)
+        .json({ error: "practice coach is only available in practice mode" });
+      return;
+    }
+
+    let parentTitle: string | null = null;
+    const [parent] = await db
+      .select({ title: speakingAssignmentsTable.title })
+      .from(speakingAssignmentsTable)
+      .where(
+        eq(speakingAssignmentsTable.id, assignment.practiceForAssignmentId),
+      );
+    parentTitle = parent?.title ?? null;
+
+    const prompts = await loadPrompts(assignment.id);
+    const promptById = new Map(prompts.map((p) => [p.id, p]));
+    const responses = await db
+      .select()
+      .from(speakingResponsesTable)
+      .where(eq(speakingResponsesTable.attemptId, attemptId))
+      .orderBy(asc(speakingResponsesTable.id));
+
+    const responseContexts: PracticeTutorContext["responses"] = responses.map(
+      (r) => {
+        const p = promptById.get(r.promptId);
+        return {
+          topicTitle: p?.topicTitle ?? null,
+          mode: r.mode as "spoken" | "written",
+          prompt: p?.prompt ?? "",
+          answer: r.mode === "written" ? r.textAnswer : r.transcript,
+          overallScore: r.overallScore ?? null,
+          contentScore: r.contentScore ?? null,
+          deliveryScore: r.deliveryScore ?? null,
+          summary: r.summary ?? null,
+          whatWorked: (r.whatWorked as string[] | null) ?? [],
+          whatToFix: (r.whatToFix as string[] | null) ?? [],
+          focusPointers: (r.focusPointers as string[] | null) ?? [],
+        };
+      },
+    );
+
+    const unitMeta = UNIT_TITLES[assignment.unitNumber];
+    let profileContext = "";
+    try {
+      profileContext = await buildProfileContext();
+    } catch (error) {
+      req.log.warn({ err: error }, "Failed to load profile for practice tutor");
+    }
+
+    const context: PracticeTutorContext = {
+      assignmentKind: assignment.kind,
+      assignmentTitle: assignment.title,
+      parentTitle,
+      unitNumber: assignment.unitNumber,
+      unitTitle: unitMeta?.title ?? null,
+      responses: responseContexts,
+      profileContext,
+    };
+
+    try {
+      const reply = await askPracticeTutor(context, parsed.data.messages);
+      const lastUser = [...parsed.data.messages]
+        .reverse()
+        .find((m) => m.role === "user");
+      await logActivity({
+        type: "tutor_practice",
+        assignmentId: assignment.id,
+        attemptId,
+        isPractice: true,
+        summary: `Practice coach dialogue on "${assignment.title}"`,
+        payload: { question: lastUser?.content ?? null },
+      });
+      res.json(AskPracticeTutorResponse.parse({ reply }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "tutor failed";
+      req.log.error({ err: error }, "Practice tutor request failed");
+      res.status(502).json({ error: message });
+    }
+  },
+);
+
+router.get("/speaking/profile", async (req, res): Promise<void> => {
+  try {
+    const profile = await getSpeakingProfile();
+    res.json(GetSpeakingProfileResponse.parse(profile));
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "profile unavailable";
+    req.log.error({ err: error }, "Failed to build speaking profile");
+    res.status(502).json({ error: message });
+  }
 });
 
 export default router;

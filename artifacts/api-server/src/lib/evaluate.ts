@@ -9,6 +9,8 @@ export interface EvaluationResult {
   summary: string;
   whatWorked: string[];
   whatToFix: string[];
+  focusPointers: string[];
+  drills: string[];
 }
 
 export interface EvaluateInput {
@@ -19,6 +21,12 @@ export interface EvaluateInput {
   targetSeconds?: number | null;
   transcriptOrText: string;
   metrics?: SpeechMetrics | null;
+  // Practice mode: an UNOFFICIAL grade with much richer, encouraging feedback,
+  // plus surgically precise focus pointers (tied to the real assignment) and
+  // concrete rehearsal drills. profileContext personalizes the coaching.
+  isPractice?: boolean;
+  profileContext?: string | null;
+  parentTitle?: string | null;
 }
 
 function getApiKey(): string {
@@ -79,6 +87,16 @@ function buildUserMessage(input: EvaluateInput): string {
   if (input.targetSeconds) {
     parts.push(`TARGET LENGTH: about ${input.targetSeconds} seconds`);
   }
+  if (input.isPractice) {
+    if (input.parentTitle) {
+      parts.push(
+        `THIS IS PRACTICE for the graded assignment "${input.parentTitle}". Tie your focus pointers to what that real assignment will demand.`,
+      );
+    }
+    if (input.profileContext) {
+      parts.push(`STUDENT PROFILE (personalize the coaching):\n${input.profileContext}`);
+    }
+  }
 
   if (input.mode === "spoken" && input.metrics) {
     const m = input.metrics;
@@ -114,20 +132,33 @@ export async function evaluateResponse(
   const client = new Anthropic({ apiKey });
 
   const isSpoken = input.mode === "spoken";
+  const isPractice = input.isPractice === true;
 
-  const system = [
-    "You are an experienced public-speaking coach grading a college student's response in a four-unit public speaking course.",
-    "Grade fairly but with encouragement. Be concrete and specific — reference what the student actually said.",
-    isSpoken
-      ? "Score CONTENT (structure, clarity, argument, relevance to the prompt) and DELIVERY (pace, fluency, filler words, pauses, vocal energy) separately, each 0-100. Use the measured delivery metrics as evidence but apply judgment from the transcript too. Note that the pace-variation proxy is only a rough stand-in for vocal variety."
-      : "This is a WRITTEN response, so judge CONTENT only (structure, clarity, argument, relevance). Set deliveryScore to null.",
-    "Respond with ONLY a JSON object, no prose, with exactly these keys:",
-    '{ "contentScore": number 0-100, "deliveryScore": number 0-100 or null, "summary": string (2-3 sentences), "whatWorked": string[] (2-4 concrete strengths), "whatToFix": string[] (2-4 concrete, actionable fixes) }',
-  ].join("\n");
+  const scoringLine = isSpoken
+    ? "Score CONTENT (structure, clarity, argument, relevance to the prompt) and DELIVERY (pace, fluency, filler words, pauses, vocal energy) separately, each 0-100. Use the measured delivery metrics as evidence but apply judgment from the transcript too. Note that the pace-variation proxy is only a rough stand-in for vocal variety."
+    : "This is a WRITTEN response, so judge CONTENT only (structure, clarity, argument, relevance). Set deliveryScore to null.";
+
+  const system = isPractice
+    ? [
+        "You are an encouraging public-speaking coach giving an UNOFFICIAL practice grade to a college student in a four-unit public speaking course. This does NOT count — its job is to help them improve fast before the real, graded assignment.",
+        "Be generous with detailed, concrete, actionable coaching. Reference exactly what the student said. Celebrate real wins and be honest about gaps, but always frame fixes as the next rep, not a verdict.",
+        scoringLine,
+        "Also produce FOCUS POINTERS: surgically precise, prioritized things to fix that will most move their score on the real graded assignment — most impactful first.",
+        "Also produce DRILLS: concrete rehearsal exercises they can do right now (e.g. 're-record the opening in 20 seconds with no filler words', 'say the thesis out loud three ways').",
+        "Respond with ONLY a JSON object, no prose, with exactly these keys:",
+        '{ "contentScore": number 0-100, "deliveryScore": number 0-100 or null, "summary": string (3-5 encouraging sentences), "whatWorked": string[] (3-6 concrete strengths), "whatToFix": string[] (3-6 concrete, actionable fixes), "focusPointers": string[] (2-5 surgical, prioritized pointers toward the real assignment), "drills": string[] (2-4 concrete rehearsal drills) }',
+      ].join("\n")
+    : [
+        "You are an experienced public-speaking coach grading a college student's response in a four-unit public speaking course.",
+        "Grade fairly but with encouragement. Be concrete and specific — reference what the student actually said.",
+        scoringLine,
+        "Respond with ONLY a JSON object, no prose, with exactly these keys:",
+        '{ "contentScore": number 0-100, "deliveryScore": number 0-100 or null, "summary": string (2-3 sentences), "whatWorked": string[] (2-4 concrete strengths), "whatToFix": string[] (2-4 concrete, actionable fixes) }',
+      ].join("\n");
 
   const message = await client.messages.create({
     model: getModel(),
-    max_tokens: 1200,
+    max_tokens: isPractice ? 1800 : 1200,
     system,
     messages: [{ role: "user", content: buildUserMessage(input) }],
   });
@@ -144,6 +175,8 @@ export async function evaluateResponse(
     summary?: unknown;
     whatWorked?: unknown;
     whatToFix?: unknown;
+    focusPointers?: unknown;
+    drills?: unknown;
   };
 
   const contentScore = clamp(Number(parsed.contentScore) || 0, 0, 100);
@@ -172,5 +205,7 @@ export async function evaluateResponse(
     summary,
     whatWorked: toStringArray(parsed.whatWorked),
     whatToFix: toStringArray(parsed.whatToFix),
+    focusPointers: isPractice ? toStringArray(parsed.focusPointers) : [],
+    drills: isPractice ? toStringArray(parsed.drills) : [],
   };
 }

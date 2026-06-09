@@ -1,7 +1,7 @@
 import { useGetSpeakingOverview } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, Mic2, CheckCircle2, CircleDashed, Loader2 } from "lucide-react";
+import { ArrowRight, BookOpen, Mic2, CheckCircle2, CircleDashed, Loader2, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -41,6 +41,28 @@ export default function Dashboard() {
           {overview.title}
         </p>
       </div>
+
+      <Card className="border-2 border-secondary/40 bg-gradient-to-br from-secondary/10 to-transparent overflow-hidden">
+        <CardContent className="p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="bg-secondary/20 p-3 rounded-full text-secondary-foreground shrink-0 self-start">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-lg mb-1">Practice as much as you want — it's unlimited</h3>
+            <p className="text-muted-foreground text-sm">
+              Every graded assignment has a practice mode: fresh questions every time (never the real
+              prompts), instant unofficial grades, deep feedback, and a live coach on screen. Open any
+              assignment to start a round, or check your evolving coaching profile.
+            </p>
+          </div>
+          <Link href="/coach">
+            <div className="shrink-0 inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 font-semibold text-secondary-foreground cursor-pointer transition-transform hover:scale-105">
+              View your Coach
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border-secondary border-t-4">

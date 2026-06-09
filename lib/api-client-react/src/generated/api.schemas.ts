@@ -239,6 +239,8 @@ export interface SpeakingResponse {
   summary?: string | null;
   whatWorked?: string[];
   whatToFix?: string[];
+  focusPointers?: string[];
+  drills?: string[];
   /** @nullable */
   errorMessage?: string | null;
   /** @nullable */
@@ -262,6 +264,11 @@ export interface SpeakingAttempt {
   unitNumber?: number | null;
   /** @nullable */
   kind?: string | null;
+  isPractice: boolean;
+  /** @nullable */
+  practiceForAssignmentId?: number | null;
+  /** @nullable */
+  practiceParentTitle?: string | null;
   status: SpeakingAttemptStatus;
   /** @nullable */
   overallScore?: number | null;
@@ -286,6 +293,9 @@ export interface SpeakingAttemptSummary {
   assignmentTitle: string;
   unitNumber: number;
   kind: string;
+  isPractice: boolean;
+  /** @nullable */
+  practiceForAssignmentId?: number | null;
   status: SpeakingAttemptSummaryStatus;
   /** @nullable */
   overallScore?: number | null;
@@ -371,6 +381,95 @@ export interface SpeakingProgress {
   units: SpeakingUnitProgress[];
   topics: SpeakingTopicProgress[];
   recent: SpeakingActivityItem[];
+}
+
+export interface SpeakingPracticeStart {
+  assignmentId: number;
+  attemptId: number;
+}
+
+export type SpeakingPracticeSetMode = typeof SpeakingPracticeSetMode[keyof typeof SpeakingPracticeSetMode];
+
+
+export const SpeakingPracticeSetMode = {
+  spoken: 'spoken',
+  written: 'written',
+  mixed: 'mixed',
+} as const;
+
+export type SpeakingPracticeSetStatus = typeof SpeakingPracticeSetStatus[keyof typeof SpeakingPracticeSetStatus];
+
+
+export const SpeakingPracticeSetStatus = {
+  in_progress: 'in_progress',
+  submitted: 'submitted',
+} as const;
+
+export interface SpeakingPracticeSet {
+  assignmentId: number;
+  attemptId: number;
+  title: string;
+  mode: SpeakingPracticeSetMode;
+  promptCount: number;
+  status: SpeakingPracticeSetStatus;
+  /** @nullable */
+  overallScore?: number | null;
+  gradedCount?: number;
+  createdAt: string;
+}
+
+export interface AskPracticeTutorRequest {
+  messages: LectureTutorMessage[];
+}
+
+export interface SpeakingTopicStat {
+  title: string;
+  unitNumber: number;
+  /** @nullable */
+  averageScore: number | null;
+  responses: number;
+}
+
+export type SpeakingAnalyticsTrend = typeof SpeakingAnalyticsTrend[keyof typeof SpeakingAnalyticsTrend];
+
+
+export const SpeakingAnalyticsTrend = {
+  improving: 'improving',
+  declining: 'declining',
+  steady: 'steady',
+  insufficient: 'insufficient',
+} as const;
+
+export interface SpeakingAnalytics {
+  gradedResponses: number;
+  practiceResponses: number;
+  tutorExchanges: number;
+  /** @nullable */
+  averageContent?: number | null;
+  /** @nullable */
+  averageDelivery?: number | null;
+  /** @nullable */
+  averageOverall?: number | null;
+  /** @nullable */
+  averageWordsPerMinute?: number | null;
+  /** @nullable */
+  averageFillerRate?: number | null;
+  /** @nullable */
+  averagePauseCount?: number | null;
+  trend: SpeakingAnalyticsTrend;
+  recurringFixes?: string[];
+  strongTopics?: SpeakingTopicStat[];
+  weakTopics?: SpeakingTopicStat[];
+}
+
+export interface SpeakingProfile {
+  /** @nullable */
+  summary?: string | null;
+  strengths: string[];
+  focusAreas: string[];
+  /** @nullable */
+  generatedAt?: string | null;
+  analytics: SpeakingAnalytics;
 }
 
 export interface HealthStatus {
