@@ -11,7 +11,7 @@ description: Intentional scope decisions for the Podium public-speaking app (spe
 
 - **Submission pipeline returns 502 on AI failure** (transcription or evaluation) and persists a `failed` response row — by design, surfaced as an explicit failure rather than a silent fallback.
 
-- **Synthetic-run diagnostic proves the written path end-to-end but writes spoken attempts DB-direct** (no real audio upload/transcription). Accepted tradeoff: a real spoken E2E needs a fixture audio upload. Tracked as a follow-up, not a defect.
+- **Synthetic-run diagnostic now proves BOTH written and spoken paths end-to-end.** The spoken path uses a base64-embedded TTS fixture MP3 (`src/fixtures/diagnosticSpokenFixture.ts`) that it uploads via the real upload-URL flow, then submits through POST /speaking/attempts/:id/responses (real AssemblyAI transcribe + Anthropic grade), and cleans up both attempts + the storage object. **Why base64-embed:** esbuild bundles the server to a single dist/index.mjs, so a loose binary fixture wouldn't ship; embedding avoids path-resolution and loader config across dev/prod. Self-calls hit `http://127.0.0.1:${PORT}/api`.
 
 - **`/storage/objects/*path` serves recordings with authz commented out** — accepted single-user tradeoff matching qr-course; revisit only if multi-user.
 

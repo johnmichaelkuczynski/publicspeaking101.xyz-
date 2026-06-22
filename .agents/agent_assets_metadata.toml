@@ -77,3 +77,9 @@ id = "yRXygxOjQKpAVt-Bf_3KV"
 uri = "file://artifacts/speak-course-marketing/public/audio/bg_music.mp3"
 type = "audio"
 title = "background music"
+
+[[outputs]]
+id = "vgs6YcP6NUDVXoIZE0X73"
+uri = "file://attached_assets/generated_audio/diagnostic_spoken_fixture.mp3"
+type = "audio"
+title = "diagnostic spoken fixture"

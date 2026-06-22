@@ -12,6 +12,12 @@ import {
 import { chatText, FAST_MODEL } from "../lib/ai";
 import { gptzeroAiScore } from "../lib/detection";
 import { evaluateResponse } from "../lib/evaluate";
+import { ObjectStorageService } from "../lib/objectStorage";
+import {
+  getDiagnosticSpokenFixture,
+  DIAGNOSTIC_SPOKEN_FIXTURE_CONTENT_TYPE,
+  DIAGNOSTIC_SPOKEN_FIXTURE_FILENAME,
+} from "../fixtures/diagnosticSpokenFixture";
 
 const router: IRouter = Router();
 
@@ -165,6 +171,12 @@ router.post("/speaking/diagnostics/synthetic-run", async (_req, res) => {
   let assignmentId: number | null = null;
   let attemptId: number | null = null;
 
+  let spokenPromptId: number | null = null;
+  let spokenAttemptId: number | null = null;
+  let fixtureObjectPath: string | null = null;
+
+  const apiBase = `http://127.0.0.1:${process.env.PORT ?? 8080}/api`;
+
   steps.push(
     await run("Load course catalog", async () => {
       const t = await db.select().from(speakingTopicsTable);
@@ -297,13 +309,138 @@ router.post("/speaking/diagnostics/synthetic-run", async (_req, res) => {
     }),
   );
 
+  // ---- Spoken path: drive the real record → upload → transcribe → grade route ----
   steps.push(
-    await run("Clean up synthetic attempt", async () => {
-      if (attemptId == null) return "nothing to clean";
-      await db
-        .delete(speakingAttemptsTable)
-        .where(eq(speakingAttemptsTable.id, attemptId));
-      return `removed attempt #${attemptId} (responses cascade)`;
+    await run("Find a spoken prompt", async () => {
+      const spoken = await db
+        .select()
+        .from(speakingPromptsTable)
+        .where(eq(speakingPromptsTable.mode, "spoken"))
+        .orderBy(asc(speakingPromptsTable.id));
+      const prompt = spoken[0];
+      if (!prompt) throw new Error("no spoken prompt found in seed");
+      spokenPromptId = prompt.id;
+      return `prompt #${prompt.id} on assignment #${prompt.assignmentId}`;
+    }),
+  );
+
+  steps.push(
+    await run("Start a spoken attempt", async () => {
+      if (spokenPromptId == null) throw new Error("no spoken prompt resolved");
+      const [prompt] = await db
+        .select()
+        .from(speakingPromptsTable)
+        .where(eq(speakingPromptsTable.id, spokenPromptId));
+      if (!prompt) throw new Error("spoken prompt vanished");
+      const [created] = await db
+        .insert(speakingAttemptsTable)
+        .values({ assignmentId: prompt.assignmentId, status: "in_progress" })
+        .returning();
+      if (!created) throw new Error("could not create spoken attempt");
+      spokenAttemptId = created.id;
+      return `attempt #${created.id}`;
+    }),
+  );
+
+  steps.push(
+    await run("Upload fixture audio via real upload-URL flow", async () => {
+      const fixture = getDiagnosticSpokenFixture();
+      const urlRes = await fetch(`${apiBase}/storage/uploads/request-url`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: DIAGNOSTIC_SPOKEN_FIXTURE_FILENAME,
+          size: fixture.byteLength,
+          contentType: DIAGNOSTIC_SPOKEN_FIXTURE_CONTENT_TYPE,
+        }),
+      });
+      if (!urlRes.ok) throw new Error(`request-url HTTP ${urlRes.status}`);
+      const { uploadURL, objectPath } = (await urlRes.json()) as {
+        uploadURL?: string;
+        objectPath?: string;
+      };
+      if (!uploadURL || !objectPath)
+        throw new Error("upload-url response missing uploadURL/objectPath");
+
+      const putRes = await fetch(uploadURL, {
+        method: "PUT",
+        headers: { "content-type": DIAGNOSTIC_SPOKEN_FIXTURE_CONTENT_TYPE },
+        body: new Uint8Array(fixture),
+      });
+      if (!putRes.ok) throw new Error(`upload PUT HTTP ${putRes.status}`);
+
+      fixtureObjectPath = objectPath;
+      return `uploaded ${fixture.byteLength} bytes → ${objectPath}`;
+    }),
+  );
+
+  steps.push(
+    await run("Submit spoken response → transcribe + AI grade", async () => {
+      if (
+        spokenAttemptId == null ||
+        spokenPromptId == null ||
+        fixtureObjectPath == null
+      )
+        throw new Error("spoken attempt, prompt, or fixture missing");
+
+      const res2 = await fetch(
+        `${apiBase}/speaking/attempts/${spokenAttemptId}/responses`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            promptId: spokenPromptId,
+            mode: "spoken",
+            recordingObjectPath: fixtureObjectPath,
+            mediaKind: "audio",
+          }),
+        },
+      );
+      if (!res2.ok) {
+        const text = await res2.text();
+        throw new Error(`responses HTTP ${res2.status}: ${text.slice(0, 200)}`);
+      }
+      const saved = (await res2.json()) as {
+        status?: string;
+        transcript?: string | null;
+        contentScore?: number | null;
+        deliveryScore?: number | null;
+        grade?: string | null;
+      };
+      if (saved.status !== "graded")
+        throw new Error(`response status "${saved.status}"`);
+      if (!saved.transcript || saved.transcript.trim().length === 0)
+        throw new Error("no transcript returned");
+      if (typeof saved.contentScore !== "number")
+        throw new Error("no contentScore returned");
+      if (typeof saved.deliveryScore !== "number")
+        throw new Error("no deliveryScore returned");
+      return `transcript "${saved.transcript.slice(0, 48)}…" · content ${saved.contentScore} · delivery ${saved.deliveryScore} · grade ${saved.grade}`;
+    }),
+  );
+
+  steps.push(
+    await run("Clean up synthetic data", async () => {
+      const removed: string[] = [];
+      if (attemptId != null) {
+        await db
+          .delete(speakingAttemptsTable)
+          .where(eq(speakingAttemptsTable.id, attemptId));
+        removed.push(`written attempt #${attemptId}`);
+      }
+      if (spokenAttemptId != null) {
+        await db
+          .delete(speakingAttemptsTable)
+          .where(eq(speakingAttemptsTable.id, spokenAttemptId));
+        removed.push(`spoken attempt #${spokenAttemptId}`);
+      }
+      if (fixtureObjectPath != null) {
+        await new ObjectStorageService().deleteObjectEntity(fixtureObjectPath);
+        removed.push(`fixture ${fixtureObjectPath}`);
+      }
+      return removed.length > 0
+        ? `removed ${removed.join(", ")} (responses cascade)`
+        : "nothing to clean";
     }),
   );
 
