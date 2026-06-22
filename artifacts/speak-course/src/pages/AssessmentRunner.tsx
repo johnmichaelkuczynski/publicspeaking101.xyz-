@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useLocation, Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -53,6 +53,9 @@ export default function AssessmentRunner() {
   const [transcribingIndex, setTranscribingIndex] = useState<number | null>(
     null,
   );
+  // Per-question token: bumped on every new recording or "record again" so a
+  // slow/stale transcription can never overwrite a fresh take or trap the user.
+  const takeTokenRef = useRef<Record<number, number>>({});
 
   useEffect(() => {
     if (data) {
@@ -95,12 +98,23 @@ export default function AssessmentRunner() {
   const allAnswered =
     data.questions.length > 0 && answeredCount === data.questions.length;
 
+  const handleResetRecording = (index: number) => {
+    // Invalidate any in-flight transcription for this question and release the
+    // busy state so the user is never stuck waiting on a previous take.
+    takeTokenRef.current[index] = (takeTokenRef.current[index] ?? 0) + 1;
+    setTranscribingIndex((cur) => (cur === index ? null : cur));
+  };
+
   const handleRecordingComplete = async (
     index: number,
     blob: Blob,
     mediaKind: "audio" | "video",
   ) => {
     const fallbackType = mediaKind === "video" ? "video/webm" : "audio/webm";
+    const token = (takeTokenRef.current[index] ?? 0) + 1;
+    takeTokenRef.current[index] = token;
+    const isCurrent = () => takeTokenRef.current[index] === token;
+
     setTranscribingIndex(index);
     try {
       const { uploadURL, objectPath } = await requestUploadUrl.mutateAsync({
@@ -122,9 +136,23 @@ export default function AssessmentRunner() {
         data: { objectPath },
       });
 
+      // The user recorded again (or reset) while this was processing — drop it.
+      if (!isCurrent()) return;
+
+      const clean = transcript.trim();
+      if (!clean) {
+        toast({
+          variant: "destructive",
+          title: "We couldn't hear anything",
+          description:
+            "That recording came back empty. Use “Record again” and speak your answer.",
+        });
+        return;
+      }
+
       setAnswers((prev) => {
         const next = [...prev];
-        next[index] = transcript.trim();
+        next[index] = clean;
         return next;
       });
 
@@ -134,14 +162,15 @@ export default function AssessmentRunner() {
           "We turned your spoken answer into text below. Edit it if you like, then submit.",
       });
     } catch {
+      if (!isCurrent()) return;
       toast({
         variant: "destructive",
         title: "Couldn't process that recording",
         description:
-          "Transcription failed. Please try recording your answer again.",
+          "Something went wrong. Use “Record again” to try once more.",
       });
     } finally {
-      setTranscribingIndex(null);
+      if (isCurrent()) setTranscribingIndex(null);
     }
   };
 
@@ -256,7 +285,7 @@ export default function AssessmentRunner() {
                       onRecordingComplete={(blob, _durationMs, mediaKind) =>
                         handleRecordingComplete(i, blob, mediaKind)
                       }
-                      disabled={transcribingIndex !== null}
+                      onReset={() => handleResetRecording(i)}
                     />
                     {transcribingIndex === i && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">

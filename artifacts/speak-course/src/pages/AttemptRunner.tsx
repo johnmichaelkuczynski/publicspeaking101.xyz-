@@ -425,6 +425,7 @@ export default function AttemptRunner() {
             <div className="space-y-4">
               <AudioRecorder 
                 onRecordingComplete={handleRecordingComplete} 
+                onReset={() => setRecordedBlob(null)}
                 disabled={requestUploadUrl.isPending || submitResponse.isPending}
               />
               <div className="flex justify-end">

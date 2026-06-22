@@ -7,10 +7,13 @@ type MediaKind = "audio" | "video";
 
 interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob, durationMs: number, mediaKind: MediaKind) => void;
+  /** Fired when the user clears a take to record again. Use to cancel any
+   *  in-flight processing of the previous recording. */
+  onReset?: () => void;
   disabled?: boolean;
 }
 
-export function AudioRecorder({ onRecordingComplete, disabled }: AudioRecorderProps) {
+export function AudioRecorder({ onRecordingComplete, onReset, disabled }: AudioRecorderProps) {
   const [mediaKind, setMediaKind] = useState<MediaKind>("audio");
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -265,17 +268,7 @@ export function AudioRecorder({ onRecordingComplete, disabled }: AudioRecorderPr
             </Button>
           )
         ) : (
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-12 h-12 rounded-full"
-              onClick={resetRecording}
-              disabled={disabled}
-            >
-              <RotateCcw className="w-5 h-5" />
-            </Button>
-
+          <div className="flex flex-col items-center gap-4">
             {!isVideo && (
               <Button
                 size="lg"
@@ -286,6 +279,20 @@ export function AudioRecorder({ onRecordingComplete, disabled }: AudioRecorderPr
                 {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
               </Button>
             )}
+
+            {/* Re-recording must ALWAYS be available — never gate this on the
+                `disabled` (busy) state, so a failed or slow upload/transcription
+                can never trap the user. */}
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => {
+                resetRecording();
+                onReset?.();
+              }}
+            >
+              <RotateCcw className="w-4 h-4" /> Record again
+            </Button>
           </div>
         )}
 
