@@ -10,12 +10,15 @@ import {
   GetSpeakingAssessmentResponse,
   CompleteSpeakingAssessmentBody,
   CompleteSpeakingAssessmentResponse,
+  TranscribeAssessmentRecordingBody,
+  TranscribeAssessmentRecordingResponse,
 } from "@workspace/api-zod";
 import {
   generateAssessmentQuestions,
   type AssessmentFormat,
 } from "../lib/assessments";
 import { buildProfileContext } from "../lib/profile";
+import { transcribeRecording } from "../lib/speech";
 
 const router: IRouter = Router();
 
@@ -405,6 +408,38 @@ router.post(
       serializeAssessment(row!),
     );
     res.json(body);
+  },
+);
+
+/**
+ * POST /speaking/assessments/transcribe
+ *
+ * Transcribes an uploaded spoken answer so it can become the question's text
+ * answer. Fail-loud: any transcription failure returns 502 rather than a
+ * fabricated transcript, mirroring the attempt grading pipeline.
+ */
+router.post(
+  "/speaking/assessments/transcribe",
+  async (req: Request, res: Response) => {
+    const parsed = TranscribeAssessmentRecordingBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: { message: "Invalid request body." } });
+      return;
+    }
+
+    try {
+      const { transcript } = await transcribeRecording(parsed.data.objectPath);
+      const body = TranscribeAssessmentRecordingResponse.parse({ transcript });
+      res.json(body);
+    } catch (error) {
+      req.log.error({ err: error }, "Assessment transcription failed");
+      res.status(502).json({
+        error: {
+          message:
+            "Could not transcribe your recording. Please try recording again.",
+        },
+      });
+    }
   },
 );
 

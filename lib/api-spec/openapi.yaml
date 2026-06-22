@@ -615,6 +615,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
 
+  /speaking/assessments/transcribe:
+    post:
+      operationId: transcribeAssessmentRecording
+      tags: [ speaking ]
+      summary: Transcribe a recorded spoken answer for an assessment question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscribeAssessmentRequest"
+      responses:
+        "200":
+          description: Transcript produced
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscribeAssessmentResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: Transcription upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
   /speaking/narrative-report:
     post:
       operationId: generateNarrativeReport
@@ -1340,6 +1371,18 @@ components:
         answers:
           type: array
           items: { type: [ "string", "null" ] }
+
+    TranscribeAssessmentRequest:
+      type: object
+      required: [ objectPath ]
+      properties:
+        objectPath: { type: string, minLength: 1 }
+
+    TranscribeAssessmentResponse:
+      type: object
+      required: [ transcript ]
+      properties:
+        transcript: { type: string }
 
     NarrativeReport:
       type: object

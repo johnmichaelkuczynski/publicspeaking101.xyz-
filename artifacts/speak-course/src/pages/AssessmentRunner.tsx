@@ -4,6 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetSpeakingAssessment,
   useCompleteSpeakingAssessment,
+  useRequestUploadUrl,
+  useTranscribeAssessmentRecording,
   getGetSpeakingAssessmentQueryKey,
   getGetSpeakingAssessmentsQueryKey,
 } from "@workspace/api-client-react";
@@ -12,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AudioRecorder } from "@/components/AudioRecorder";
 import {
   ArrowLeft,
   Mic2,
@@ -43,8 +46,13 @@ export default function AssessmentRunner() {
     query: { queryKey: getGetSpeakingAssessmentQueryKey(id), enabled: !!id },
   });
   const complete = useCompleteSpeakingAssessment();
+  const requestUploadUrl = useRequestUploadUrl();
+  const transcribe = useTranscribeAssessmentRecording();
 
   const [answers, setAnswers] = useState<string[]>([]);
+  const [transcribingIndex, setTranscribingIndex] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     if (data) {
@@ -86,6 +94,56 @@ export default function AssessmentRunner() {
   const answeredCount = answers.filter((a) => a.trim().length > 0).length;
   const allAnswered =
     data.questions.length > 0 && answeredCount === data.questions.length;
+
+  const handleRecordingComplete = async (
+    index: number,
+    blob: Blob,
+    mediaKind: "audio" | "video",
+  ) => {
+    const fallbackType = mediaKind === "video" ? "video/webm" : "audio/webm";
+    setTranscribingIndex(index);
+    try {
+      const { uploadURL, objectPath } = await requestUploadUrl.mutateAsync({
+        data: {
+          name: `assessment-${id}-q${index}.webm`,
+          size: blob.size,
+          contentType: blob.type || fallbackType,
+        },
+      });
+
+      const res = await fetch(uploadURL, {
+        method: "PUT",
+        body: blob,
+        headers: { "Content-Type": blob.type || fallbackType },
+      });
+      if (!res.ok) throw new Error("Failed to upload recording");
+
+      const { transcript } = await transcribe.mutateAsync({
+        data: { objectPath },
+      });
+
+      setAnswers((prev) => {
+        const next = [...prev];
+        next[index] = transcript.trim();
+        return next;
+      });
+
+      toast({
+        title: "Recording transcribed",
+        description:
+          "We turned your spoken answer into text below. Edit it if you like, then submit.",
+      });
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Couldn't process that recording",
+        description:
+          "Transcription failed. Please try recording your answer again.",
+      });
+    } finally {
+      setTranscribingIndex(null);
+    }
+  };
 
   const handleComplete = () => {
     complete.mutate(
@@ -180,7 +238,7 @@ export default function AssessmentRunner() {
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
                       <QIcon className="w-3.5 h-3.5" />
                       {q.mode === "spoken"
-                        ? "Answer this one out loud, then capture the gist below."
+                        ? "Record your answer out loud — we'll transcribe it for you."
                         : "Written answer."}
                     </div>
                     {q.hint && (
@@ -191,9 +249,35 @@ export default function AssessmentRunner() {
                     )}
                   </div>
                 </div>
+
+                {q.mode === "spoken" && !isDone && (
+                  <div className="space-y-2">
+                    <AudioRecorder
+                      onRecordingComplete={(blob, _durationMs, mediaKind) =>
+                        handleRecordingComplete(i, blob, mediaKind)
+                      }
+                      disabled={transcribingIndex !== null}
+                    />
+                    {transcribingIndex === i && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Transcribing your recording…
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {q.mode === "spoken" && (
+                  <p className="text-xs text-muted-foreground">
+                    {isDone
+                      ? "Your transcribed answer:"
+                      : "Your transcribed answer appears here — edit it if anything came out wrong."}
+                  </p>
+                )}
+
                 <Textarea
                   value={answers[i] ?? ""}
-                  disabled={isDone}
+                  disabled={isDone || transcribingIndex === i}
                   onChange={(e) => {
                     const next = [...answers];
                     next[i] = e.target.value;
@@ -201,7 +285,7 @@ export default function AssessmentRunner() {
                   }}
                   placeholder={
                     q.mode === "spoken"
-                      ? "After speaking your answer, jot down the key points you made…"
+                      ? "Record above to transcribe your spoken answer, or type it here…"
                       : "Type your answer…"
                   }
                   className="min-h-24 resize-none"

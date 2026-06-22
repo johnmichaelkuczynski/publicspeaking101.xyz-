@@ -747,6 +747,21 @@ export const CompleteSpeakingAssessmentResponse = zod.object({
 
 
 /**
+ * @summary Transcribe a recorded spoken answer for an assessment question
+ */
+
+
+
+export const TranscribeAssessmentRecordingBody = zod.object({
+  "objectPath": zod.string().min(1)
+})
+
+export const TranscribeAssessmentRecordingResponse = zod.object({
+  "transcript": zod.string()
+})
+
+
+/**
  * @summary Generate an AI written progress report from all logged work
  */
 export const GenerateNarrativeReportResponse = zod.object({

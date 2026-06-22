@@ -77,5 +77,7 @@ export * from './speakingUnitProgress';
 export * from './startAssessmentRequest';
 export * from './startAssessmentRequestFormat';
 export * from './startAssessmentRequestScope';
+export * from './transcribeAssessmentRequest';
+export * from './transcribeAssessmentResponse';
 export * from './uploadUrlRequest';
 export * from './uploadUrlResponse';

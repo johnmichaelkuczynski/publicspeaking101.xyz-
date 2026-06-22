@@ -691,6 +691,15 @@ export interface CompleteAssessmentRequest {
   answers: (string | null)[];
 }
 
+export interface TranscribeAssessmentRequest {
+  /** @minLength 1 */
+  objectPath: string;
+}
+
+export interface TranscribeAssessmentResponse {
+  transcript: string;
+}
+
 export interface NarrativeReport {
   report: string;
   generatedAt: string;

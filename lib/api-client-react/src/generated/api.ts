@@ -46,6 +46,8 @@ import type {
   SpeakingResponseInput,
   SpeakingUnit,
   StartAssessmentRequest,
+  TranscribeAssessmentRequest,
+  TranscribeAssessmentResponse,
   UploadUrlRequest,
   UploadUrlResponse
 } from './api.schemas';
@@ -1841,6 +1843,77 @@ export const useCompleteSpeakingAssessment = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getCompleteSpeakingAssessmentMutationOptions(options));
+    }
+
+export const getTranscribeAssessmentRecordingUrl = () => {
+
+
+
+
+  return `/api/speaking/assessments/transcribe`
+}
+
+/**
+ * @summary Transcribe a recorded spoken answer for an assessment question
+ */
+export const transcribeAssessmentRecording = async (transcribeAssessmentRequest: TranscribeAssessmentRequest, options?: RequestInit): Promise<TranscribeAssessmentResponse> => {
+
+  return customFetch<TranscribeAssessmentResponse>(getTranscribeAssessmentRecordingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      transcribeAssessmentRequest,)
+  }
+);}
+
+
+
+
+export const getTranscribeAssessmentRecordingMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transcribeAssessmentRecording>>, TError,{data: BodyType<TranscribeAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof transcribeAssessmentRecording>>, TError,{data: BodyType<TranscribeAssessmentRequest>}, TContext> => {
+
+const mutationKey = ['transcribeAssessmentRecording'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof transcribeAssessmentRecording>>, {data: BodyType<TranscribeAssessmentRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  transcribeAssessmentRecording(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TranscribeAssessmentRecordingMutationResult = NonNullable<Awaited<ReturnType<typeof transcribeAssessmentRecording>>>
+    export type TranscribeAssessmentRecordingMutationBody = BodyType<TranscribeAssessmentRequest>
+    export type TranscribeAssessmentRecordingMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Transcribe a recorded spoken answer for an assessment question
+ */
+export const useTranscribeAssessmentRecording = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transcribeAssessmentRecording>>, TError,{data: BodyType<TranscribeAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof transcribeAssessmentRecording>>,
+        TError,
+        {data: BodyType<TranscribeAssessmentRequest>},
+        TContext
+      > => {
+      return useMutation(getTranscribeAssessmentRecordingMutationOptions(options));
     }
 
 export const getGenerateNarrativeReportUrl = () => {
