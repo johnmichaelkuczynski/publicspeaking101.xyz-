@@ -4,7 +4,8 @@ import {
   getGetSpeakingAttemptQueryKey, 
   useRequestUploadUrl, 
   useSubmitSpeakingResponse, 
-  useFinalizeSpeakingAttempt 
+  useFinalizeSpeakingAttempt,
+  type KeystrokeTrace
 } from "@workspace/api-client-react";
 import { useRoute, useLocation, Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,11 +14,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AudioRecorder } from "@/components/AudioRecorder";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft, Mic2, Star, RotateCcw, Pencil, Sparkles, Target, Dumbbell } from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft, Mic2, Star, RotateCcw, Pencil, Sparkles, Target, Dumbbell, ShieldCheck, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { PracticeTutor } from "@/components/PracticeTutor";
 import { cn } from "@/lib/utils";
+
+function emptyTrace(): KeystrokeTrace {
+  return {
+    keystrokeCount: 0,
+    eraseCount: 0,
+    bulkInsertCount: 0,
+    longestBulkInsertChars: 0,
+    rewriteSegments: 0,
+    durationMs: 0,
+  };
+}
 
 export default function AttemptRunner() {
   const [, params] = useRoute("/attempts/:attemptId");
@@ -28,6 +40,42 @@ export default function AttemptRunner() {
   const [activePromptId, setActivePromptId] = useState<number | null>(null);
   const [writtenAnswer, setWrittenAnswer] = useState("");
   const [recordedBlob, setRecordedBlob] = useState<{blob: Blob, durationMs: number, mediaKind: "audio" | "video"} | null>(null);
+
+  const traceRef = useRef<KeystrokeTrace>(emptyTrace());
+  const sessionStartRef = useRef<number>(Date.now());
+  const lastKeyWasEraseRef = useRef<boolean>(false);
+
+  const resetTrace = () => {
+    traceRef.current = emptyTrace();
+    sessionStartRef.current = Date.now();
+    lastKeyWasEraseRef.current = false;
+  };
+
+  const handleWrittenKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const isErase = e.key === "Backspace" || e.key === "Delete";
+    if (isErase) {
+      traceRef.current.eraseCount += 1;
+      if (!lastKeyWasEraseRef.current) {
+        traceRef.current.rewriteSegments = (traceRef.current.rewriteSegments || 0) + 1;
+      }
+      lastKeyWasEraseRef.current = true;
+    } else if (e.key.length === 1 || e.key === "Enter") {
+      traceRef.current.keystrokeCount += 1;
+      lastKeyWasEraseRef.current = false;
+    }
+  };
+
+  const handleWrittenChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    const diff = newVal.length - writtenAnswer.length;
+    if (diff > 5) {
+      traceRef.current.bulkInsertCount = (traceRef.current.bulkInsertCount || 0) + 1;
+      if (diff > (traceRef.current.longestBulkInsertChars || 0)) {
+        traceRef.current.longestBulkInsertChars = diff;
+      }
+    }
+    setWrittenAnswer(newVal);
+  };
   
   const { data: attempt, isLoading, error, refetch } = useGetSpeakingAttempt(attemptId, {
     query: {
@@ -158,7 +206,11 @@ export default function AttemptRunner() {
         data: {
           promptId: activePrompt.id,
           mode: "written",
-          textAnswer: writtenAnswer
+          textAnswer: writtenAnswer,
+          trace: {
+            ...traceRef.current,
+            durationMs: Date.now() - sessionStartRef.current,
+          }
         }
       });
       
@@ -170,6 +222,7 @@ export default function AttemptRunner() {
       setWrittenAnswer("");
       // Return to the prompt overview; the user chooses what to do next.
       setActivePromptId(null);
+      resetTrace();
       refetch();
       
     } catch (err: any) {
@@ -393,7 +446,8 @@ export default function AttemptRunner() {
             <div className="space-y-4">
               <Textarea 
                 value={writtenAnswer}
-                onChange={e => setWrittenAnswer(e.target.value)}
+                onChange={handleWrittenChange}
+                onKeyDown={handleWrittenKeyDown}
                 placeholder="Type your answer here..."
                 className="min-h-[200px] text-lg p-6 border-muted-foreground/30 focus-visible:ring-primary"
                 disabled={submitResponse.isPending}
@@ -509,6 +563,41 @@ export default function AttemptRunner() {
                           <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Your Answer</div>
                           <div className="text-sm leading-relaxed">{response.textAnswer}</div>
                         </div>
+                      )}
+
+                      {response.detectionRationale && (
+                        (() => {
+                          const flagged = !!(response.aiFlagged || response.diachronicFlagged);
+                          return (
+                            <div
+                              className={`rounded-lg p-4 border text-sm ${
+                                flagged
+                                  ? "bg-amber-500/10 border-amber-500/40"
+                                  : "bg-muted/40 border-muted-foreground/20"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 mb-1 font-bold uppercase tracking-wider text-xs">
+                                {flagged ? (
+                                  <ShieldAlert className="w-4 h-4 text-amber-600" />
+                                ) : (
+                                  <ShieldCheck className="w-4 h-4 text-green-600" />
+                                )}
+                                <span className={flagged ? "text-amber-700" : "text-green-700"}>
+                                  AI-authorship screening
+                                </span>
+                                {response.aiScore != null && (
+                                  <span className="ml-auto font-mono text-muted-foreground normal-case tracking-normal">
+                                    AI {Math.round(response.aiScore * 100)}%
+                                    {response.diachronicScore != null && response.mode === "written" && (
+                                      <> · keystroke {Math.round(response.diachronicScore * 100)}%</>
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-muted-foreground">{response.detectionRationale}</p>
+                            </div>
+                          );
+                        })()
                       )}
                       
                       {((response.whatWorked?.length ?? 0) > 0 || (response.whatToFix?.length ?? 0) > 0 || response.summary) && (

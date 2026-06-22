@@ -983,6 +983,15 @@ components:
         drills:
           type: array
           items: { type: string }
+        aiScore:
+          type: [ "number", "null" ]
+          description: 0..1 probability the written/spoken answer is AI-generated
+        aiFlagged: { type: [ "boolean", "null" ] }
+        diachronicScore:
+          type: [ "number", "null" ]
+          description: 0..1 probability the answer was reworded from pasted AI text (keystroke pattern; written only)
+        diachronicFlagged: { type: [ "boolean", "null" ] }
+        detectionRationale: { type: [ "string", "null" ] }
         errorMessage: { type: [ "string", "null" ] }
         gradedAt: { type: [ "string", "null" ], format: date-time }
 
@@ -1045,6 +1054,22 @@ components:
           type: [ "string", "null" ]
           enum: [ audio, video, null ]
         durationMs: { type: [ "integer", "null" ] }
+        trace:
+          description: Keystroke trace for written answers; powers diachronic AI-rewording detection
+          oneOf:
+            - $ref: "#/components/schemas/KeystrokeTrace"
+            - type: "null"
+
+    KeystrokeTrace:
+      type: object
+      required: [ keystrokeCount, eraseCount, durationMs ]
+      properties:
+        keystrokeCount: { type: integer }
+        eraseCount: { type: integer }
+        bulkInsertCount: { type: integer, default: 0 }
+        longestBulkInsertChars: { type: integer, default: 0 }
+        rewriteSegments: { type: integer, default: 0 }
+        durationMs: { type: integer }
 
     SpeakingUnitProgress:
       type: object

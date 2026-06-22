@@ -45,6 +45,7 @@ import { getSpeakingProfile, buildProfileContext } from "../lib/profile";
 import { existingPromptTexts, practiceAssignmentIdSet } from "../lib/analytics";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { getStudioUserId } from "../lib/studioSession";
+import { detectAuthorship, type TraceInput } from "../lib/detection";
 
 const objectStorageService = new ObjectStorageService();
 
@@ -178,6 +179,11 @@ function serializeResponse(row: ResponseRow) {
     whatToFix: (row.whatToFix as string[] | null) ?? [],
     focusPointers: (row.focusPointers as string[] | null) ?? [],
     drills: (row.drills as string[] | null) ?? [],
+    aiScore: row.aiScore ?? null,
+    aiFlagged: row.aiFlagged ?? null,
+    diachronicScore: row.diachronicScore ?? null,
+    diachronicFlagged: row.diachronicFlagged ?? null,
+    detectionRationale: row.detectionRationale ?? null,
     errorMessage: row.errorMessage ?? null,
     gradedAt: row.gradedAt ? row.gradedAt.toISOString() : null,
   };
@@ -681,14 +687,16 @@ router.post(
         metrics = result.metrics as unknown as Record<string, number>;
       }
 
+      const answerText =
+        body.mode === "spoken" ? (transcript ?? "") : (body.textAnswer ?? "");
+
       const evaluation = await evaluateResponse({
         mode: body.mode,
         promptText: prompt.prompt,
         rubric: prompt.rubric,
         guidance: prompt.guidance,
         targetSeconds: prompt.targetSeconds,
-        transcriptOrText:
-          body.mode === "spoken" ? (transcript ?? "") : (body.textAnswer ?? ""),
+        transcriptOrText: answerText,
         metrics:
           body.mode === "spoken"
             ? (metrics as unknown as import("../lib/speech").SpeechMetrics)
@@ -697,6 +705,31 @@ router.post(
         profileContext,
         parentTitle,
       });
+
+      // Screen the answer for AI authorship. Written answers carry a keystroke
+      // trace (enables diachronic detection); spoken transcripts have none, so
+      // only the static text classifier runs. Detection must never block
+      // grading — any failure degrades to null detection fields.
+      let detection: Awaited<ReturnType<typeof detectAuthorship>> | null = null;
+      try {
+        const trace: TraceInput | null =
+          body.mode === "written" && body.trace
+            ? {
+                keystrokeCount: body.trace.keystrokeCount,
+                eraseCount: body.trace.eraseCount,
+                bulkInsertCount: body.trace.bulkInsertCount ?? 0,
+                longestBulkInsertChars: body.trace.longestBulkInsertChars ?? 0,
+                rewriteSegments: body.trace.rewriteSegments ?? 0,
+                durationMs: body.trace.durationMs,
+              }
+            : null;
+        detection = await detectAuthorship(answerText, trace);
+      } catch (detErr) {
+        req.log.error(
+          { err: detErr },
+          "AI-authorship detection failed; continuing without it",
+        );
+      }
 
       const [saved] = await db
         .insert(speakingResponsesTable)
@@ -720,6 +753,11 @@ router.post(
           whatToFix: evaluation.whatToFix,
           focusPointers: evaluation.focusPointers,
           drills: evaluation.drills,
+          aiScore: detection?.aiScore ?? null,
+          aiFlagged: detection?.aiFlagged ?? null,
+          diachronicScore: detection?.diachronicScore ?? null,
+          diachronicFlagged: detection?.diachronicFlagged ?? null,
+          detectionRationale: detection?.rationale ?? null,
           gradedAt: new Date(),
         })
         .returning();

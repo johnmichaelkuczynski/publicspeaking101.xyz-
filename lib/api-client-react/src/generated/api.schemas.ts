@@ -241,6 +241,22 @@ export interface SpeakingResponse {
   whatToFix?: string[];
   focusPointers?: string[];
   drills?: string[];
+  /**
+     * 0..1 probability the written/spoken answer is AI-generated
+     * @nullable
+     */
+  aiScore?: number | null;
+  /** @nullable */
+  aiFlagged?: boolean | null;
+  /**
+     * 0..1 probability the answer was reworded from pasted AI text (keystroke pattern; written only)
+     * @nullable
+     */
+  diachronicScore?: number | null;
+  /** @nullable */
+  diachronicFlagged?: boolean | null;
+  /** @nullable */
+  detectionRationale?: string | null;
   /** @nullable */
   errorMessage?: string | null;
   /** @nullable */
@@ -323,6 +339,15 @@ export const SpeakingResponseInputMediaKind = {
   video: 'video',
 } as const;
 
+export interface KeystrokeTrace {
+  keystrokeCount: number;
+  eraseCount: number;
+  bulkInsertCount?: number;
+  longestBulkInsertChars?: number;
+  rewriteSegments?: number;
+  durationMs: number;
+}
+
 export interface SpeakingResponseInput {
   promptId: number;
   mode: SpeakingResponseInputMode;
@@ -334,6 +359,8 @@ export interface SpeakingResponseInput {
   mediaKind?: SpeakingResponseInputMediaKind;
   /** @nullable */
   durationMs?: number | null;
+  /** Keystroke trace for written answers; powers diachronic AI-rewording detection */
+  trace?: KeystrokeTrace | null;
 }
 
 export interface SpeakingUnitProgress {

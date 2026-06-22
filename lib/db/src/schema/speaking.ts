@@ -6,6 +6,7 @@ import {
   timestamp,
   jsonb,
   doublePrecision,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const speakingTopicsTable = pgTable("speaking_topics", {
@@ -104,6 +105,11 @@ export const speakingResponsesTable = pgTable("speaking_responses", {
   // the real graded assignment, plus concrete rehearsal drills.
   focusPointers: jsonb("focus_pointers"),
   drills: jsonb("drills"),
+  aiScore: doublePrecision("ai_score"),
+  aiFlagged: boolean("ai_flagged"),
+  diachronicScore: doublePrecision("diachronic_score"),
+  diachronicFlagged: boolean("diachronic_flagged"),
+  detectionRationale: text("detection_rationale"),
   errorMessage: text("error_message"),
   gradedAt: timestamp("graded_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })

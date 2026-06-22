@@ -29,6 +29,7 @@ export * from './completeAssessmentRequest';
 export * from './errorEnvelope';
 export * from './generateLecturesResult';
 export * from './healthStatus';
+export * from './keystrokeTrace';
 export * from './lectureTutorMessage';
 export * from './lectureTutorMessageRole';
 export * from './lectureTutorReply';

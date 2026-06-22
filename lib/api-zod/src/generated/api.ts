@@ -216,6 +216,11 @@ export const StartSpeakingAttemptResponse = zod.object({
   "whatToFix": zod.array(zod.string()).optional(),
   "focusPointers": zod.array(zod.string()).optional(),
   "drills": zod.array(zod.string()).optional(),
+  "aiScore": zod.number().nullish().describe('0..1 probability the written\/spoken answer is AI-generated'),
+  "aiFlagged": zod.boolean().nullish(),
+  "diachronicScore": zod.number().nullish().describe('0..1 probability the answer was reworded from pasted AI text (keystroke pattern; written only)'),
+  "diachronicFlagged": zod.boolean().nullish(),
+  "detectionRationale": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 }))
@@ -302,6 +307,11 @@ export const GetSpeakingAttemptResponse = zod.object({
   "whatToFix": zod.array(zod.string()).optional(),
   "focusPointers": zod.array(zod.string()).optional(),
   "drills": zod.array(zod.string()).optional(),
+  "aiScore": zod.number().nullish().describe('0..1 probability the written\/spoken answer is AI-generated'),
+  "aiFlagged": zod.boolean().nullish(),
+  "diachronicScore": zod.number().nullish().describe('0..1 probability the answer was reworded from pasted AI text (keystroke pattern; written only)'),
+  "diachronicFlagged": zod.boolean().nullish(),
+  "detectionRationale": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 }))
@@ -315,13 +325,25 @@ export const SubmitSpeakingResponseParams = zod.object({
   "attemptId": zod.coerce.number()
 })
 
+export const submitSpeakingResponseBodyTraceOneBulkInsertCountDefault = 0;
+export const submitSpeakingResponseBodyTraceOneLongestBulkInsertCharsDefault = 0;
+export const submitSpeakingResponseBodyTraceOneRewriteSegmentsDefault = 0;
+
 export const SubmitSpeakingResponseBody = zod.object({
   "promptId": zod.number(),
   "mode": zod.enum(['spoken', 'written']),
   "textAnswer": zod.string().nullish(),
   "recordingObjectPath": zod.string().nullish(),
   "mediaKind": zod.union([zod.literal('audio'),zod.literal('video'),zod.literal(null)]).nullish(),
-  "durationMs": zod.number().nullish()
+  "durationMs": zod.number().nullish(),
+  "trace": zod.union([zod.object({
+  "keystrokeCount": zod.number(),
+  "eraseCount": zod.number(),
+  "bulkInsertCount": zod.number().default(submitSpeakingResponseBodyTraceOneBulkInsertCountDefault),
+  "longestBulkInsertChars": zod.number().default(submitSpeakingResponseBodyTraceOneLongestBulkInsertCharsDefault),
+  "rewriteSegments": zod.number().default(submitSpeakingResponseBodyTraceOneRewriteSegmentsDefault),
+  "durationMs": zod.number()
+}),zod.null()]).optional().describe('Keystroke trace for written answers; powers diachronic AI-rewording detection')
 })
 
 export const SubmitSpeakingResponseResponse = zod.object({
@@ -354,6 +376,11 @@ export const SubmitSpeakingResponseResponse = zod.object({
   "whatToFix": zod.array(zod.string()).optional(),
   "focusPointers": zod.array(zod.string()).optional(),
   "drills": zod.array(zod.string()).optional(),
+  "aiScore": zod.number().nullish().describe('0..1 probability the written\/spoken answer is AI-generated'),
+  "aiFlagged": zod.boolean().nullish(),
+  "diachronicScore": zod.number().nullish().describe('0..1 probability the answer was reworded from pasted AI text (keystroke pattern; written only)'),
+  "diachronicFlagged": zod.boolean().nullish(),
+  "detectionRationale": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 })
@@ -420,6 +447,11 @@ export const FinalizeSpeakingAttemptResponse = zod.object({
   "whatToFix": zod.array(zod.string()).optional(),
   "focusPointers": zod.array(zod.string()).optional(),
   "drills": zod.array(zod.string()).optional(),
+  "aiScore": zod.number().nullish().describe('0..1 probability the written\/spoken answer is AI-generated'),
+  "aiFlagged": zod.boolean().nullish(),
+  "diachronicScore": zod.number().nullish().describe('0..1 probability the answer was reworded from pasted AI text (keystroke pattern; written only)'),
+  "diachronicFlagged": zod.boolean().nullish(),
+  "detectionRationale": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "gradedAt": zod.coerce.date().nullish()
 }))

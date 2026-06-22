@@ -129,22 +129,31 @@ export async function llmAiScore(text: string): Promise<number | null> {
   }
 }
 
-export async function detect(
+// Static (text-only) AI-authorship score. Prefers GPTZero, falls back to an
+// LLM scorer, and anchors both with the cheap structural heuristic. Returns the
+// blended score plus whether GPTZero was the source (for rationale phrasing).
+async function staticAiScore(
   text: string,
-  trace: TraceInput,
-): Promise<DetectionOutcome> {
+): Promise<{ score: number; gptzero: number | null }> {
   const heuristic = heuristicAiScore(text);
   const gptzero = await gptzeroAiScore(text);
-  let aiScore: number;
+  let score: number;
   if (gptzero != null) {
     // Real GPTZero result — trust it heavily, anchor with a small heuristic blend.
-    aiScore = 0.85 * gptzero + 0.15 * heuristic;
+    score = 0.85 * gptzero + 0.15 * heuristic;
   } else {
     const llm = await llmAiScore(text);
-    aiScore = llm == null ? heuristic : 0.4 * heuristic + 0.6 * llm;
+    score = llm == null ? heuristic : 0.4 * heuristic + 0.6 * llm;
   }
-  const diaScore = diachronicScore(text, trace);
+  return { score, gptzero };
+}
 
+function composeRationale(
+  aiScore: number,
+  diaScore: number,
+  gptzero: number | null,
+  hasTrace: boolean,
+): string {
   const reasons: string[] = [];
   if (gptzero != null) {
     reasons.push(
@@ -152,18 +161,52 @@ export async function detect(
     );
   }
   if (aiScore >= 0.55) reasons.push("Text patterns match common LLM outputs.");
-  if (diaScore >= 0.55)
+  if (hasTrace && diaScore >= 0.55)
     reasons.push(
       "Keystroke pattern shows large bulk inserts and low typing-to-output ratio, consistent with rewording pasted AI text.",
     );
   if (reasons.length === 0)
-    reasons.push("No strong indicators of AI generation or AI rewording.");
+    reasons.push(
+      hasTrace
+        ? "No strong indicators of AI generation or AI rewording."
+        : "No strong indicators of AI generation in the text.",
+    );
+  return reasons.join(" ");
+}
+
+export async function detect(
+  text: string,
+  trace: TraceInput,
+): Promise<DetectionOutcome> {
+  const { score: aiScore, gptzero } = await staticAiScore(text);
+  const diaScore = diachronicScore(text, trace);
 
   return {
     aiScore: Number(aiScore.toFixed(3)),
     aiFlagged: aiScore >= 0.55,
     diachronicScore: Number(diaScore.toFixed(3)),
     diachronicFlagged: diaScore >= 0.55,
-    rationale: reasons.join(" "),
+    rationale: composeRationale(aiScore, diaScore, gptzero, true),
+  };
+}
+
+// Authorship detection that gracefully handles submissions with no keystroke
+// trace (e.g. spoken transcripts, where there is no typing to analyze). When a
+// trace is provided the diachronic keystroke layer runs; otherwise only the
+// static text classifier contributes.
+export async function detectAuthorship(
+  text: string,
+  trace: TraceInput | null,
+): Promise<DetectionOutcome> {
+  const { score: aiScore, gptzero } = await staticAiScore(text);
+  const hasTrace = trace != null;
+  const diaScore = hasTrace ? diachronicScore(text, trace) : 0;
+
+  return {
+    aiScore: Number(aiScore.toFixed(3)),
+    aiFlagged: aiScore >= 0.55,
+    diachronicScore: Number(diaScore.toFixed(3)),
+    diachronicFlagged: hasTrace && diaScore >= 0.55,
+    rationale: composeRationale(aiScore, diaScore, gptzero, hasTrace),
   };
 }

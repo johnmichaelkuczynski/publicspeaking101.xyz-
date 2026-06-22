@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { KeystrokeTrace } from './keystrokeTrace';
 import type { SpeakingResponseInputMediaKind } from './speakingResponseInputMediaKind';
 import type { SpeakingResponseInputMode } from './speakingResponseInputMode';
 
@@ -19,4 +20,6 @@ export interface SpeakingResponseInput {
   mediaKind?: SpeakingResponseInputMediaKind;
   /** @nullable */
   durationMs?: number | null;
+  /** Keystroke trace for written answers; powers diachronic AI-rewording detection */
+  trace?: KeystrokeTrace | null;
 }
