@@ -472,6 +472,230 @@ export interface SpeakingProfile {
   analytics: SpeakingAnalytics;
 }
 
+export type ResetCourseResultDeleted = {
+  attempts: number;
+  responses: number;
+  activity: number;
+  assessments: number;
+  practiceAssignments: number;
+  recordings: number;
+};
+
+export interface ResetCourseResult {
+  ok: boolean;
+  deleted: ResetCourseResultDeleted;
+}
+
+export interface GenerateLecturesResult {
+  ok: boolean;
+  created: number;
+  lectures?: SpeakingLectureRef[];
+}
+
+export type AssessmentQuestionMode = typeof AssessmentQuestionMode[keyof typeof AssessmentQuestionMode];
+
+
+export const AssessmentQuestionMode = {
+  spoken: 'spoken',
+  written: 'written',
+} as const;
+
+export interface AssessmentQuestion {
+  prompt: string;
+  mode: AssessmentQuestionMode;
+  /** @nullable */
+  hint?: string | null;
+}
+
+export type AssessmentScope = typeof AssessmentScope[keyof typeof AssessmentScope];
+
+
+export const AssessmentScope = {
+  before: 'before',
+  after: 'after',
+  custom: 'custom',
+} as const;
+
+export type AssessmentFormat = typeof AssessmentFormat[keyof typeof AssessmentFormat];
+
+
+export const AssessmentFormat = {
+  spoken: 'spoken',
+  written: 'written',
+  hybrid: 'hybrid',
+  official: 'official',
+} as const;
+
+export type AssessmentStatus = typeof AssessmentStatus[keyof typeof AssessmentStatus];
+
+
+export const AssessmentStatus = {
+  in_progress: 'in_progress',
+  completed: 'completed',
+} as const;
+
+export interface Assessment {
+  id: number;
+  slotKey: string;
+  scope: AssessmentScope;
+  /** @nullable */
+  unitNumber?: number | null;
+  /** @nullable */
+  unitTitle?: string | null;
+  format: AssessmentFormat;
+  isOfficial: boolean;
+  title: string;
+  /** @nullable */
+  request?: string | null;
+  status: AssessmentStatus;
+  questions: AssessmentQuestion[];
+  answers?: (string | null)[];
+  createdAt: string;
+  /** @nullable */
+  completedAt?: string | null;
+}
+
+export type AssessmentFormatStateFormat = typeof AssessmentFormatStateFormat[keyof typeof AssessmentFormatStateFormat];
+
+
+export const AssessmentFormatStateFormat = {
+  spoken: 'spoken',
+  written: 'written',
+  hybrid: 'hybrid',
+  official: 'official',
+} as const;
+
+export type AssessmentFormatStateStatus = typeof AssessmentFormatStateStatus[keyof typeof AssessmentFormatStateStatus];
+
+
+export const AssessmentFormatStateStatus = {
+  not_started: 'not_started',
+  in_progress: 'in_progress',
+  completed: 'completed',
+} as const;
+
+export interface AssessmentFormatState {
+  format: AssessmentFormatStateFormat;
+  isOfficial: boolean;
+  status: AssessmentFormatStateStatus;
+  /** @nullable */
+  lastAssessmentId?: number | null;
+  /** @nullable */
+  completedAt?: string | null;
+}
+
+export type AssessmentSlotScope = typeof AssessmentSlotScope[keyof typeof AssessmentSlotScope];
+
+
+export const AssessmentSlotScope = {
+  before: 'before',
+  after: 'after',
+} as const;
+
+export interface AssessmentSlot {
+  key: string;
+  scope: AssessmentSlotScope;
+  unitNumber: number;
+  /** @nullable */
+  unitTitle?: string | null;
+  title: string;
+  formats: AssessmentFormatState[];
+}
+
+export type AssessmentSummaryFormat = typeof AssessmentSummaryFormat[keyof typeof AssessmentSummaryFormat];
+
+
+export const AssessmentSummaryFormat = {
+  spoken: 'spoken',
+  written: 'written',
+  hybrid: 'hybrid',
+  official: 'official',
+} as const;
+
+export type AssessmentSummaryStatus = typeof AssessmentSummaryStatus[keyof typeof AssessmentSummaryStatus];
+
+
+export const AssessmentSummaryStatus = {
+  in_progress: 'in_progress',
+  completed: 'completed',
+} as const;
+
+export interface AssessmentSummary {
+  id: number;
+  title: string;
+  format: AssessmentSummaryFormat;
+  /** @nullable */
+  request?: string | null;
+  status: AssessmentSummaryStatus;
+  questionCount: number;
+  createdAt: string;
+  /** @nullable */
+  completedAt?: string | null;
+}
+
+export interface AssessmentCredit {
+  completedOfficials: number;
+  requiredOfficials: number;
+  creditPercent: number;
+  creditMax: number;
+}
+
+export interface AssessmentsOverview {
+  slots: AssessmentSlot[];
+  credit: AssessmentCredit;
+  customAssessments: AssessmentSummary[];
+}
+
+export type StartAssessmentRequestScope = typeof StartAssessmentRequestScope[keyof typeof StartAssessmentRequestScope];
+
+
+export const StartAssessmentRequestScope = {
+  before: 'before',
+  after: 'after',
+} as const;
+
+export type StartAssessmentRequestFormat = typeof StartAssessmentRequestFormat[keyof typeof StartAssessmentRequestFormat];
+
+
+export const StartAssessmentRequestFormat = {
+  spoken: 'spoken',
+  written: 'written',
+  hybrid: 'hybrid',
+  official: 'official',
+} as const;
+
+export interface StartAssessmentRequest {
+  slotKey: string;
+  scope: StartAssessmentRequestScope;
+  /** @nullable */
+  unitNumber?: number | null;
+  format: StartAssessmentRequestFormat;
+}
+
+export type BuildAssessmentRequestFormat = typeof BuildAssessmentRequestFormat[keyof typeof BuildAssessmentRequestFormat];
+
+
+export const BuildAssessmentRequestFormat = {
+  spoken: 'spoken',
+  written: 'written',
+  hybrid: 'hybrid',
+} as const;
+
+export interface BuildAssessmentRequest {
+  /** @minLength 1 */
+  request: string;
+  format?: BuildAssessmentRequestFormat;
+}
+
+export interface CompleteAssessmentRequest {
+  answers: (string | null)[];
+}
+
+export interface NarrativeReport {
+  report: string;
+  generatedAt: string;
+}
+
 export interface HealthStatus {
   status: string;
 }

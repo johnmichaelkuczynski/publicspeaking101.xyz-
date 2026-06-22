@@ -553,6 +553,209 @@ export const GetSpeakingProfileResponse = zod.object({
 
 
 /**
+ * @summary Wipe all student progress while preserving course content
+ */
+export const ResetSpeakingCourseResponse = zod.object({
+  "ok": zod.boolean(),
+  "deleted": zod.object({
+  "attempts": zod.number(),
+  "responses": zod.number(),
+  "activity": zod.number(),
+  "assessments": zod.number(),
+  "practiceAssignments": zod.number(),
+  "recordings": zod.number()
+})
+})
+
+
+/**
+ * @summary Author additional medium + long lecture variants for each unit
+ */
+export const GenerateSpeakingLecturesResponse = zod.object({
+  "ok": zod.boolean(),
+  "created": zod.number(),
+  "lectures": zod.array(zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "title": zod.string()
+})).optional()
+})
+
+
+/**
+ * @summary Diagnostic assessment plan, completion credit, and custom builds
+ */
+export const GetSpeakingAssessmentsResponse = zod.object({
+  "slots": zod.array(zod.object({
+  "key": zod.string(),
+  "scope": zod.enum(['before', 'after']),
+  "unitNumber": zod.number(),
+  "unitTitle": zod.string().nullish(),
+  "title": zod.string(),
+  "formats": zod.array(zod.object({
+  "format": zod.enum(['spoken', 'written', 'hybrid', 'official']),
+  "isOfficial": zod.boolean(),
+  "status": zod.enum(['not_started', 'in_progress', 'completed']),
+  "lastAssessmentId": zod.number().nullish(),
+  "completedAt": zod.coerce.date().nullish()
+}))
+})),
+  "credit": zod.object({
+  "completedOfficials": zod.number(),
+  "requiredOfficials": zod.number(),
+  "creditPercent": zod.number(),
+  "creditMax": zod.number()
+}),
+  "customAssessments": zod.array(zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "format": zod.enum(['spoken', 'written', 'hybrid', 'official']),
+  "request": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "questionCount": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullish()
+}))
+})
+
+
+/**
+ * @summary Start (or retake) a diagnostic assessment slot with fresh questions
+ */
+export const StartSpeakingAssessmentBody = zod.object({
+  "slotKey": zod.string(),
+  "scope": zod.enum(['before', 'after']),
+  "unitNumber": zod.number().nullish(),
+  "format": zod.enum(['spoken', 'written', 'hybrid', 'official'])
+})
+
+export const StartSpeakingAssessmentResponse = zod.object({
+  "id": zod.number(),
+  "slotKey": zod.string(),
+  "scope": zod.enum(['before', 'after', 'custom']),
+  "unitNumber": zod.number().nullish(),
+  "unitTitle": zod.string().nullish(),
+  "format": zod.enum(['spoken', 'written', 'hybrid', 'official']),
+  "isOfficial": zod.boolean(),
+  "title": zod.string(),
+  "request": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "questions": zod.array(zod.object({
+  "prompt": zod.string(),
+  "mode": zod.enum(['spoken', 'written']),
+  "hint": zod.string().nullish()
+})),
+  "answers": zod.array(zod.string().nullable()).optional(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullish()
+})
+
+
+/**
+ * @summary Build a custom assessment from a free-text request
+ */
+
+
+
+export const BuildSpeakingAssessmentBody = zod.object({
+  "request": zod.string().min(1),
+  "format": zod.enum(['spoken', 'written', 'hybrid']).optional()
+})
+
+export const BuildSpeakingAssessmentResponse = zod.object({
+  "id": zod.number(),
+  "slotKey": zod.string(),
+  "scope": zod.enum(['before', 'after', 'custom']),
+  "unitNumber": zod.number().nullish(),
+  "unitTitle": zod.string().nullish(),
+  "format": zod.enum(['spoken', 'written', 'hybrid', 'official']),
+  "isOfficial": zod.boolean(),
+  "title": zod.string(),
+  "request": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "questions": zod.array(zod.object({
+  "prompt": zod.string(),
+  "mode": zod.enum(['spoken', 'written']),
+  "hint": zod.string().nullish()
+})),
+  "answers": zod.array(zod.string().nullable()).optional(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullish()
+})
+
+
+/**
+ * @summary Fetch one assessment instance with its questions and answers
+ */
+export const GetSpeakingAssessmentParams = zod.object({
+  "assessmentId": zod.coerce.number()
+})
+
+export const GetSpeakingAssessmentResponse = zod.object({
+  "id": zod.number(),
+  "slotKey": zod.string(),
+  "scope": zod.enum(['before', 'after', 'custom']),
+  "unitNumber": zod.number().nullish(),
+  "unitTitle": zod.string().nullish(),
+  "format": zod.enum(['spoken', 'written', 'hybrid', 'official']),
+  "isOfficial": zod.boolean(),
+  "title": zod.string(),
+  "request": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "questions": zod.array(zod.object({
+  "prompt": zod.string(),
+  "mode": zod.enum(['spoken', 'written']),
+  "hint": zod.string().nullish()
+})),
+  "answers": zod.array(zod.string().nullable()).optional(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullish()
+})
+
+
+/**
+ * @summary Record answers and mark an assessment complete (completion credit)
+ */
+export const CompleteSpeakingAssessmentParams = zod.object({
+  "assessmentId": zod.coerce.number()
+})
+
+export const CompleteSpeakingAssessmentBody = zod.object({
+  "answers": zod.array(zod.string().nullable())
+})
+
+export const CompleteSpeakingAssessmentResponse = zod.object({
+  "id": zod.number(),
+  "slotKey": zod.string(),
+  "scope": zod.enum(['before', 'after', 'custom']),
+  "unitNumber": zod.number().nullish(),
+  "unitTitle": zod.string().nullish(),
+  "format": zod.enum(['spoken', 'written', 'hybrid', 'official']),
+  "isOfficial": zod.boolean(),
+  "title": zod.string(),
+  "request": zod.string().nullish(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "questions": zod.array(zod.object({
+  "prompt": zod.string(),
+  "mode": zod.enum(['spoken', 'written']),
+  "hint": zod.string().nullish()
+})),
+  "answers": zod.array(zod.string().nullable()).optional(),
+  "createdAt": zod.coerce.date(),
+  "completedAt": zod.coerce.date().nullish()
+})
+
+
+/**
+ * @summary Generate an AI written progress report from all logged work
+ */
+export const GenerateNarrativeReportResponse = zod.object({
+  "report": zod.string(),
+  "generatedAt": zod.coerce.date()
+})
+
+
+/**
  * @summary Request a presigned URL for file upload
  */
 

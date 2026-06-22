@@ -2,6 +2,8 @@ import { Router, type IRouter } from "express";
 import healthRouter from "./health";
 import storageRouter from "./storage";
 import speakingRouter from "./speaking";
+import speakingCourseRouter from "./speakingCourse";
+import speakingAssessmentsRouter from "./speakingAssessments";
 import speakingDiagnosticsRouter from "./speakingDiagnostics";
 
 const router: IRouter = Router();
@@ -9,6 +11,8 @@ const router: IRouter = Router();
 router.use(healthRouter);
 router.use(storageRouter);
 router.use(speakingRouter);
+router.use(speakingCourseRouter);
+router.use(speakingAssessmentsRouter);
 router.use(speakingDiagnosticsRouter);
 
 export default router;

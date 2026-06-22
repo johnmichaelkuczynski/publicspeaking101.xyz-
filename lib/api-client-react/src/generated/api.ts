@@ -21,11 +21,18 @@ import type {
 
 import type {
   AskPracticeTutorRequest,
+  Assessment,
+  AssessmentsOverview,
+  BuildAssessmentRequest,
+  CompleteAssessmentRequest,
   ErrorEnvelope,
+  GenerateLecturesResult,
   HealthStatus,
   LectureTutorReply,
   LectureTutorRequest,
   LectureTutorSuggestions,
+  NarrativeReport,
+  ResetCourseResult,
   SpeakingAssignment,
   SpeakingAttempt,
   SpeakingAttemptSummary,
@@ -38,6 +45,7 @@ import type {
   SpeakingResponse,
   SpeakingResponseInput,
   SpeakingUnit,
+  StartAssessmentRequest,
   UploadUrlRequest,
   UploadUrlResponse
 } from './api.schemas';
@@ -1326,6 +1334,584 @@ export function useGetSpeakingProfile<TData = Awaited<ReturnType<typeof getSpeak
 
 
 
+
+export const getResetSpeakingCourseUrl = () => {
+
+
+
+
+  return `/api/speaking/reset`
+}
+
+/**
+ * @summary Wipe all student progress while preserving course content
+ */
+export const resetSpeakingCourse = async ( options?: RequestInit): Promise<ResetCourseResult> => {
+
+  return customFetch<ResetCourseResult>(getResetSpeakingCourseUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getResetSpeakingCourseMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetSpeakingCourse>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof resetSpeakingCourse>>, TError,void, TContext> => {
+
+const mutationKey = ['resetSpeakingCourse'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resetSpeakingCourse>>, void> = () => {
+
+
+          return  resetSpeakingCourse(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResetSpeakingCourseMutationResult = NonNullable<Awaited<ReturnType<typeof resetSpeakingCourse>>>
+
+    export type ResetSpeakingCourseMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Wipe all student progress while preserving course content
+ */
+export const useResetSpeakingCourse = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetSpeakingCourse>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof resetSpeakingCourse>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getResetSpeakingCourseMutationOptions(options));
+    }
+
+export const getGenerateSpeakingLecturesUrl = () => {
+
+
+
+
+  return `/api/speaking/lectures/generate`
+}
+
+/**
+ * @summary Author additional medium + long lecture variants for each unit
+ */
+export const generateSpeakingLectures = async ( options?: RequestInit): Promise<GenerateLecturesResult> => {
+
+  return customFetch<GenerateLecturesResult>(getGenerateSpeakingLecturesUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getGenerateSpeakingLecturesMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateSpeakingLectures>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateSpeakingLectures>>, TError,void, TContext> => {
+
+const mutationKey = ['generateSpeakingLectures'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateSpeakingLectures>>, void> = () => {
+
+
+          return  generateSpeakingLectures(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateSpeakingLecturesMutationResult = NonNullable<Awaited<ReturnType<typeof generateSpeakingLectures>>>
+
+    export type GenerateSpeakingLecturesMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Author additional medium + long lecture variants for each unit
+ */
+export const useGenerateSpeakingLectures = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateSpeakingLectures>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateSpeakingLectures>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getGenerateSpeakingLecturesMutationOptions(options));
+    }
+
+export const getGetSpeakingAssessmentsUrl = () => {
+
+
+
+
+  return `/api/speaking/assessments`
+}
+
+/**
+ * @summary Diagnostic assessment plan, completion credit, and custom builds
+ */
+export const getSpeakingAssessments = async ( options?: RequestInit): Promise<AssessmentsOverview> => {
+
+  return customFetch<AssessmentsOverview>(getGetSpeakingAssessmentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingAssessmentsQueryKey = () => {
+    return [
+    `/api/speaking/assessments`
+    ] as const;
+    }
+
+
+export const getGetSpeakingAssessmentsQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingAssessments>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingAssessmentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingAssessments>>> = ({ signal }) => getSpeakingAssessments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssessments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingAssessmentsQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingAssessments>>>
+export type GetSpeakingAssessmentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Diagnostic assessment plan, completion credit, and custom builds
+ */
+
+export function useGetSpeakingAssessments<TData = Awaited<ReturnType<typeof getSpeakingAssessments>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingAssessmentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getStartSpeakingAssessmentUrl = () => {
+
+
+
+
+  return `/api/speaking/assessments/start`
+}
+
+/**
+ * @summary Start (or retake) a diagnostic assessment slot with fresh questions
+ */
+export const startSpeakingAssessment = async (startAssessmentRequest: StartAssessmentRequest, options?: RequestInit): Promise<Assessment> => {
+
+  return customFetch<Assessment>(getStartSpeakingAssessmentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      startAssessmentRequest,)
+  }
+);}
+
+
+
+
+export const getStartSpeakingAssessmentMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startSpeakingAssessment>>, TError,{data: BodyType<StartAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startSpeakingAssessment>>, TError,{data: BodyType<StartAssessmentRequest>}, TContext> => {
+
+const mutationKey = ['startSpeakingAssessment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startSpeakingAssessment>>, {data: BodyType<StartAssessmentRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  startSpeakingAssessment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartSpeakingAssessmentMutationResult = NonNullable<Awaited<ReturnType<typeof startSpeakingAssessment>>>
+    export type StartSpeakingAssessmentMutationBody = BodyType<StartAssessmentRequest>
+    export type StartSpeakingAssessmentMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Start (or retake) a diagnostic assessment slot with fresh questions
+ */
+export const useStartSpeakingAssessment = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startSpeakingAssessment>>, TError,{data: BodyType<StartAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startSpeakingAssessment>>,
+        TError,
+        {data: BodyType<StartAssessmentRequest>},
+        TContext
+      > => {
+      return useMutation(getStartSpeakingAssessmentMutationOptions(options));
+    }
+
+export const getBuildSpeakingAssessmentUrl = () => {
+
+
+
+
+  return `/api/speaking/assessments/build`
+}
+
+/**
+ * @summary Build a custom assessment from a free-text request
+ */
+export const buildSpeakingAssessment = async (buildAssessmentRequest: BuildAssessmentRequest, options?: RequestInit): Promise<Assessment> => {
+
+  return customFetch<Assessment>(getBuildSpeakingAssessmentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      buildAssessmentRequest,)
+  }
+);}
+
+
+
+
+export const getBuildSpeakingAssessmentMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof buildSpeakingAssessment>>, TError,{data: BodyType<BuildAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof buildSpeakingAssessment>>, TError,{data: BodyType<BuildAssessmentRequest>}, TContext> => {
+
+const mutationKey = ['buildSpeakingAssessment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof buildSpeakingAssessment>>, {data: BodyType<BuildAssessmentRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  buildSpeakingAssessment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BuildSpeakingAssessmentMutationResult = NonNullable<Awaited<ReturnType<typeof buildSpeakingAssessment>>>
+    export type BuildSpeakingAssessmentMutationBody = BodyType<BuildAssessmentRequest>
+    export type BuildSpeakingAssessmentMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Build a custom assessment from a free-text request
+ */
+export const useBuildSpeakingAssessment = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof buildSpeakingAssessment>>, TError,{data: BodyType<BuildAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof buildSpeakingAssessment>>,
+        TError,
+        {data: BodyType<BuildAssessmentRequest>},
+        TContext
+      > => {
+      return useMutation(getBuildSpeakingAssessmentMutationOptions(options));
+    }
+
+export const getGetSpeakingAssessmentUrl = (assessmentId: number,) => {
+
+
+
+
+  return `/api/speaking/assessments/${assessmentId}`
+}
+
+/**
+ * @summary Fetch one assessment instance with its questions and answers
+ */
+export const getSpeakingAssessment = async (assessmentId: number, options?: RequestInit): Promise<Assessment> => {
+
+  return customFetch<Assessment>(getGetSpeakingAssessmentUrl(assessmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingAssessmentQueryKey = (assessmentId: number,) => {
+    return [
+    `/api/speaking/assessments/${assessmentId}`
+    ] as const;
+    }
+
+
+export const getGetSpeakingAssessmentQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingAssessment>>, TError = ErrorType<ErrorEnvelope>>(assessmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssessment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingAssessmentQueryKey(assessmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingAssessment>>> = ({ signal }) => getSpeakingAssessment(assessmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(assessmentId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssessment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingAssessmentQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingAssessment>>>
+export type GetSpeakingAssessmentQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Fetch one assessment instance with its questions and answers
+ */
+
+export function useGetSpeakingAssessment<TData = Awaited<ReturnType<typeof getSpeakingAssessment>>, TError = ErrorType<ErrorEnvelope>>(
+ assessmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingAssessment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingAssessmentQueryOptions(assessmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCompleteSpeakingAssessmentUrl = (assessmentId: number,) => {
+
+
+
+
+  return `/api/speaking/assessments/${assessmentId}/complete`
+}
+
+/**
+ * @summary Record answers and mark an assessment complete (completion credit)
+ */
+export const completeSpeakingAssessment = async (assessmentId: number,
+    completeAssessmentRequest: CompleteAssessmentRequest, options?: RequestInit): Promise<Assessment> => {
+
+  return customFetch<Assessment>(getCompleteSpeakingAssessmentUrl(assessmentId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      completeAssessmentRequest,)
+  }
+);}
+
+
+
+
+export const getCompleteSpeakingAssessmentMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeSpeakingAssessment>>, TError,{assessmentId: number;data: BodyType<CompleteAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeSpeakingAssessment>>, TError,{assessmentId: number;data: BodyType<CompleteAssessmentRequest>}, TContext> => {
+
+const mutationKey = ['completeSpeakingAssessment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeSpeakingAssessment>>, {assessmentId: number;data: BodyType<CompleteAssessmentRequest>}> = (props) => {
+          const {assessmentId,data} = props ?? {};
+
+          return  completeSpeakingAssessment(assessmentId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteSpeakingAssessmentMutationResult = NonNullable<Awaited<ReturnType<typeof completeSpeakingAssessment>>>
+    export type CompleteSpeakingAssessmentMutationBody = BodyType<CompleteAssessmentRequest>
+    export type CompleteSpeakingAssessmentMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Record answers and mark an assessment complete (completion credit)
+ */
+export const useCompleteSpeakingAssessment = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeSpeakingAssessment>>, TError,{assessmentId: number;data: BodyType<CompleteAssessmentRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof completeSpeakingAssessment>>,
+        TError,
+        {assessmentId: number;data: BodyType<CompleteAssessmentRequest>},
+        TContext
+      > => {
+      return useMutation(getCompleteSpeakingAssessmentMutationOptions(options));
+    }
+
+export const getGenerateNarrativeReportUrl = () => {
+
+
+
+
+  return `/api/speaking/narrative-report`
+}
+
+/**
+ * @summary Generate an AI written progress report from all logged work
+ */
+export const generateNarrativeReport = async ( options?: RequestInit): Promise<NarrativeReport> => {
+
+  return customFetch<NarrativeReport>(getGenerateNarrativeReportUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getGenerateNarrativeReportMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateNarrativeReport>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateNarrativeReport>>, TError,void, TContext> => {
+
+const mutationKey = ['generateNarrativeReport'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateNarrativeReport>>, void> = () => {
+
+
+          return  generateNarrativeReport(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateNarrativeReportMutationResult = NonNullable<Awaited<ReturnType<typeof generateNarrativeReport>>>
+
+    export type GenerateNarrativeReportMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Generate an AI written progress report from all logged work
+ */
+export const useGenerateNarrativeReport = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateNarrativeReport>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateNarrativeReport>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getGenerateNarrativeReportMutationOptions(options));
+    }
 
 export const getRequestUploadUrlUrl = () => {
 

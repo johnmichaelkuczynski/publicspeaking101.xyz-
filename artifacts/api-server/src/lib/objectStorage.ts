@@ -128,6 +128,27 @@ export class ObjectStorageService {
     });
   }
 
+  /**
+   * Deletes a stored object by its `/objects/...` entity path. Best-effort:
+   * returns true on delete, false if the object was missing or the path was not
+   * a recognized entity path. Used by course reset to clean up recordings.
+   */
+  async deleteObjectEntity(objectPath: string): Promise<boolean> {
+    if (!objectPath.startsWith("/objects/")) {
+      return false;
+    }
+    try {
+      const file = await this.getObjectEntityFile(objectPath);
+      await file.delete({ ignoreNotFound: true });
+      return true;
+    } catch (err) {
+      if (err instanceof ObjectNotFoundError) {
+        return false;
+      }
+      throw err;
+    }
+  }
+
   async getObjectEntityFile(objectPath: string): Promise<File> {
     if (!objectPath.startsWith("/objects/")) {
       throw new ObjectNotFoundError();
