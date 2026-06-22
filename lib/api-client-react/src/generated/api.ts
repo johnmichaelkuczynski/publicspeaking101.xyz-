@@ -36,6 +36,7 @@ import type {
   SpeakingAssignment,
   SpeakingAttempt,
   SpeakingAttemptSummary,
+  SpeakingFlaggedView,
   SpeakingLecture,
   SpeakingOverview,
   SpeakingPracticeSet,
@@ -1029,6 +1030,83 @@ export function useGetSpeakingProgress<TData = Awaited<ReturnType<typeof getSpea
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSpeakingProgressQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSpeakingFlaggedUrl = () => {
+
+
+
+
+  return `/api/speaking/flagged`
+}
+
+/**
+ * @summary Submissions flagged for AI authorship across all attempts
+ */
+export const getSpeakingFlagged = async ( options?: RequestInit): Promise<SpeakingFlaggedView> => {
+
+  return customFetch<SpeakingFlaggedView>(getGetSpeakingFlaggedUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpeakingFlaggedQueryKey = () => {
+    return [
+    `/api/speaking/flagged`
+    ] as const;
+    }
+
+
+export const getGetSpeakingFlaggedQueryOptions = <TData = Awaited<ReturnType<typeof getSpeakingFlagged>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingFlagged>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpeakingFlaggedQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpeakingFlagged>>> = ({ signal }) => getSpeakingFlagged({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpeakingFlagged>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpeakingFlaggedQueryResult = NonNullable<Awaited<ReturnType<typeof getSpeakingFlagged>>>
+export type GetSpeakingFlaggedQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Submissions flagged for AI authorship across all attempts
+ */
+
+export function useGetSpeakingFlagged<TData = Awaited<ReturnType<typeof getSpeakingFlagged>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpeakingFlagged>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpeakingFlaggedQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

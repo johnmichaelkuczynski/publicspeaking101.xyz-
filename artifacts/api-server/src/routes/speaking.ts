@@ -22,6 +22,7 @@ import {
   SubmitSpeakingResponseResponse,
   FinalizeSpeakingAttemptResponse,
   GetSpeakingProgressResponse,
+  GetSpeakingFlaggedResponse,
   AskLectureTutorBody,
   AskLectureTutorResponse,
   GetLectureTutorSuggestionsResponse,
@@ -1017,6 +1018,79 @@ router.get("/speaking/progress", async (_req, res) => {
       units: unitProgress,
       topics: topicProgress,
       recent,
+    }),
+  );
+});
+
+router.get("/speaking/flagged", async (_req, res) => {
+  // Every response that went through AI-authorship screening has an aiScore.
+  // Those form the screened denominator; the flagged set is anything where the
+  // static AI layer or the keystroke (diachronic) layer tripped.
+  const responses = (await db.select().from(speakingResponsesTable)).filter(
+    (r) => r.aiScore != null,
+  );
+  const flagged = responses
+    .filter((r) => r.aiFlagged === true || r.diachronicFlagged === true)
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+  const attemptIds = [...new Set(flagged.map((r) => r.attemptId))];
+  const promptIds = [...new Set(flagged.map((r) => r.promptId))];
+  const attempts = attemptIds.length
+    ? await db
+        .select()
+        .from(speakingAttemptsTable)
+        .where(inArray(speakingAttemptsTable.id, attemptIds))
+    : [];
+  const prompts = promptIds.length
+    ? await db
+        .select()
+        .from(speakingPromptsTable)
+        .where(inArray(speakingPromptsTable.id, promptIds))
+    : [];
+  const attemptById = new Map(attempts.map((a) => [a.id, a]));
+  const promptById = new Map(prompts.map((p) => [p.id, p]));
+
+  const assignmentIds = [
+    ...new Set(attempts.map((a) => a.assignmentId)),
+  ];
+  const assignments = assignmentIds.length
+    ? await db
+        .select()
+        .from(speakingAssignmentsTable)
+        .where(inArray(speakingAssignmentsTable.id, assignmentIds))
+    : [];
+  const assignmentById = new Map(assignments.map((a) => [a.id, a]));
+
+  const items = flagged.map((r) => {
+    const attempt = attemptById.get(r.attemptId);
+    const assignment = attempt
+      ? assignmentById.get(attempt.assignmentId)
+      : undefined;
+    const prompt = promptById.get(r.promptId);
+    return {
+      responseId: r.id,
+      attemptId: r.attemptId,
+      assignmentId: assignment?.id ?? null,
+      assignmentTitle: assignment?.title ?? "Assignment",
+      assignmentKind: assignment?.kind ?? null,
+      unitNumber: assignment?.unitNumber ?? null,
+      promptText: prompt?.prompt ?? "Prompt",
+      mode: r.mode as "spoken" | "written",
+      isPractice: assignment?.practiceForAssignmentId != null,
+      aiScore: r.aiScore ?? null,
+      aiFlagged: r.aiFlagged ?? null,
+      diachronicScore: r.diachronicScore ?? null,
+      diachronicFlagged: r.diachronicFlagged ?? null,
+      detectionRationale: r.detectionRationale ?? null,
+      createdAt: r.createdAt.toISOString(),
+    };
+  });
+
+  res.json(
+    GetSpeakingFlaggedResponse.parse({
+      flaggedCount: flagged.length,
+      screenedCount: responses.length,
+      items,
     }),
   );
 });

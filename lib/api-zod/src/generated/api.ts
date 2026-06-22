@@ -496,6 +496,32 @@ export const GetSpeakingProgressResponse = zod.object({
 
 
 /**
+ * @summary Submissions flagged for AI authorship across all attempts
+ */
+export const GetSpeakingFlaggedResponse = zod.object({
+  "flaggedCount": zod.number(),
+  "screenedCount": zod.number(),
+  "items": zod.array(zod.object({
+  "responseId": zod.number(),
+  "attemptId": zod.number(),
+  "assignmentId": zod.number().nullish(),
+  "assignmentTitle": zod.string(),
+  "assignmentKind": zod.string().nullish(),
+  "unitNumber": zod.number().nullish(),
+  "promptText": zod.string(),
+  "mode": zod.enum(['spoken', 'written']),
+  "isPractice": zod.boolean(),
+  "aiScore": zod.number().nullish(),
+  "aiFlagged": zod.boolean().nullish(),
+  "diachronicScore": zod.number().nullish(),
+  "diachronicFlagged": zod.boolean().nullish(),
+  "detectionRationale": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+}))
+})
+
+
+/**
  * @summary Generate a fresh, unofficial practice version of an assignment and start an attempt
  */
 export const GenerateSpeakingPracticeParams = zod.object({

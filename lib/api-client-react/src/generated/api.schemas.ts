@@ -410,6 +410,46 @@ export interface SpeakingProgress {
   recent: SpeakingActivityItem[];
 }
 
+export type SpeakingFlaggedItemMode = typeof SpeakingFlaggedItemMode[keyof typeof SpeakingFlaggedItemMode];
+
+
+export const SpeakingFlaggedItemMode = {
+  spoken: 'spoken',
+  written: 'written',
+} as const;
+
+export interface SpeakingFlaggedItem {
+  responseId: number;
+  attemptId: number;
+  /** @nullable */
+  assignmentId?: number | null;
+  assignmentTitle: string;
+  /** @nullable */
+  assignmentKind?: string | null;
+  /** @nullable */
+  unitNumber?: number | null;
+  promptText: string;
+  mode: SpeakingFlaggedItemMode;
+  isPractice: boolean;
+  /** @nullable */
+  aiScore?: number | null;
+  /** @nullable */
+  aiFlagged?: boolean | null;
+  /** @nullable */
+  diachronicScore?: number | null;
+  /** @nullable */
+  diachronicFlagged?: boolean | null;
+  /** @nullable */
+  detectionRationale?: string | null;
+  createdAt: string;
+}
+
+export interface SpeakingFlaggedView {
+  flaggedCount: number;
+  screenedCount: number;
+  items: SpeakingFlaggedItem[];
+}
+
 export interface SpeakingPracticeStart {
   assignmentId: number;
   attemptId: number;

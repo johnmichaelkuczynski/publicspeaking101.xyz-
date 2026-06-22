@@ -7,6 +7,7 @@ import {
   ClipboardList,
   GraduationCap,
   BarChart3,
+  ShieldAlert,
   Sparkles,
   RotateCcw,
   Loader2,
@@ -34,6 +35,7 @@ const NAV = [
   { href: "/assignments", label: "Assignments", icon: ClipboardList },
   { href: "/assessments", label: "Assessments", icon: GraduationCap },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/integrity", label: "Integrity", icon: ShieldAlert },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {

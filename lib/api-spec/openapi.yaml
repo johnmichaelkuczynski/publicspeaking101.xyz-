@@ -327,6 +327,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/SpeakingProgress"
 
+  /speaking/flagged:
+    get:
+      operationId: getSpeakingFlagged
+      tags: [ speaking ]
+      summary: Submissions flagged for AI authorship across all attempts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeakingFlaggedView"
+
   /speaking/assignments/{assignmentId}/practice:
     post:
       operationId: generateSpeakingPractice
@@ -1134,6 +1147,48 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SpeakingActivityItem"
+
+    SpeakingFlaggedItem:
+      type: object
+      required:
+        [
+          responseId,
+          attemptId,
+          assignmentTitle,
+          mode,
+          promptText,
+          isPractice,
+          createdAt
+        ]
+      properties:
+        responseId: { type: integer }
+        attemptId: { type: integer }
+        assignmentId: { type: [ "integer", "null" ] }
+        assignmentTitle: { type: string }
+        assignmentKind: { type: [ "string", "null" ] }
+        unitNumber: { type: [ "integer", "null" ] }
+        promptText: { type: string }
+        mode:
+          type: string
+          enum: [ spoken, written ]
+        isPractice: { type: boolean }
+        aiScore: { type: [ "number", "null" ] }
+        aiFlagged: { type: [ "boolean", "null" ] }
+        diachronicScore: { type: [ "number", "null" ] }
+        diachronicFlagged: { type: [ "boolean", "null" ] }
+        detectionRationale: { type: [ "string", "null" ] }
+        createdAt: { type: string, format: date-time }
+
+    SpeakingFlaggedView:
+      type: object
+      required: [ flaggedCount, screenedCount, items ]
+      properties:
+        flaggedCount: { type: integer }
+        screenedCount: { type: integer }
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpeakingFlaggedItem"
 
     SpeakingPracticeStart:
       type: object

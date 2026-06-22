@@ -10,6 +10,7 @@ import Assignments from "@/pages/Assignments";
 import Assessments from "@/pages/Assessments";
 import AssessmentRunner from "@/pages/AssessmentRunner";
 import Analytics from "@/pages/Analytics";
+import Integrity from "@/pages/Integrity";
 import Diagnostics from "@/pages/Diagnostics";
 import UnitView from "@/pages/UnitView";
 import LectureView from "@/pages/LectureView";
@@ -28,6 +29,7 @@ function Router() {
         <Route path="/assessments" component={Assessments} />
         <Route path="/assessments/:assessmentId" component={AssessmentRunner} />
         <Route path="/analytics" component={Analytics} />
+        <Route path="/integrity" component={Integrity} />
         <Route path="/diagnostics" component={Diagnostics} />
         <Route path="/units/:unitNumber" component={UnitView} />
         <Route path="/lectures/:lectureId" component={LectureView} />
