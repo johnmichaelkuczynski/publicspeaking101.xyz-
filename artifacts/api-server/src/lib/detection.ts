@@ -9,6 +9,18 @@ export interface TraceInput {
   durationMs: number;
 }
 
+// Behavioral signal for spoken responses. Mirrors the relevant subset of the
+// speech pipeline's SpeakingMetrics so the detector stays decoupled from how
+// those metrics are derived.
+export interface SpokenTraceInput {
+  wordCount: number;
+  fillerRate: number; // fillers per 100 words
+  pauseCount: number;
+  wordsPerMinute: number;
+  fluencyScore: number;
+  vocalVarietyScore: number;
+}
+
 export interface DetectionOutcome {
   aiScore: number;
   aiFlagged: boolean;
@@ -42,6 +54,35 @@ export function diachronicScore(text: string, trace: TraceInput): number {
   if (charsPerSecond > 12 && len > 30) score += 0.2;
   // Rewrite-on-top-of-paste pattern: at least one big bulk insert AND edits.
   if (longest > 30 && (trace.rewriteSegments ?? 0) >= 2) score += 0.15;
+
+  return Math.max(0, Math.min(1, score));
+}
+
+// Spoken behavioral detection: the analogue of the keystroke diachronic layer
+// for spoken responses. A student reading an AI-written script aloud (e.g. off a
+// teleprompter) delivers unnaturally fluent speech — almost no filler words,
+// very few pauses, and a flat, metronomic cadence — even on a long first-take
+// answer where a genuine extemporaneous speaker would stumble and hesitate.
+// Returns 0 for short answers, where natural fluency is plausible.
+export function spokenBehavioralScore(m: SpokenTraceInput): number {
+  // Only meaningful on a substantial answer; we never flag a short answer on
+  // delivery alone.
+  if (m.wordCount < 60) return 0;
+
+  const pausesPer100 = m.pauseCount / (m.wordCount / 100);
+
+  let score = 0;
+  // Almost no filler words across a long answer is the strongest tell.
+  if (m.fillerRate < 0.5) score += 0.35;
+  else if (m.fillerRate < 1.5) score += 0.15;
+  // Very few pauses relative to length — read speech rarely hesitates.
+  if (pausesPer100 < 1) score += 0.3;
+  else if (pausesPer100 < 2) score += 0.12;
+  // Flat, metronomic cadence (low pace variation), typical of reading aloud.
+  if (m.vocalVarietyScore < 20) score += 0.25;
+  else if (m.vocalVarietyScore < 35) score += 0.1;
+  // Reinforce when overall fluency is near-perfect on an extended take.
+  if (m.fluencyScore >= 95 && m.wordCount >= 120) score += 0.1;
 
   return Math.max(0, Math.min(1, score));
 }
@@ -153,6 +194,7 @@ function composeRationale(
   diaScore: number,
   gptzero: number | null,
   hasTrace: boolean,
+  hasSpoken = false,
 ): string {
   const reasons: string[] = [];
   if (gptzero != null) {
@@ -165,11 +207,17 @@ function composeRationale(
     reasons.push(
       "Keystroke pattern shows large bulk inserts and low typing-to-output ratio, consistent with rewording pasted AI text.",
     );
+  if (hasSpoken && diaScore >= 0.55)
+    reasons.push(
+      "Delivery is unnaturally fluent — almost no filler words, very few pauses, and a flat, steady cadence across a long first-take answer — consistent with reading an AI-written script aloud.",
+    );
   if (reasons.length === 0)
     reasons.push(
       hasTrace
         ? "No strong indicators of AI generation or AI rewording."
-        : "No strong indicators of AI generation in the text.",
+        : hasSpoken
+          ? "No strong indicators of AI generation or scripted delivery."
+          : "No strong indicators of AI generation in the text.",
     );
   return reasons.join(" ");
 }
@@ -197,16 +245,25 @@ export async function detect(
 export async function detectAuthorship(
   text: string,
   trace: TraceInput | null,
+  spokenMetrics?: SpokenTraceInput | null,
 ): Promise<DetectionOutcome> {
   const { score: aiScore, gptzero } = await staticAiScore(text);
   const hasTrace = trace != null;
-  const diaScore = hasTrace ? diachronicScore(text, trace) : 0;
+  // Spoken responses carry no keystroke trace; their behavioral layer is
+  // derived from delivery metrics instead. The two layers are mutually
+  // exclusive — a written answer has a keystroke trace, a spoken one has metrics.
+  const hasSpoken = !hasTrace && spokenMetrics != null;
+  const diaScore = hasTrace
+    ? diachronicScore(text, trace)
+    : hasSpoken
+      ? spokenBehavioralScore(spokenMetrics)
+      : 0;
 
   return {
     aiScore: Number(aiScore.toFixed(3)),
     aiFlagged: aiScore >= 0.55,
     diachronicScore: Number(diaScore.toFixed(3)),
-    diachronicFlagged: hasTrace && diaScore >= 0.55,
-    rationale: composeRationale(aiScore, diaScore, gptzero, hasTrace),
+    diachronicFlagged: (hasTrace || hasSpoken) && diaScore >= 0.55,
+    rationale: composeRationale(aiScore, diaScore, gptzero, hasTrace, hasSpoken),
   };
 }

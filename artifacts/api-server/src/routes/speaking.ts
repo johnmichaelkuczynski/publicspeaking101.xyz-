@@ -46,7 +46,12 @@ import { getSpeakingProfile, buildProfileContext } from "../lib/profile";
 import { existingPromptTexts, practiceAssignmentIdSet } from "../lib/analytics";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { getStudioUserId } from "../lib/studioSession";
-import { detectAuthorship, type TraceInput } from "../lib/detection";
+import {
+  detectAuthorship,
+  type TraceInput,
+  type SpokenTraceInput,
+} from "../lib/detection";
+import type { SpeechMetrics } from "../lib/speech";
 
 const objectStorageService = new ObjectStorageService();
 
@@ -665,6 +670,7 @@ router.post(
     try {
       let transcript: string | null = null;
       let metrics: Record<string, number> | null = null;
+      let speechMetrics: SpeechMetrics | null = null;
 
       if (body.mode === "spoken") {
         // Mark the freshly uploaded recording as privately owned by this
@@ -685,6 +691,7 @@ router.post(
 
         const result = await transcribeRecording(body.recordingObjectPath!);
         transcript = result.transcript;
+        speechMetrics = result.metrics;
         metrics = result.metrics as unknown as Record<string, number>;
       }
 
@@ -708,9 +715,11 @@ router.post(
       });
 
       // Screen the answer for AI authorship. Written answers carry a keystroke
-      // trace (enables diachronic detection); spoken transcripts have none, so
-      // only the static text classifier runs. Detection must never block
-      // grading — any failure degrades to null detection fields.
+      // trace (enables the diachronic keystroke layer); spoken responses carry
+      // no keystrokes but expose delivery metrics, which power a spoken
+      // behavioral layer that catches a student reading an AI-written script
+      // aloud. Detection must never block grading — any failure degrades to null
+      // detection fields.
       let detection: Awaited<ReturnType<typeof detectAuthorship>> | null = null;
       try {
         const trace: TraceInput | null =
@@ -724,7 +733,18 @@ router.post(
                 durationMs: body.trace.durationMs,
               }
             : null;
-        detection = await detectAuthorship(answerText, trace);
+        const spokenMetrics: SpokenTraceInput | null =
+          body.mode === "spoken" && speechMetrics
+            ? {
+                wordCount: speechMetrics.wordCount,
+                fillerRate: speechMetrics.fillerRate,
+                pauseCount: speechMetrics.pauseCount,
+                wordsPerMinute: speechMetrics.wordsPerMinute,
+                fluencyScore: speechMetrics.fluencyScore,
+                vocalVarietyScore: speechMetrics.vocalVarietyScore,
+              }
+            : null;
+        detection = await detectAuthorship(answerText, trace, spokenMetrics);
       } catch (detErr) {
         req.log.error(
           { err: detErr },
