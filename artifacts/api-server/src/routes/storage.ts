@@ -6,6 +6,7 @@ import {
 } from "@workspace/api-zod";
 import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
 import { ObjectPermission } from "../lib/objectAcl";
+import { getStudioUserId } from "../lib/studioSession";
 
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
@@ -26,6 +27,10 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
 
   try {
     const { name, size, contentType } = parsed.data;
+
+    // Establish the studio session early so the uploader's identity is known
+    // before they later submit (where it becomes the recording's ACL owner).
+    getStudioUserId(req, res);
 
     const uploadURL = await objectStorageService.getObjectEntityUploadURL();
     const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
@@ -91,20 +96,22 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
     const objectPath = `/objects/${wildcardPath}`;
     const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
 
-    // --- Protected route example (uncomment when using replit-auth) ---
-    // if (!req.isAuthenticated()) {
-    //   res.status(401).json({ error: "Unauthorized" });
-    //   return;
-    // }
-    // const canAccess = await objectStorageService.canAccessObjectEntity({
-    //   userId: req.user.id,
-    //   objectFile,
-    //   requestedPermission: ObjectPermission.READ,
-    // });
-    // if (!canAccess) {
-    //   res.status(403).json({ error: "Forbidden" });
-    //   return;
-    // }
+    // Private recordings are only served to their owner. Identity is the
+    // studio-session id carried in an httpOnly cookie (see studioSession.ts).
+    // Public objects (visibility "public") are readable by anyone; objects with
+    // no ACL policy are treated as private and denied. This keeps single-user
+    // dev frictionless (same browser owns its uploads) while preventing another
+    // student — or an unauthenticated path-guesser — from fetching a recording.
+    const studioUserId = getStudioUserId(req, res);
+    const canAccess = await objectStorageService.canAccessObjectEntity({
+      userId: studioUserId,
+      objectFile,
+      requestedPermission: ObjectPermission.READ,
+    });
+    if (!canAccess) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
 
     const response = await objectStorageService.downloadObject(objectFile);
 

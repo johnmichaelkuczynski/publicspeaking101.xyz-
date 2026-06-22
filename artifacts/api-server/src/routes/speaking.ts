@@ -43,6 +43,10 @@ import {
 import { generatePracticePrompts } from "../lib/practice";
 import { getSpeakingProfile, buildProfileContext } from "../lib/profile";
 import { existingPromptTexts, practiceAssignmentIdSet } from "../lib/analytics";
+import { ObjectStorageService } from "../lib/objectStorage";
+import { getStudioUserId } from "../lib/studioSession";
+
+const objectStorageService = new ObjectStorageService();
 
 type ActivityType =
   | "practice_generated"
@@ -656,6 +660,22 @@ router.post(
       let metrics: Record<string, number> | null = null;
 
       if (body.mode === "spoken") {
+        // Mark the freshly uploaded recording as privately owned by this
+        // studio session so the /storage/objects route only serves it back to
+        // the same student. Best-effort: a failure here must not block grading,
+        // but it does mean the recording will be denied on playback (fail-closed).
+        try {
+          await objectStorageService.trySetObjectEntityAclPolicy(
+            body.recordingObjectPath!,
+            { owner: getStudioUserId(req, res), visibility: "private" },
+          );
+        } catch (aclError) {
+          req.log.warn(
+            { err: aclError, recordingObjectPath: body.recordingObjectPath },
+            "Failed to set recording ACL policy",
+          );
+        }
+
         const result = await transcribeRecording(body.recordingObjectPath!);
         transcript = result.transcript;
         metrics = result.metrics as unknown as Record<string, number>;
